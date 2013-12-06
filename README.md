@@ -1,7 +1,7 @@
 inkscope
 ========
 
-Inkscope is  a ceph admin  interface. It  rely on a nosql solution. We use  mongodb to store real time metrics and history metric but not on the same collection. Each collection is ruled by a TTL.
+Inkscope is  a ceph admin  interface. It  relies on a nosql solution. We use  mongodb to store real time metrics and history metrics but not on the same collection. Each collection is ruled by a TTL.
 
 
 diagrams contains diagram of inkscope architecture
