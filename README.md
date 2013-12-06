@@ -5,9 +5,13 @@ Inkscope is  a ceph admin  interface. It  rely on a nosql solution. We use  mong
 
 
 diagrams contains diagram of inkscope architecture
+
 inkscopeAdm :  for management  of a ceph cluster
+
 inkscopeCollect : for collect information about the cluster
+
 inkscopeD3js : for d3js representation 
+
 inkscopeMonitor : for  supervision of  ceph
 
 Collections: to do
