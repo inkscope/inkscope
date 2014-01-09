@@ -1,0 +1,101 @@
+<!doctype html>
+<html ng-app="showCrushMapApp">
+<head>
+    <meta charset="utf-8"/>
+    <script src="scripts/angular/angular.min.js"></script>
+    <script src="scripts/angular-misc/component.js"></script>
+    <script src="scripts/d3/common.js" charset="utf-8"></script>
+    <script src="scripts/d3/colorbrewer.js" charset="utf-8"></script>
+    <script src="scripts/d3/d3.v3.min.js"></script><script src="scripts/showCrushMapApp.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/testAdmin.css"/>
+    <title>Ceph Crush map</title>
+</head>
+<body>
+<h1><a href="index.html"><img src="img/ceph.jpg" width="160" border="=0"></a> crush map</h1>
+<br/>
+
+<div ng-controller="CrushMapCtrl" style="margin:0 20px">
+    <tabs>
+        <pane title="Topology">
+            <div id="tooltip"></div>
+            <div id="put_the_graph_there" style="width: 100%;height: 600px;border:solid 1px #ffffff;">
+                <my-topology values="buckets"></my-topology>
+            </div>
+            <!--script src="scripts/crushMapTopology.js"></script>
+            <!--pre>{{buckets}}</pre-->
+        </pane>
+        <pane title="Types">
+            <table class="table table-condensed table-hover" style="width:300px">
+                <thead>
+                <tr>
+                    <th>type_id</th>
+                    <th>name</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="type in types | filter:search ">
+                    <td>{{type.type_id}}</td>
+                    <td>{{type.name}}</td>
+                </tr>
+                </tbody>
+            </table>
+
+        </pane>
+
+        <pane title="Devices">
+            <table class="table table-condensed table-hover" style="width:300px">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>name</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="device in devices | filter:search ">
+                    <td>{{device.id}}</td>
+                    <td>{{device.name}}</td>
+                </tr>
+                </tbody>
+            </table>
+
+        </pane>
+        <pane title="Rules">
+            <table class="table table-condensed table-hover" style="width:100%">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>name</th>
+                    <th>type</th>
+                    <th>ruleset</th>
+                    <th>min_size</th>
+                    <th>max_size</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="rule in rules | filter:search ">
+                    <td>{{rule.rule_id}}</td>
+                    <td>{{rule.rule_name}}</td>
+                    <td>{{rule.type}} ({{getType(rule.type)}})</td>
+                    <td>{{rule.ruleset}}</td>
+                    <td>{{rule.min_size}}</td>
+                    <td>{{rule.max_size}}</td>
+                </tr>
+                </tbody>
+            </table>
+
+        </pane>
+        <pane title="Tunables">
+            <table class="table table-condensed " style="width:300px">
+                <tbody>
+                <tr ng-repeat="(key, value) in tunables">
+                    <td> {{key}}</td>
+                    <td> {{ value }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </pane>
+    </tabs>
+</div>
+</body>
+</html>

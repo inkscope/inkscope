@@ -1,0 +1,50 @@
+<!doctype html>
+<html ng-app="PoolUsage">
+<head>
+    <meta charset=utf-8 />
+    <script src="scripts/angular/angular.min.js"></script>
+    <script src="scripts/angular-misc/D3Directives.js"></script>
+    <script src="scripts/poolUsageApp.js"></script>
+    <script src="scripts/d3/d3.v3.min.js"></script>
+    <script src="scripts/d3/common.js"></script>
+    <script src="scripts/d3/colorbrewer.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/testAdmin.css">
+    <title>Ceph usage</title>
+</head>
+<body  ng-controller="PoolUsageCtrl">
+
+
+<h1><a href="index.html"><img src="img/ceph.jpg" width="160" border="=0"></a> usage</h1>
+
+<div id="graph">
+    <h3>Total space usage</h3>
+    <ad-gauge value="percentUsed" colormode="desc" width="300"></ad-gauge>
+    <div class="gaugeLegend">
+        {{stats.total_used | bytes:kB}} used <br>on {{stats.total_space | bytes:kB}}
+    </div>
+</div>
+
+<div id="list">
+    <table  class="table table-condensed table-hover">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Pool</th>
+            <th>kB used</th>
+            <th>Objects</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="pool in pools ">
+            <td>{{pool.id}}</td>
+            <td>{{pool.name}}</td>
+            <td>{{pool.stats.kb_used}}</td>
+            <td>{{pool.stats.objects}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

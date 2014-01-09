@@ -1,0 +1,36 @@
+.tooltips {
+    position: relative;
+    display: inline;
+}
+.tooltips span {
+    font: 12px Arial, Helvetica, sans-serif;
+    position: absolute;
+    width:160px;
+    color: black;
+    text-align: left;
+    background: lightgoldenrodyellow;
+    /*height: 45px;*/
+    visibility: hidden;
+    border-radius: 5px;
+    padding: 5px;
+    box-shadow: 1px 1px 2px ;
+}
+.tooltips span:after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -8px;
+    width: 0; height: 0;
+    border-top: 8px solid #FDFFD1;
+    border-right: 8px solid transparent;
+    border-left: 8px solid transparent;
+}
+:hover.tooltips span {
+    visibility: visible;
+    opacity: 0.9;
+    bottom: 30px;
+    left: 50%;
+    margin-left: -76px;
+    z-index: 999;
+}

@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html  ng-app="StatusApp">
+<head>
+	<meta charset=utf-8 />
+	<title>Ceph status</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/testAdmin.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="css/nv.d3.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/tooltip.css" />
+    <script src="scripts/angular/angular.min.js"></script>
+    <script src="scripts/angular-misc/D3Directives.js"></script>
+    <script src="scripts/statusApp.js"></script>
+    <script src="scripts/d3/common.js"></script>
+    <script src="scripts/d3/colorbrewer.js"></script>
+    <script type="text/javascript" src="scripts/d3/d3.v3.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="scripts/d3/nv.d3.js" charset="utf-8"></script>
+	<!--[if IE]>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+</head>
+<body ng-controller="statusCtrl">
+<h1><a href="index.html"><img src="img/ceph.jpg" width="160" border="=0"></a> status</h1>
+
+<div id="general_status">
+    <h2>Cluster health at {{date | date:'HH:mm:ss'}}</h2>
+    <div class="health_summary health_status_{{health.severity}}">{{health.summary}}</div>
+</div>
+
+<div id="mon_status">
+    <h2>Mon status</h2>
+    <div ng-repeat="mon in mons">
+        <div style="align-content: center">
+        <div class="health_status_{{mon.health}} quorum_{{mon.quorum}} tooltips">
+            {{mon.name}}
+            <span>Mon {{mon.name}}<br>
+            health_detail: {{mon.health_detail}}<br>
+            quorum: {{mon.quorum}}<br>
+            rank: {{mon.rank}}<br>
+            addr: {{mon.addr}}<br>
+            last_updated: {{mon.last_updated}}<br>
+            avail_percent: {{mon.avail_percent}}%<br>
+            kb_total: {{mon.kb_total | bytes:kB}}<br>
+            kb_avail: {{mon.kb_avail | bytes:kB}}<br>
+            kb_used: {{mon.kb_used | bytes:kB}}</span>
+        </div><br style="clear:both">{{mon.health_detail}}</div>
+    </div>
+</div>
+
+<div id="pg_status">
+    <h2>Pg status</h2>
+    <div id="pg_status_graph">
+        <ad-pie id="pie01" value="pgsByState" width="350"  labelfield="state_name" valuefield="count"></ad-pie>
+    </div>
+    <div id="pg_status_details">
+        <h2>{{pgmap.num_pgs}} PG
+        <br>
+        <!--br>Capacity<br>{{pgmap.bytes_used | bytes:MB}} used
+        <br>{{pgmap.bytes_avail | bytes:MB}} avail. -->
+        {{pgmap.bytes_total | bytes:MB}} total
+            <br><br></h2>
+        <ad-gauge value="percentUsed" colormode="desc" width="280"></ad-gauge>
+        <div class="gaugeLegend">
+            {{pgmap.bytes_used | bytes:kB}} used <br>on {{pgmap.bytes_total | bytes:kB}}
+        </div>
+    </div>
+</div>
+
+<div id="osd_status">
+    <h2>Osd status</h2>
+    <div id="osd_status_details">
+        <div class="health_status_HEALTH_OK osd">{{osdsUp}} up</div>
+        <div class={{osdClass("WARN",osdsOut)}} >{{osdsOut}} out</div>
+        <div class={{osdClass("ERR",osdsDown)}} >{{osdsDown}} down</div>
+    </div>
+
+
+</div>
+
+</body>
+</html>

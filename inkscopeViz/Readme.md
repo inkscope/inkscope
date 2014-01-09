@@ -1,4 +1,5 @@
-Visualize dynamically relations between ceph cluster objects.
+Visualize dynamically ceph cluster status and relations between ceph cluster objects.
+-------------------------------------------------------------------------------------
 
  It's based on **AngularJS** framework and **D3JS** graphic library
  The installation uses an **Apache** server to solve cross-domain call issues.
@@ -16,7 +17,7 @@ Installation
 3. Choose a tcp port for inkScopeViz
     *in the following stages, we have chosen 8080*
 
-4. Modify Apache conf file /etc/Apache2/port.conf to add the following line
+4. Modify Apache conf file /etc/apache2/port.conf to add the following line
 
         Listen 8080
 
