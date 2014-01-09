@@ -27,10 +27,10 @@
 </div>
 
 <div id="mon_status">
-    <h2>Mon status</h2>
-    <div ng-repeat="mon in mons">
+    <h2>Monitors status</h2>
+    <div ng-repeat="mon in mons" class=" tooltips health_status_{{mon.health}} quorum_{{mon.quorum}}">
         <div style="align-content: center">
-        <div class="health_status_{{mon.health}} quorum_{{mon.quorum}} tooltips">
+        <div>
             {{mon.name}}
             <span>Mon {{mon.name}}<br>
             health_detail: {{mon.health_detail}}<br>
@@ -47,7 +47,7 @@
 </div>
 
 <div id="pg_status">
-    <h2>Pg status</h2>
+    <h2>Placement groups status</h2>
     <div id="pg_status_graph">
         <ad-pie id="pie01" value="pgsByState" width="350"  labelfield="state_name" valuefield="count"></ad-pie>
     </div>
