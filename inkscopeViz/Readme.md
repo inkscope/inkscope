@@ -22,8 +22,7 @@ Installation
 
 5. Create a virtual host named **inkScopeViz**
 in the folder */etc/apache2/sites-available* ,
-create a file like *inkScopeViz.conf* with this content :
-
+create a file *inkScopeViz.conf* with this content:
 
     <VirtualHost *:8080>
 	    ServerName  localhost
@@ -61,4 +60,5 @@ Be sure to modify *{inkScopeViz_folder}* and *{ceph_rest_api_url}* with the appr
 6. Enable InkScopeViz virtual host:
 
 `sudo a2ensite inkScopeViz`
+
 you don't have to restart Apache
