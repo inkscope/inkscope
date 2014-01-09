@@ -1,4 +1,4 @@
- visualize dynamically relations between ceph cluster objects.
+Visualize dynamically relations between ceph cluster objects.
 
  It's based on **AngularJS** framework and **D3JS** graphic library
  The installation uses an **Apache** server to solve cross-domain call issues.
@@ -18,7 +18,7 @@ Installation
 
 4. Modify Apache conf file /etc/Apache2/port.conf to add the following line
 
-`Listen 8080`
+    Listen 8080
 
 5. Create a virtual host named **inkScopeViz**
 in the folder */etc/apache2/sites-available* ,
@@ -59,6 +59,6 @@ Be sure to modify *{inkScopeViz_folder}* and *{ceph_rest_api_url}* with the appr
 
 6. Enable InkScopeViz virtual host:
 
-`sudo a2ensite inkScopeViz`
+    sudo a2ensite inkScopeViz
 
 you don't have to restart Apache
