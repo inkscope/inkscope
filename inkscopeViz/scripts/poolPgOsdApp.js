@@ -84,8 +84,8 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
                             network.links.push(link);
 
                             // links from pg to acting osds
-                            for (var j=0; j< pg.acting.length; j++){
-                                var osd  = pg.acting[j];
+                            for (var j = 0; j < pg.acting.length; j++) {
+                                var osd = pg.acting[j];
                                 var link = {};
                                 link.source = currentNodeUid;
                                 link.target = osdTab[osd].index;
@@ -103,13 +103,13 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
 
                         }
                         //trace(network,"#chart1");
-                        trace(network2,"#chart2");
+                        trace(network2, "#chart2");
 
                     });
             });
     };
 
-    function trace(network , id) {
+    function trace(network, id) {
         var margin = {top: 1, right: 1, bottom: 6, left: 1},
             width = 1800 - margin.left - margin.right,
             height = 950 - margin.top - margin.bottom;
@@ -146,7 +146,9 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
             .style("stroke-width", function (d) {
                 return Math.max(1, d.dy);
             })
-            .style("stroke", function (d) { return color4states(d.states);})
+            .style("stroke", function (d) {
+                return color4states(d.states);
+            })
             .sort(function (a, b) {
                 return b.dy - a.dy;
             });
@@ -174,13 +176,13 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
 
         node.append("rect")
             .attr("height", function (d) {
-                if (d.dy<5)return 5;
+                if (d.dy < 5)return 5;
                 return d.dy;
             })
             .attr("width", sankey.nodeWidth())
             .style("fill", function (d) {
                 if (!d.states) return  d.color = color(d.name.replace(/ .*/, ""));
-                if (d.states.indexOf("up")<0) return "red";
+                if (d.states.indexOf("up") < 0) return "red";
                 else return "green";
                 ;
             })
@@ -190,9 +192,11 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
             .append("title")
             .text(function (d) {
                 if (d.type == "osd")
-                return d.name + "\n" + format(d.value);
+                    return d.name + "\n" + format(d.value);
+                else if (d.type == "pool")
+                    return d.name + "\n";
                 else
-                return d.name + "\n" + d.value +" osds";
+                    return d.name + "\n";
             });
 
         node.append("text")
@@ -206,8 +210,10 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
             .text(function (d) {
                 if (d.type == "osd")
                     return d.name + "\n" + format(d.value);
+                else if (d.type == "pool")
+                    return d.name + "\n";
                 else
-                    return d.name + "\n" + d.value +" osds";
+                    return d.name + "\n";
             })
             .filter(function (d) {
                 return d.x < width / 2;
