@@ -5,6 +5,7 @@
  At this stage of development, data are taken directly via Ceph rest API calls.
  It will take further data from a MongoDb database.
 
- #Installation
+Installation
+============
 
 (to be written)
