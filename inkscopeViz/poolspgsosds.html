@@ -1,12 +1,12 @@
 ﻿<!DOCTYPE html>
-<html  ng-app="PoolPgOsdApp">
+<html ng-app="PoolPgOsdApp">
 <head>
-	<meta charset=utf-8 />
-	<title>Pools / PGs / OSDs</title>
-    <!--META HTTP-EQUIV="Refresh" CONTENT="5"-->
-    <link rel="stylesheet" type="text/css" media="screen" href="css/testAdmin.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.min.css" />
-    <link rel="stylesheet" href="css/tooltip.css" />
+    <meta charset=utf-8/>
+    <title>Pools / PGs / OSDs</title>
+    <META HTTP-EQUIV="Refresh" CONTENT="5">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/testAdmin.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="css/tooltip.css"/>
     <script src="scripts/angular/angular.min.js"></script>
     <script src="scripts/poolPgOsdApp.js"></script>
     <script src="scripts/d3/d3.v3.min.js"></script>
@@ -33,24 +33,28 @@
         .link:hover {
             stroke-opacity: .5;
         }
-        #chart1, #chart2{
-            width:1800px;
-            margin:10px auto ;
+
+        #chart1, #chart2 {
+            width: 1800px;
+            margin: 10px auto;
         }
 
-        #chart1{display:none}
+        #chart1 {
+            display: none
+        }
 
     </style>
     <!--[if IE]>
-		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-	<![endif]-->
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
 </head>
 <body ng-controller="poolPgOsdCtrl">
 <h1 class="pageTitle"> Pools / PGs / OSDs</h1>
 
 <p id="chart1"><br><br>
+
 <p id="chart2">
-    <em>no automatic refresh</em>
+    <!--em>no automatic refresh</em-->
 </p>
 </body>
 </html>

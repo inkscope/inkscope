@@ -23,9 +23,11 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
 
                 $http({method: "get", url: apiURL + "osd/dump.json"})
                     .success(function (data, status) {
+                        /*
                         var network = {};
                         network.nodes = [];
                         network.links = [];
+                         */
 
                         var network2 = {};
                         network2.nodes = [];
@@ -39,9 +41,11 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
                             poolTab[pool.pool] = {};
                             poolTab[pool.pool].name = pool.pool_name;
                             poolTab[pool.pool].index = nodeUid;
+                            /*
                             network.nodes[nodeUid] = {};
                             network.nodes[nodeUid].name = pool.pool_name;
                             network.nodes[nodeUid].type = "pool";
+                            */
                             network2.nodes[nodeUid] = {};
                             network2.nodes[nodeUid].name = pool.pool_name;
                             network2.nodes[nodeUid].type = "pool";
@@ -54,14 +58,17 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
                             osdTab[osd.osd] = {};
                             osdTab[osd.osd].osd = osd;
                             osdTab[osd.osd].index = nodeUid;
+                            /*
                             network.nodes[nodeUid] = {};
                             network.nodes[nodeUid].name = "osd." + osd.osd;
                             network.nodes[nodeUid].states = osd.state;
                             network.nodes[nodeUid].type = "osd";
+                            */
                             network2.nodes[nodeUid] = {};
                             network2.nodes[nodeUid].name = "osd." + osd.osd;
                             network2.nodes[nodeUid].states = osd.state;
                             network2.nodes[nodeUid].type = "osd";
+                            network2.nodes[nodeUid].in = osd.in + 1;//non zero value
                             nodeUid++;
                         }
 
@@ -69,28 +76,34 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
                             var pg = pg_stats[i];
                             var currentNodeUid = nodeUid;
                             nodeUid++;
-                            network.nodes[currentNodeUid] = {};
+                            /*network.nodes[currentNodeUid] = {};
                             network.nodes[currentNodeUid].name = "pg " + pg.pgid;
                             network.nodes[currentNodeUid].states = pg.state.split('+');
                             network.nodes[currentNodeUid].type = "pg";
+                            */
+
                             var elem = pg.pgid.split('.');
                             var poolId = elem[0];
 
-                            // link from pool to pg
+                            /* link from pool to pg
                             var link = {};
                             link.source = poolTab[poolId].index;
                             link.target = currentNodeUid;
                             link.value = 1.0;
+                            link.states = ["clean"];
                             network.links.push(link);
+                            */
 
-                            // links from pg to acting osds
                             for (var j = 0; j < pg.acting.length; j++) {
                                 var osd = pg.acting[j];
-                                var link = {};
-                                link.source = currentNodeUid;
-                                link.target = osdTab[osd].index;
-                                link.value = 1.0;
-                                network.links.push(link);
+                                // links from pg to acting osds
+                                //var link = {};
+                                //link.source = currentNodeUid;
+                                //link.target = osdTab[osd].index;
+                                //link.value = 1.0;
+                                //link.states = pg.state.split('+');
+                                //network.links.push(link);
+
                                 // direct link from pool to osd
                                 var link = {};
                                 link.source = poolTab[poolId].index;
@@ -110,9 +123,9 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
     };
 
     function trace(network, id) {
-        var margin = {top: 1, right: 1, bottom: 6, left: 1},
+        var margin = {top: 10, right: 1, bottom: 10, left: 1},
             width = 1800 - margin.left - margin.right,
-            height = 950 - margin.top - margin.bottom;
+            height = 900 - margin.top - margin.bottom;
 
         var formatNumber = d3.format(",.0f"),
             format = function (d) {
@@ -187,12 +200,13 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
                 ;
             })
             .style("stroke", function (d) {
+                if (d.in == 1) return "red";
                 return d3.rgb(d.color).darker(2);
             })
             .append("title")
             .text(function (d) {
                 if (d.type == "osd")
-                    return d.name + "\n" + format(d.value);
+                    return d.name + "\n" + format(d.value) + "\n" +(d.in==1?"out":"in");
                 else if (d.type == "pool")
                     return d.name + "\n";
                 else
