@@ -5,15 +5,11 @@
     background-color: #78FA89;
 }
 
-
-h1.pageTitle:before {
-    content: url('../img/inkscope_logo100.png');
-    padding:10px 30px;
-    vertical-align: -30px;
-}
-
 h1.pageTitle {
     font-size:45px;
+}
+h1.pageTitle img {
+    margin:5px 10px ;
 }
 
 input, textarea {
