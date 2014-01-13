@@ -14,11 +14,9 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
         .attr("width", $scope.screenSize.x -40)
         .attr("height", $scope.screenSize.y -150);
 
-
-    console.log ("screenSize size " + $scope.screenSize.x +"x"+$scope.screenSize.y);
+    refreshData();
 
     //refresh data every x seconds
-    refreshData();
     //setInterval(function () {
     //  refreshData()
     //}, 30*1000);
@@ -51,6 +49,7 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
                             poolTab[pool.pool] = {};
                             poolTab[pool.pool].name = pool.pool_name;
                             poolTab[pool.pool].index = nodeUid;
+                            poolTab[pool.pool].nbpg = 0;
                             /*
                              network.nodes[nodeUid] = {};
                              network.nodes[nodeUid].name = pool.pool_name;
@@ -59,6 +58,7 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
                             network2.nodes[nodeUid] = {};
                             network2.nodes[nodeUid].name = pool.pool_name;
                             network2.nodes[nodeUid].type = "pool";
+                            network2.nodes[nodeUid].nbpg = 0;
                             nodeUid++;
                         }
                         var osds = data.output.osds;
@@ -94,6 +94,8 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
 
                             var elem = pg.pgid.split('.');
                             var poolId = elem[0];
+
+                            network2.nodes[poolTab[poolId].index].nbpg ++;
 
                             /* link from pool to pg
                              var link = {};
@@ -218,7 +220,7 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
                 if (d.type == "osd")
                     return d.name + "\n" + format(d.value) + "\n" + (d.in == 1 ? "out" : "in");
                 else if (d.type == "pool")
-                    return d.name + "\n";
+                    return d.name + "\n" + d.nbpg +" pgs";
                 else
                     return d.name + "\n";
             });
@@ -233,7 +235,7 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
             .attr("transform", null)
             .text(function (d) {
                 if (d.type == "osd")
-                    return d.name + "\n" + format(d.value);
+                    return d.name + " ("+d.value+" pgs)";
                 else if (d.type == "pool")
                     return d.name + "\n";
                 else
