@@ -13,7 +13,7 @@ var StatusApp = angular.module('StatusApp', ['D3Directives'])
         }
     });
 
-StatusApp.controller("statusCtrl", function ($scope, $http, $templateCache) {
+StatusApp.controller("statusCtrl", function ($scope, $http) {
     var apiURL = '/ceph-rest-api/';
 
     //refresh data every x seconds
@@ -26,7 +26,7 @@ StatusApp.controller("statusCtrl", function ($scope, $http, $templateCache) {
         //console.log("refreshing data...");
         $scope.date = new Date();
         $http({method: "get", url: apiURL + "status.json"})
-            .success(function (data, status) {
+            .success(function (data) {
                 $scope.pgmap = data.output.pgmap;
                 $scope.percentUsed = $scope.pgmap.bytes_used /$scope.pgmap.bytes_total;
                 $scope.pgsByState = $scope.pgmap.pgs_by_state;
@@ -40,7 +40,7 @@ StatusApp.controller("statusCtrl", function ($scope, $http, $templateCache) {
                 $scope.mons = data.output.health.health.health_services[0].mons;
 
                 for (var i = 0; i < $scope.mons.length; i++) {
-                    mon = $scope.mons[i];
+                    var mon = $scope.mons[i];
                     //console.log(mon.name);
                     mon.quorum = "out";
                     for (var j = 0; j < data.output.quorum_names.length; j++) {
@@ -51,7 +51,7 @@ StatusApp.controller("statusCtrl", function ($scope, $http, $templateCache) {
                     }
                 }
                 for (var i = 0; i < $scope.mons.length; i++) {
-                    mon = $scope.mons[i];
+                    var mon = $scope.mons[i];
                     //console.log(mon.name);
                     mon.addr = "";
                     mon.rank = "";
@@ -74,7 +74,7 @@ StatusApp.controller("statusCtrl", function ($scope, $http, $templateCache) {
                 $scope.osdsDown = $scope.osdsIn - $scope.osdsUp + $scope.osdsOut;
 
             })
-            .error(function (data, status) {
+            .error(function (data) {
                 $scope.health = {};
                 $scope.health.severity = "HEALTH_WARN";
                 $scope.health.summary = "Status not available";
@@ -82,9 +82,11 @@ StatusApp.controller("statusCtrl", function ($scope, $http, $templateCache) {
     }
 
     $scope.osdClass = function (type, count) {
-        if (count == 0) return "health_status_HEALTH_UNKNOWN osd";
-        else return "health_status_HEALTH_" + type + " osd";
+        if ((count == 0) || (count+"" == "undefined"))
+            return "health_status_HEALTH_UNKNOWN osd";
+        else
+            return "health_status_HEALTH_" + type + " osd";
     }
 
-})
+});
 
