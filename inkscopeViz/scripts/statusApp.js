@@ -3,15 +3,7 @@
  */
 
 var StatusApp = angular.module('StatusApp', ['D3Directives'])
-    .filter('bytes', function () {
-        return function (bytes, precision) {
-            if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) return '-';
-            if (typeof precision === 'undefined') precision = 1;
-            var units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'],
-                number = Math.floor(Math.log(bytes) / Math.log(1024));
-            return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) + ' ' + units[number];
-        }
-    });
+    .filter('bytes', funcBytesFilter);
 
 StatusApp.controller("statusCtrl", function ($scope, $http) {
     var apiURL = '/ceph-rest-api/';
