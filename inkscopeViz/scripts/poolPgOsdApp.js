@@ -8,21 +8,30 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
     var apiURL = '/ceph-rest-api/';
 
     var w = window, d = document, e = d.documentElement, g = d.getElementsByTagName('body')[0];
-    $scope.screenSize ={"x" : w.innerWidth || e.clientWidth || g.clientWidth , "y" : w.innerHeight || e.clientHeight || g.clientHeight};
+    $scope.screenSize = {"x": w.innerWidth || e.clientWidth || g.clientWidth, "y": w.innerHeight || e.clientHeight || g.clientHeight};
 
     var svg = d3.select("#chart2")
-        .attr("width", $scope.screenSize.x -40)
-        .attr("height", $scope.screenSize.y -150);
+        .attr("width", $scope.screenSize.x - 40)
+        .attr("height", $scope.screenSize.y - 170);
 
     refreshData();
 
+
     //refresh data every x seconds
-    //setInterval(function () {
-    //  refreshData()
-    //}, 30*1000);
+    var myTimer;
+
+    $scope.changePeriod = function(){
+        if ($scope.refreshPeriod<=1) return;
+        console.log("new period : " + $scope.refreshPeriod);
+        window.clearInterval(myTimer);
+        myTimer = setInterval(function () {
+            refreshData()
+        }, $scope.refreshPeriod * 1000);
+    }
+
 
     function refreshData() {
-
+        $scope.date = new Date();
         $http({method: "get", url: apiURL + "pg/stat.json"})
             .success(function (data, status) {
                 var nodeUid = 0;
@@ -95,7 +104,7 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
                             var elem = pg.pgid.split('.');
                             var poolId = elem[0];
 
-                            network2.nodes[poolTab[poolId].index].nbpg ++;
+                            network2.nodes[poolTab[poolId].index].nbpg++;
 
                             /* link from pool to pg
                              var link = {};
@@ -136,8 +145,8 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
 
     function trace(network, id) {
         var margin = {top: 0, right: 20, bottom: 10, left: 20},
-            width = $scope.screenSize.x -40 - margin.left - margin.right,
-            height = $scope.screenSize.y -150 -margin.top - margin.bottom;
+            width = $scope.screenSize.x - 40 - margin.left - margin.right,
+            height = $scope.screenSize.y - 180 - margin.top - margin.bottom;
 
         var formatNumber = d3.format(",.0f"),
             format = function (d) {
@@ -145,8 +154,11 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
             },
             color = d3.scale.category20();
 
+        d3.select("#myViz").remove();
+
         var svg = d3.select(id).append("svg")
-            .attr("width", width  + margin.left + margin.right)
+            .attr("id", "myViz")
+            .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -220,7 +232,7 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
                 if (d.type == "osd")
                     return d.name + "\n" + format(d.value) + "\n" + (d.in == 1 ? "out" : "in");
                 else if (d.type == "pool")
-                    return d.name + "\n" + d.nbpg +" pgs";
+                    return d.name + "\n" + d.nbpg + " pgs";
                 else
                     return d.name + "\n";
             });
@@ -235,7 +247,7 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
             .attr("transform", null)
             .text(function (d) {
                 if (d.type == "osd")
-                    return d.name + " ("+d.value+" pgs)";
+                    return d.name + " (" + d.value + " pgs)";
                 else if (d.type == "pool")
                     return d.name + "\n";
                 else

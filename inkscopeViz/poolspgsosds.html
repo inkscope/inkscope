@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
-<html ng-app="PoolPgOsdApp">
+<html ng-app="PoolPgOsdApp" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset=utf-8/>
     <title>Pools / PGs / OSDs</title>
-    <META HTTP-EQUIV="Refresh" CONTENT="10">
+    <!--META HTTP-EQUIV="Refresh" CONTENT="10"-->
     <link rel="stylesheet" type="text/css" media="screen" href="css/testAdmin.css"/>
     <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.min.css"/>
     <link rel="stylesheet" href="css/tooltip.css"/>
@@ -35,13 +35,31 @@
         }
 
         #chart1, #chart2 {
-             margin: 10px auto;
+            margin: 10px auto;
         }
 
         #chart1 {
             display: none
         }
 
+        #controlPanel {
+            border: black solid 1px;
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            margin: 10px;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        #controlPanel input {
+            vertical-align: middle;
+        }
+        #datePanel{margin:10px;font-weight: bold;font-size:large}
+
+        #controlPanel input[type=number] {
+            width:40px;
+        }
     </style>
     <!--[if IE]>
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -50,7 +68,15 @@
 <body ng-controller="poolPgOsdCtrl">
 <h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> Pools / PGs / OSDs</h1>
 
-<p id="chart1"><br><br>
+<form ng-submit="changePeriod()">
+    <div id="controlPanel">
+        Refresh period
+        <input type="number" min="2" ng-model="refreshPeriod" name="refreshPeriod" placeholder="infinite">
+        <input type="submit" id="submit" value="update">
+    </div>
+</form>
+<div id="datePanel">Date : {{date | date:'HH:mm:ss'}}</div>
+<p id="chart1">
 
 <p id="chart2">
 
