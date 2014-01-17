@@ -20,6 +20,7 @@ function color4states(states){
     if (states.indexOf("degraded")>=0) return "blue";
     if (states.indexOf("unclean")>=0) return "darkorange";
     if (states.indexOf("unactive")>=0) return "red";
+    if (states.indexOf("remapped")>=0) return "darkgreen";
     return "black";
 }
 
