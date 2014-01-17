@@ -29,29 +29,30 @@ StatusApp.controller("statusCtrl", function ($scope, $http) {
                     $scope.health.summary = data.output.health.summary[0].summary;
                 else $scope.health.summary = "OK";
 
-                $scope.mons = data.output.health.health.health_services[0].mons;
+                $scope.mons = data.output.monmap.mons;
 
                 for (var i = 0; i < $scope.mons.length; i++) {
                     var mon = $scope.mons[i];
-                    //console.log(mon.name);
-                    mon.quorum = "out";
+                    mon.health="HEALTH_UNKNOWN"; // default for styling purpose
+                    mon.quorum = "out";          // default for styling purpose
                     for (var j = 0; j < data.output.quorum_names.length; j++) {
                         if (mon.name == data.output.quorum_names[j]) {
                             mon.quorum = "in";
                             break
                         }
                     }
-                }
-                for (var i = 0; i < $scope.mons.length; i++) {
-                    var mon = $scope.mons[i];
-                    //console.log(mon.name);
-                    mon.addr = "";
-                    mon.rank = "";
-                    for (var j = 0; j < data.output.monmap.mons.length; j++) {
-                        mon2 = data.output.monmap.mons[j];
+                    if  (data.output.health.timechecks.mons) //not always defined
+                    for (var j = 0; j < data.output.health.timechecks.mons.length; j++) {
+                        mon2 = data.output.health.timechecks.mons[j];
                         if (mon.name == mon2.name) {
-                            mon.addr = mon2.addr;
-                            mon.rank = mon2.rank;
+                            for (key in mon2) mon[key]=mon2[key];
+                            break
+                        }
+                    }
+                    for (var j = 0; j < data.output.health.health.health_services[0].mons.length; j++) {
+                        mon2 = data.output.health.health.health_services[0].mons[j];
+                        if (mon.name == mon2.name) {
+                            for (key in mon2) mon[key]=mon2[key];
                             break
                         }
                     }
