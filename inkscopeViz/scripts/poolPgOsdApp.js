@@ -21,8 +21,11 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $templateCache
     var myTimer;
 
     $scope.changePeriod = function(){
-        if ($scope.refreshPeriod<=1) return;
         console.log("new period : " + $scope.refreshPeriod);
+        if ($scope.refreshPeriod<=1) {
+            window.clearInterval(myTimer);
+            return;
+        }
         window.clearInterval(myTimer);
         myTimer = setInterval(function () {
             refreshData()

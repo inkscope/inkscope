@@ -49,17 +49,15 @@
             right: 0px;
             margin: 10px;
             border-radius: 5px;
-            padding: 5px;
-        }
-
-        #controlPanel input {
             vertical-align: middle;
+            line-height: 40px;
+            padding:5px;
         }
-        #datePanel{margin:10px;font-weight: bold;font-size:large}
 
         #controlPanel input[type=number] {
             width:40px;
         }
+
     </style>
     <!--[if IE]>
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -71,7 +69,7 @@
 <form ng-submit="changePeriod()">
     <div id="controlPanel">
         Refresh period
-        <input type="number" min="2" ng-model="refreshPeriod" name="refreshPeriod" placeholder="infinite">
+        <input type="number" ng-model="refreshPeriod" name="refreshPeriod" placeholder="infinite">
         <input type="submit" id="submit" value="update">
     </div>
 </form>
