@@ -94,40 +94,46 @@ label {
     font-weight: bold;
     color:white;
     text-align: center;
-    width:95%;
-    padding: 20px 10px;
+    vertical-align: middle;
+    width:100%;
+    height:45px;
+    line-height:45px;
     border-radius: 10px;
-    margin:20px 10px;
+    margin:20px auto;
 }
 /* Mon status */
 #general_status, #mon_status {
     clear:both;
     width:850px;
-    min-height: 110px;
+    min-height:80px;
     display:block;
 }
 
 
 .osd {
-    height: 45px;width: 100px;
+    width: 100px;
+    height: 60px;
+    line-height:60px;
     text-align: center;
     color:#ffffff;
     font-size:20px;
     font-weight: bold;
     margin:20px;
-    padding-top:20px;
     border-radius: 10px;
 }
 
 .quorum_in, .quorum_out {
-    height: 25px; min-width: 80px;
+    height: 25px;
+    line-height: 25px;
+    min-width: 80px;
     text-align: center;
+    vertical-align: middle;
     color:#ffffff;
     font-size:20px;
     font-weight: bold;
     float:left;
     margin:10px;
-    padding-top:5px;
+
 }
 .quorum_in {
     border:solid 10px limegreen;border-radius: 15px;
@@ -149,10 +155,10 @@ label {
     font-size :16px;
     font-weight: bold;
 }
-#general_status, #mon_status, #pg_status, #osd_status {
+#general_status, #mon_status, #pg_status, #osd_status  {
     border:solid 1px gray;
     border-radius: 10px;
-    margin: 10px;
+    margin: 5px;
     padding: 1em;
     float:left;
 }
@@ -161,15 +167,31 @@ label {
     width:650px;
     height: 400px;
 }
-#osd_status {
-    width:150px;
+#osd_status{
+    width:160px;
     height: 400px;
 }
 #osd_status_details {
     margin-top:60px;
     font-size :16px;
     font-weight: bold;
+    cursor: pointer;
 }
+
+#journal{
+    border:solid 1px gray;
+    border-radius: 10px;
+    margin: 5px;
+    padding: 3px;
+    float:right;
+    width:750px;
+    height: 35px;
+    overflow: auto;
+}
+
+
+#datePanel{margin:5px 10px;font-weight: bold;font-size:large}
+
 
 /* D3 visualization */
 
@@ -177,6 +199,9 @@ label {
     margin-top:1em;
     width: 100%;
     text-align: center;
+}
+.gaugeLegend a , .gaugeLegend a:hover, .gaugeLegend a:visited{
+    text-decoration: none;
 }
 
 
