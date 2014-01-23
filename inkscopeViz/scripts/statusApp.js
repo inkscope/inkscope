@@ -7,7 +7,7 @@ var StatusApp = angular.module('StatusApp', ['D3Directives'])
 
 StatusApp.controller("statusCtrl", function ($scope, $http) {
     var apiURL = '/ceph-rest-api/';
-
+    $scope.journal=[];
     //refresh data every x seconds
     refreshData();
     setInterval(function () {
@@ -28,6 +28,8 @@ StatusApp.controller("statusCtrl", function ($scope, $http) {
                 if (data.output.health.summary[0])
                     $scope.health.summary = data.output.health.summary[0].summary;
                 else $scope.health.summary = "OK";
+
+                historise();
 
                 $scope.mons = data.output.monmap.mons;
 
@@ -79,6 +81,18 @@ StatusApp.controller("statusCtrl", function ($scope, $http) {
             return "health_status_HEALTH_UNKNOWN osd";
         else
             return "health_status_HEALTH_" + type + " osd";
+    }
+
+    function historise(){
+        if ($scope.last_health_summary+"" == "undefined"){
+            $scope.last_health_summary = $scope.health.summary;
+            $scope.journal.push({"date" : new Date(), "summary": $scope.health.summary});
+            return;
+        }
+        if ($scope.last_health_summary != $scope.health.summary){
+            $scope.journal.push({"date" : new Date(), "summary": $scope.health.summary});
+            $scope.last_health_summary = $scope.health.summary;
+        }
     }
 
 });
