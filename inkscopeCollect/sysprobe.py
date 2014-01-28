@@ -21,7 +21,7 @@ import subprocess
 import sys
 import getopt
 import socket
-
+ 
 import json
 from StringIO import StringIO
 
@@ -401,7 +401,7 @@ def getHW_Cpu(hostname, hw):
 
 def initHost(hostname, db):
     hw = getHW()
-    HWdisks = getHW_Disk(hw)   
+    HWdisks = getHW_Disk(hostname, hw)   
     
     for d in HWdisks :
         dfound = db.disks.find_one({'_id' : d['_id']})   
@@ -409,28 +409,27 @@ def initHost(hostname, db):
         if (not dfound): 
             db.disks.insert(d)  
       
-    partitions = getPartitions()
+    partitions = getPartitions(hostname)
     for p in partitions :
         pfound = db.partitions.find_one({'_id' : p['_id']})
         #compare before insert
         if (not pfound): 
             db.partitions.insert(p)
            
-    HWnets = getHW_Net(hw)
+    HWnets = getHW_Net(hostname, hw)
     for n in HWnets :
         nfound = db.net.find_one({'_id' : n['_id']})
         #compare before insert
         if (not nfound): 
             db.net.insert(n)  
        
-    HWcpus = getHW_Cpu(hw)
+    HWcpus = getHW_Cpu(hostname, hw)
     for c in HWcpus :
         cfound = db.cpus.find_one({'_id' : c['_id']})
         #compare before insert
         if (not cfound): 
             db.cpus.insert(c)  
-
-
+            
     host__ = {
               "hostip" : socket.gethostbyname(hostname),
               "timestamp" : int(round(time.time() * 1000)),
@@ -442,14 +441,12 @@ def initHost(hostname, db):
               "cpus_stat" : None,
               "network_interfaces" : [DBRef( "net",  n["_id"]) for n in HWnets]
               }
-
     hfound = db.hosts.find_one({'_id' : hostname})
     if (not hfound):
         host__["_id"] = hostname    
         db.hosts.insert(host__)
     else:
         db.hosts.update({"_id": hostname}, {"$set": host__})
-    
     
     return HWdisks, partitions, HWnets, HWcpus
 
@@ -487,21 +484,18 @@ def pickNetStat(db, HWnets):
         netstat = netio[net_interface]
         if netstat :
             network_interface_stat = {"network_interface" : n['_id'],
-                                            "timestamp" : int(round(time.time() * 1000)) ,
-                                            "rx" : {
-                                                    "packets": netstat.packets_recv,
-                                                    "errors": netstat.errin,
-                                                    "dropped": netstat.dropin,
-                                                    "bytes": netstat.bytes_recv
-                                                    },
-                                            "tx" : {
-                                                    "packets": netstat.packets_sent,
-                                                    "errors": netstat.errout,
-                                                    "dropped": netstat.dropout,
-                                                    "bytes": netstat.bytes_sent
-                                                    }
-                                            }
-
+                                      "timestamp" : int(round(time.time() * 1000)) ,
+                                      "rx" : {"packets": netstat.packets_recv,
+                                              "errors": netstat.errin,
+                                              "dropped": netstat.dropin,
+                                              "bytes": netstat.bytes_recv
+                                              },
+                                      "tx" : {"packets": netstat.packets_sent,
+                                              "errors": netstat.errout,
+                                              "dropped": netstat.dropout,
+                                              "bytes": netstat.bytes_sent
+                                              }
+                                      }
             network_interface_stat_id = db.netstat.insert(network_interface_stat)
             db.net.update({"_id": n["_id"]}, {"$set": {"stat": DBRef("netstat",network_interface_stat_id)}})
            
@@ -561,7 +555,7 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "h", ["help"])
+            opts, args = getopt.getopt(argv[1:], "h:", ["help"])
         except getopt.error, msg:
             raise Usage(msg)
         # more code, unchanged
@@ -570,6 +564,7 @@ def main(argv=None):
         print >>sys.stderr, "for help use --help"
         return 2
     
+    #load conf
     data = load_conf()
     
     clusterName = data.get("cluster", "ceph")
@@ -581,14 +576,15 @@ def main(argv=None):
     partition_refresh = data.get("partition_refresh", 60)
     cpu_refresh = data.get("cpu_refresh", 60)
     net_refresh = data.get("net_refresh", 30)
-    health_refresh = data.get("health_refresh", 3) 
-    osd_refresh = data.get("osd_refresh", 5)
-    pool_refresh = data.get("pool_refresh", 5)
-    pg_refresh = data.get("pg_refresh", 10)
+    
+    mongodb_host = data.get("mongodb_host", None)
+    mongodb_port = data.get("mongodb_port", None)
+    # end conf extraction
+    
     
     hostname = socket.gethostname() #platform.node()
     
-    client = MongoClient()
+    client = MongoClient(mongodb_host, mongodb_port)
     db = client[clusterName]
     
     HWdisks, partitions, HWnets, HWcpus = initHost(hostname, db)
