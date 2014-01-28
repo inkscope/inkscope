@@ -321,7 +321,7 @@ def processCrushmap(restapi, db):
         db.crushmap.update({'_id' : crushmap["_id"]}, crushmap, upsert= True)
 
 #uri : /api/v0.1/df
-def processDf(restapi, db):
+def processDf(restapi, db): 
     restapi.request("GET", "/api/v0.1/df.json")
     r1=restapi.getresponse()
     if (r1.status == 200) :
