@@ -26,6 +26,8 @@ from threading import Thread, Event
 
 import httplib
 
+import signal
+
 #from bson.objectid import ObjectId
 #db.col.find({"_id": ObjectId(obj_id_to_find)})
 
@@ -210,6 +212,22 @@ def processOsdDump(restapi, db):
                         }
             osd_stat_id = db.osdstat.insert(osd_stat)
             
+            
+            hostaddr = osd["public_addr"].partition(':')[0]
+            osdhost = db.hosts.find_one({"hostip" : hostaddr})
+            osdhostid = osdhost["_id"]
+            
+            if not osdhost :
+                osdneti = db.net.find_one({"$where":  "this.inet.addr === '"+hostaddr+"'"})
+                if osdneti :
+                    osdhostid = osdneti["_id"].partition(":")[0]
+            
+            osddatapartitionid = None
+            if osdhostid :
+                osddatapartition = db.partitions.find_one({"_id" : {'$regex' : osdhostid+":.*"}, "mountpoint" : '/var/lib/ceph/osd/'+clusterName+'-'+str(osd["osd"])})
+                if osddatapartition :
+                    osddatapartitionid = osddatapartition['_id']
+                
             osddb = {"_id" : osd["osd"],
                    "uuid" : osd["uuid"],    
                    "node" : DBRef( "nodes", osd["osd"]),
@@ -220,7 +238,9 @@ def processOsdDump(restapi, db):
                    "heartbeat_front_addr" : osd["heartbeat_front_addr"],
                    "down_stamp" : osdsxinfo_map[osd["osd"]]["down_stamp"],
                    "laggy_probability" : osdsxinfo_map[osd["osd"]]["laggy_probability"],
-                   "laggy_interval" : osdsxinfo_map[osd["osd"]]["laggy_interval"]
+                   "laggy_interval" : osdsxinfo_map[osd["osd"]]["laggy_interval"],
+                   "host" :  DBRef( "hosts", osdhostid),
+                   "partition" : DBRef( "partitions", osddatapartitionid)
                    }
             db.osd.update({'_id' : osddb["_id"]}, osddb, upsert= True)
             
@@ -363,18 +383,17 @@ class Repeater(Thread):
 
 
 
-    
-#ceph probe 
-#cephClient = httplib.HTTPConnection("localhost", port)
-
-# gethostname -> hn
-# if hn is mon of rank 0 -> update db
-
-
-
 class Usage(Exception):
     def __init__(self, msg):
         self.msg = msg
+        
+        
+evt = Event()
+   
+def handler(signum, frame):
+    print 'Signal handler called with signal', signum
+    evt.set()
+    
 
 def main(argv=None):
     if argv is None:
@@ -418,8 +437,6 @@ def main(argv=None):
     
     initCluster(restapi, db)
     
-    evt = Event()
-    
     statusThread = None    
     if status_refresh > 0 :
         statusThread = Repeater(evt, processStatus, [restapi, db], status_refresh)
@@ -445,7 +462,10 @@ def main(argv=None):
         dfThread = Repeater(evt, processDf, [restapi, db], df_refresh)
         dfThread.start()
     
-       
+    signal.signal(signal.SIGTERM, handler)
+    
+    evt.wait()
+    return 0
    
 
 if __name__ == "__main__":

@@ -29,6 +29,9 @@ from bson.dbref import DBRef
 
 from threading import Thread, Event
 
+import signal
+
+
 #from bson.objectid import ObjectId
 #db.col.find({"_id": ObjectId(obj_id_to_find)})
 
@@ -45,76 +48,6 @@ def load_conf():
     
     datasource.close()
     return data
-
-
-# list sections prefixed
-def ceph_conf_list(prefix):
-    p = subprocess.Popen(
-        args=[
-            'ceph-conf',
-            '-l',
-            prefix
-            ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE)
-    outdata, errdata = p.communicate()
-    if (len(errdata)):
-        raise RuntimeError('unable to get conf option prefix %s: %s' % (prefix, errdata))
-    return outdata.rstrip().splitlines();
-
-
-# get a field value from named section
-def ceph_conf(field, name):
-    p = subprocess.Popen(
-        args=[
-            'ceph-conf',
-            '--show-config-value',
-            field,
-            '-n',
-            name,
-            ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE)
-    outdata, errdata = p.communicate()
-    if (len(errdata)):
-        raise RuntimeError('unable to get conf option %s for %s: %s' % (field, name, errdata))
-    return outdata.rstrip()
-
-
-# get a field value from global conf
-def ceph_conf_global(field):
-    p = subprocess.Popen(
-        args=[
-            'ceph-conf',
-            '--show-config-value',
-            field
-            ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE)
-    outdata, errdata = p.communicate()
-    if (len(errdata)):
-        raise RuntimeError('unable to get conf option %s: %s' % (field, errdata))
-    return outdata.rstrip()
-
-
-# extract mons from conf and put them into mons
-def processConf():
-    mon_sections=ceph_conf_list('mon.')
-    if (len(mon_sections)==0):
-        initmon = ceph_conf_global('mon_initial_members')
-        if (not initmon):
-            raise RuntimeError('enable to find a mon')
-        mons = [initmon]
-    else:
-        for mon in mon_sections:
-            mons.append(ceph_conf('host', mon))
-        
-
-
-
-
-#processConf()
-
 
 
 # mem
@@ -401,34 +334,22 @@ def getHW_Cpu(hostname, hw):
 
 def initHost(hostname, db):
     hw = getHW()
-    HWdisks = getHW_Disk(hostname, hw)   
     
+    HWdisks = getHW_Disk(hostname, hw)   
     for d in HWdisks :
-        dfound = db.disks.find_one({'_id' : d['_id']})   
-        #compare before insert
-        if (not dfound): 
-            db.disks.insert(d)  
+        db.disks.update({'_id' : d['_id']}, d, upsert= True)
       
     partitions = getPartitions(hostname)
     for p in partitions :
-        pfound = db.partitions.find_one({'_id' : p['_id']})
-        #compare before insert
-        if (not pfound): 
-            db.partitions.insert(p)
+        db.partitions.update({'_id' : p['_id']}, p, upsert= True)
            
     HWnets = getHW_Net(hostname, hw)
     for n in HWnets :
-        nfound = db.net.find_one({'_id' : n['_id']})
-        #compare before insert
-        if (not nfound): 
-            db.net.insert(n)  
+        db.partitions.update({'_id' : n['_id']}, n, upsert= True)
        
     HWcpus = getHW_Cpu(hostname, hw)
     for c in HWcpus :
-        cfound = db.cpus.find_one({'_id' : c['_id']})
-        #compare before insert
-        if (not cfound): 
-            db.cpus.insert(c)  
+        db.partitions.update({'_id' : c['_id']}, c, upsert= True)
             
     host__ = {
               "hostip" : socket.gethostbyname(hostname),
@@ -441,13 +362,7 @@ def initHost(hostname, db):
               "cpus_stat" : None,
               "network_interfaces" : [DBRef( "net",  n["_id"]) for n in HWnets]
               }
-    hfound = db.hosts.find_one({'_id' : hostname})
-    if (not hfound):
-        host__["_id"] = hostname    
-        db.hosts.insert(host__)
-    else:
-        db.hosts.update({"_id": hostname}, {"$set": host__})
-    
+    db.partitions.update({'_id' : hostname}, host__, upsert= True)
     return HWdisks, partitions, HWnets, HWcpus
 
 
@@ -549,6 +464,15 @@ class Repeater(Thread):
 class Usage(Exception):
     def __init__(self, msg):
         self.msg = msg
+        
+
+
+evt = Event()
+   
+def handler(signum, frame):
+    print 'Signal handler called with signal', signum
+    evt.set()
+    
 
 def main(argv=None):
     if argv is None:
@@ -568,8 +492,6 @@ def main(argv=None):
     data = load_conf()
     
     clusterName = data.get("cluster", "ceph")
-    cephConf = data.get("ceph_conf", "/etc/ceph/ceph.conf")
-    ceph_osd_root_path = data.get("ceph_osd_root_path", '/var/lib/ceph/osd')
     mem_refresh = data.get("mem_refresh", 60)
     swap_refresh = data.get("swap_refresh", 600)
     disk_refresh = data.get("disk_refresh", 60)
@@ -589,7 +511,7 @@ def main(argv=None):
     
     HWdisks, partitions, HWnets, HWcpus = initHost(hostname, db)
     
-    evt = Event()
+    
     
     cpuThread = None    
     if cpu_refresh > 0 :
@@ -621,6 +543,10 @@ def main(argv=None):
         partThread = Repeater(evt, pickPartitionsStat, [hostname, db], partition_refresh)
         partThread.start()
     
+    signal.signal(signal.SIGTERM, handler)
+    
+    evt.wait()
+    return 0
     
    
 
