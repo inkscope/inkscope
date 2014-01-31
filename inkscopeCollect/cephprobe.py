@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 #author Philippe Raipin
 #licence : apache v2
 
@@ -215,12 +217,14 @@ def processOsdDump(restapi, db):
             
             hostaddr = osd["public_addr"].partition(':')[0]
             osdhost = db.hosts.find_one({"hostip" : hostaddr})
-            osdhostid = osdhost["_id"]
+            osdhostid = None
             
             if not osdhost :
                 osdneti = db.net.find_one({"$where":  "this.inet.addr === '"+hostaddr+"'"})
                 if osdneti :
                     osdhostid = osdneti["_id"].partition(":")[0]
+            else :
+                osdhostid = osdhost["_id"]
             
             osddatapartitionid = None
             if osdhostid :
@@ -266,6 +270,17 @@ def processPgDump(restapi, db):
         pgdump = json.load(io)
         for pg in pgdump["output"]["pg_stats"] :
             db.pg.insert(pg)
+            pg['_id'] = pg['pgid']
+            del pg['pgid']
+            pg['pool'] = DBRef('pools', int(pg['_id'].partition('.')[0]))
+            
+            ups = pg['up']
+            pg['up'] = [DBRef('osd', i_osd) for i_osd in ups]
+            
+            actings = pg['acting']
+            pg['acting'] = [DBRef('osd', i_osd) for i_osd in actings]
+            
+            db.pg.update({'_id' : pg["_id"]}, pg, upsert= True)
 
 
 #uri : /api/v0.1/osd/crush/dump.json
@@ -415,15 +430,15 @@ def main(argv=None):
     
     clusterName = conf.get("cluster", "ceph")
     cephConf = conf.get("ceph_conf", "/etc/ceph/ceph.conf")
-    ceph_rest_api = conf.get("ceph_rest_api", 'http://127.0.0.1:5000')
+    ceph_rest_api = conf.get("ceph_rest_api", '127.0.0.1:5000')
     status_refresh = conf.get("status_refresh", 3)
     osd_dump_refresh = conf.get("osd_dump_refresh", 3)
-    pg_dump_refresh = conf.get("pg_dump__refresh", 60)
+    pg_dump_refresh = conf.get("pg_dump_refresh", 60)
     crushmap_refresh = conf.get("crushmap_refresh", 60)
     df_refresh = conf.get("df_refresh", 60)
     
-    mongodb_host = data.get("mongodb_host", None)
-    mongodb_port = data.get("mongodb_port", None)
+    mongodb_host = conf.get("mongodb_host", None)
+    mongodb_port = conf.get("mongodb_port", None)
     # end conf extraction
     
     
@@ -433,38 +448,44 @@ def main(argv=None):
     db = client[clusterName]
     
     
-    restapi = httplib.HTTPConnection(ceph_rest_api)
-    
+    restapi = httplib.HTTPConnection(ceph_rest_api)  
     initCluster(restapi, db)
     
     statusThread = None    
     if status_refresh > 0 :
+        restapi = httplib.HTTPConnection(ceph_rest_api)
         statusThread = Repeater(evt, processStatus, [restapi, db], status_refresh)
         statusThread.start()
         
     osdDumpThread = None    
     if osd_dump_refresh > 0 :
+        restapi = httplib.HTTPConnection(ceph_rest_api)
         osdDumpThread = Repeater(evt, processOsdDump, [restapi, db], osd_dump_refresh)
         osdDumpThread.start()
         
     pgDumpThread = None    
     if pg_dump_refresh > 0 :
+        restapi = httplib.HTTPConnection(ceph_rest_api)
         pgDumpThread = Repeater(evt, processPgDump, [restapi, db], pg_dump_refresh)
         pgDumpThread.start()
         
     crushmapThread = None    
     if crushmap_refresh > 0 :
+        restapi = httplib.HTTPConnection(ceph_rest_api)
         crushmapThread = Repeater(evt, processCrushmap, [restapi, db], crushmap_refresh)
         crushmapThread.start()
         
     dfThread = None    
     if df_refresh > 0 :
+        restapi = httplib.HTTPConnection(ceph_rest_api)
         dfThread = Repeater(evt, processDf, [restapi, db], df_refresh)
         dfThread.start()
     
     signal.signal(signal.SIGTERM, handler)
     
-    evt.wait()
+    while not evt.isSet() : 
+        evt.wait(600)
+        
     return 0
    
 

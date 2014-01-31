@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 #author Philippe Raipin
 #licence : apache v2
 
@@ -545,7 +547,8 @@ def main(argv=None):
     
     signal.signal(signal.SIGTERM, handler)
     
-    evt.wait()
+    while not evt.isSet() : 
+        evt.wait(600)
     return 0
     
    
