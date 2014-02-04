@@ -58,7 +58,11 @@ create a file *inkScopeViz.conf* with this content:
 
     Be sure to modify *{inkScopeViz_folder}* and *{ceph_rest_api_url}* with the appropriate values
 
-6. Enable InkScopeViz virtual host:
+6. Enable proxy module in Apache
+
+        sudo a2enmod proxy 
+
+7. Enable InkScopeViz virtual host:
 
         sudo a2ensite inkScopeViz
 
