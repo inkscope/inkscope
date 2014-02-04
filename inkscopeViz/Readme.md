@@ -61,12 +61,11 @@ create a file *inkScopeViz.conf* with this content:
 6. Enable proxy module in Apache (if not already enabled)
 
         sudo a2enmod proxy_http 
-        sudo a2enmod proxy 
+        sudo service apache2 restart
+     
 
 7. Enable InkScopeViz virtual host:
 
         sudo a2ensite inkScopeViz
-
-8. Restart Apache (if proxy module has been enabled in 6. )
-
-        sudo service apache2 restart
+   
+    No need to restart Apache at this time
