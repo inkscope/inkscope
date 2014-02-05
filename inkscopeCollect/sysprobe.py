@@ -64,7 +64,7 @@ def pickMem(hostname, db):
         "free" : res.free,
         "buffers" : res.buffers,
         "cached" : res.cached,
-        "host" : hostname
+        "host" : DBref("hosts", hostname)
         }
     mem_id = db.memstat.insert(mem4db)
     db.hosts.update({"_id": hostname}, {"$set": {"mem": DBRef("memstat", mem_id)}})
@@ -79,7 +79,7 @@ def pickSwap(hostname, db):
                "total" : res.total,
                "used" : res.used,
                "free" : res.free,
-               "host" : hostname
+               "host" : DBref("hosts", hostname)
                }
     swap_id = db.swapstat.insert(swap4db)
     db.hosts.update({"_id": hostname}, {"$set": {"swap": DBRef("swapstat",swap_id)}})
@@ -117,7 +117,7 @@ def pickPartitionsStat(hostname, db):
                "total" : part_stat.total,
                "used" : part_stat.used,
                "free" : part_stat.free,
-               "partition" : hostname+":"+p.device
+               "partition" : DBRef("partitions", hostname+":"+p.device)
                }
         partstat_id = db.partitionstat.insert(res)
         db.partitions.update({"_id": hostname+":"+p.device}, {"$set": {"stat": DBRef("partitionstat", partstat_id)}})
@@ -347,11 +347,11 @@ def initHost(hostname, db):
            
     HWnets = getHW_Net(hostname, hw)
     for n in HWnets :
-        db.partitions.update({'_id' : n['_id']}, n, upsert= True)
+        db.net.update({'_id' : n['_id']}, n, upsert= True)
        
     HWcpus = getHW_Cpu(hostname, hw)
     for c in HWcpus :
-        db.partitions.update({'_id' : c['_id']}, c, upsert= True)
+        db.cpus.update({'_id' : c['_id']}, c, upsert= True)
             
     host__ = {
               "hostip" : socket.gethostbyname(hostname),
@@ -364,7 +364,7 @@ def initHost(hostname, db):
               "cpus_stat" : None,
               "network_interfaces" : [DBRef( "net",  n["_id"]) for n in HWnets]
               }
-    db.partitions.update({'_id' : hostname}, host__, upsert= True)
+    db.hosts.update({'_id' : hostname}, host__, upsert= True)
     return HWdisks, partitions, HWnets, HWcpus
 
 
@@ -384,7 +384,7 @@ def pickDiskStat(db, HWdisks):
         if iostat :
             lineio = iostat[0].split()[1:]
             diskstat = dict([(k,float(v.replace(',','.'))) for k,v in zip(diskStatHdr, lineio)])
-            diskstat["disk"] = d["_id"]
+            diskstat["disk"] = DBRef("disks", d["_id"])
             diskstat["timestamp"] = int(round(time.time() * 1000)) 
             disk_stat_id = db.diskstat.insert(diskstat)
             db.disks.update({"_id": d["_id"]}, {"$set": {"stat": DBRef("diskstat",disk_stat_id)}})
@@ -400,7 +400,7 @@ def pickNetStat(db, HWnets):
         net_interface = n["logical_name"]
         netstat = netio[net_interface]
         if netstat :
-            network_interface_stat = {"network_interface" : n['_id'],
+            network_interface_stat = {"network_interface" : DBRef("net", n['_id']),
                                       "timestamp" : int(round(time.time() * 1000)) ,
                                       "rx" : {"packets": netstat.packets_recv,
                                               "errors": netstat.errin,
