@@ -302,7 +302,7 @@ def processCrushmap(restapi, db):
         nodes_ref = []
         devices = crush_dump['output']['devices']
         for d in devices:
-            db.nodes.update({'_id' : d["id"]}, {"_id":  d["id"], "name" :  d["name"]}, upsert= True)
+            db.nodes.update({'_id' : d["id"]}, {"_id":  d["id"], "name" :  d["name"], "type" : DBRef("types", "osd")}, upsert= True)
             nodes_ref.append(DBRef("nodes", d["id"]))
             
         buckets = crush_dump['output']['buckets']

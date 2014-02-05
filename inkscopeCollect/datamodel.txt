@@ -285,6 +285,7 @@ for osd (device):
 {
 		"_id":  int -> osd id, 
 		"name" :  string -> osd name
+		"type" : DBRef -> type osd
 }
 
 for bucket :
