@@ -1,9 +1,0 @@
-#  this collect  data informations  on  all json
-cluster.py :  class cluster
-pool.py
-getdf.py
-getlspooldump.py
-getosddump.py
-getosdtree.py
-getpgdump.py
-getstatus.py
