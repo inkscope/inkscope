@@ -102,7 +102,7 @@ label {
     margin:20px auto;
 }
 /* Mon status */
-#general_status, #mon_status {
+#general_status, .general_status, #mon_status {
     clear:both;
     width:850px;
     min-height:80px;
@@ -155,7 +155,7 @@ label {
     font-size :16px;
     font-weight: bold;
 }
-#general_status, #mon_status, #pg_status, #osd_status  {
+#general_status, #mon_status, #pg_status, #osd_status,.general_status  {
     border:solid 1px gray;
     border-radius: 10px;
     margin: 5px;
