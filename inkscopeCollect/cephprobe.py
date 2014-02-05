@@ -147,9 +147,9 @@ def processStatus(restapi, db):
             for monst in health_services_mons:
                 monstat = monst.copy()
                 monstat["mon"] =  DBRef( "mon", monst['name'])
-                monstat["_id"] = monst['name']+": "+monst["last_updated"]
+                monstat["_id"] = monst['name']+":"+monst["last_updated"]
                 del monstat["name"]
-                db.mon.update({"_id" : monstat["_id"]}, monstat, upsert= True)
+                db.monstat.update({"_id" : monstat["_id"]}, monstat, upsert= True)
                 map_stat_mon[monst['name']] = monstat["_id"]
         
         map_rk_name = {}
@@ -159,7 +159,7 @@ def processStatus(restapi, db):
                "host" : DBRef( "hosts", mon['name']),
                "addr" : mon['addr'],
                "rank" : mon['rank'],
-               "stat" : map_stat_mon[mon['name']]
+               "stat" : DBRef("monstat", map_stat_mon[mon['name']])
                }
             db.mon.update({"_id" : mon['name']}, mondb, upsert= True)
             map_rk_name[mon['rank']] =  mon['name']        

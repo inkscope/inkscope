@@ -299,6 +299,10 @@ def getHW_Cpu(hostname, hw):
             if "size" in cpu :    
                 if cpu["units"] == "Hz" :
                     frequency = cpu["size"]
+            capacity = 0
+            if "capacity" in cpu :    
+                if cpu["units"] == "Hz" :
+                    capacity = cpu["capacity"]
             cpuwidth = 0
             if "width" in cpu :    
                 cpuwidth = cpu["width"]
@@ -321,6 +325,7 @@ def getHW_Cpu(hostname, hw):
                  "manufacturer" : vendor,
                  "physical_id" : physid,
                  "version" : cpuversion,
+                 "capacity": capacity,
                  "frequency": frequency,
                  "width" : cpuwidth,
                  "cores" : cores,
