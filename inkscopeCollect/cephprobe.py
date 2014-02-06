@@ -16,8 +16,10 @@ import psutil
 import subprocess
 
 import sys
+import os
 import getopt
 import socket
+from daemon import Daemon
  
 import json
 from StringIO import StringIO
@@ -34,6 +36,7 @@ import signal
 #db.col.find({"_id": ObjectId(obj_id_to_find)})
 
 configfile = "/etc/cephprobe.conf"
+runfile = "/var/run/cephprobe/cephprobe.pid"
 clusterName = "ceph"
 fsid = ""
 
@@ -381,7 +384,10 @@ def processDf(restapi, db):
             db.pools.update({'_id' : pdf["id"]}, {"$set" : {"df" : DBRef("poolstat",statsid)}})
         
 
-
+def ensure_dir(f):
+    d = os.path.dirname(f)
+    if not os.path.exists(d):
+        os.makedirs(d)  
 
 
 class Repeater(Thread):
@@ -410,87 +416,90 @@ def handler(signum, frame):
     evt.set()
     
 
-def main(argv=None):
-    if argv is None:
-        argv = sys.argv
-    try:
-        try:
-            opts, args = getopt.getopt(argv[1:], "h:", ["help"])
-        except getopt.error, msg:
-            raise Usage(msg)
-        # more code, unchanged
-    except Usage, err:
-        print >>sys.stderr, err.msg
-        print >>sys.stderr, "for help use --help"
-        return 2
-    
-    #load conf
-    conf = load_conf()
-    global clusterName
-    
-    clusterName = conf.get("cluster", "ceph")
-    cephConf = conf.get("ceph_conf", "/etc/ceph/ceph.conf")
-    ceph_rest_api = conf.get("ceph_rest_api", '127.0.0.1:5000')
-    status_refresh = conf.get("status_refresh", 3)
-    osd_dump_refresh = conf.get("osd_dump_refresh", 3)
-    pg_dump_refresh = conf.get("pg_dump_refresh", 60)
-    crushmap_refresh = conf.get("crushmap_refresh", 60)
-    df_refresh = conf.get("df_refresh", 60)
-    
-    mongodb_host = conf.get("mongodb_host", None)
-    mongodb_port = conf.get("mongodb_port", None)
-    # end conf extraction
-    
-    
-    hostname = socket.gethostname() #platform.node()
-    
-    client = MongoClient(mongodb_host, mongodb_port)
-    db = client[clusterName]
-    
-    
-    restapi = httplib.HTTPConnection(ceph_rest_api)  
-    initCluster(restapi, db)
-    
-    statusThread = None    
-    if status_refresh > 0 :
-        restapi = httplib.HTTPConnection(ceph_rest_api)
-        statusThread = Repeater(evt, processStatus, [restapi, db], status_refresh)
-        statusThread.start()
+class SysProbeDaemon(Daemon):
+    def run(self):  
+        #load conf
+        conf = load_conf()
+        global clusterName
         
-    osdDumpThread = None    
-    if osd_dump_refresh > 0 :
-        restapi = httplib.HTTPConnection(ceph_rest_api)
-        osdDumpThread = Repeater(evt, processOsdDump, [restapi, db], osd_dump_refresh)
-        osdDumpThread.start()
+        clusterName = conf.get("cluster", "ceph")
+        cephConf = conf.get("ceph_conf", "/etc/ceph/ceph.conf")
+        ceph_rest_api = conf.get("ceph_rest_api", '127.0.0.1:5000')
+        status_refresh = conf.get("status_refresh", 3)
+        osd_dump_refresh = conf.get("osd_dump_refresh", 3)
+        pg_dump_refresh = conf.get("pg_dump_refresh", 60)
+        crushmap_refresh = conf.get("crushmap_refresh", 60)
+        df_refresh = conf.get("df_refresh", 60)
         
-    pgDumpThread = None    
-    if pg_dump_refresh > 0 :
-        restapi = httplib.HTTPConnection(ceph_rest_api)
-        pgDumpThread = Repeater(evt, processPgDump, [restapi, db], pg_dump_refresh)
-        pgDumpThread.start()
+        mongodb_host = conf.get("mongodb_host", None)
+        mongodb_port = conf.get("mongodb_port", None)
+        # end conf extraction
         
-    crushmapThread = None    
-    if crushmap_refresh > 0 :
-        restapi = httplib.HTTPConnection(ceph_rest_api)
-        crushmapThread = Repeater(evt, processCrushmap, [restapi, db], crushmap_refresh)
-        crushmapThread.start()
         
-    dfThread = None    
-    if df_refresh > 0 :
-        restapi = httplib.HTTPConnection(ceph_rest_api)
-        dfThread = Repeater(evt, processDf, [restapi, db], df_refresh)
-        dfThread.start()
+        hostname = socket.gethostname() #platform.node()
+        
+        client = MongoClient(mongodb_host, mongodb_port)
+        db = client[clusterName]
+        
+        
+        restapi = httplib.HTTPConnection(ceph_rest_api)  
+        initCluster(restapi, db)
+        
+        statusThread = None    
+        if status_refresh > 0 :
+            restapi = httplib.HTTPConnection(ceph_rest_api)
+            statusThread = Repeater(evt, processStatus, [restapi, db], status_refresh)
+            statusThread.start()
+            
+        osdDumpThread = None    
+        if osd_dump_refresh > 0 :
+            restapi = httplib.HTTPConnection(ceph_rest_api)
+            osdDumpThread = Repeater(evt, processOsdDump, [restapi, db], osd_dump_refresh)
+            osdDumpThread.start()
+            
+        pgDumpThread = None    
+        if pg_dump_refresh > 0 :
+            restapi = httplib.HTTPConnection(ceph_rest_api)
+            pgDumpThread = Repeater(evt, processPgDump, [restapi, db], pg_dump_refresh)
+            pgDumpThread.start()
+            
+        crushmapThread = None    
+        if crushmap_refresh > 0 :
+            restapi = httplib.HTTPConnection(ceph_rest_api)
+            crushmapThread = Repeater(evt, processCrushmap, [restapi, db], crushmap_refresh)
+            crushmapThread.start()
+            
+        dfThread = None    
+        if df_refresh > 0 :
+            restapi = httplib.HTTPConnection(ceph_rest_api)
+            dfThread = Repeater(evt, processDf, [restapi, db], df_refresh)
+            dfThread.start()
+        
+        signal.signal(signal.SIGTERM, handler)
+        
+        while not evt.isSet() : 
+            evt.wait(600)
+
     
-    signal.signal(signal.SIGTERM, handler)
-    
-    while not evt.isSet() : 
-        evt.wait(600)
-        
-    return 0
    
 
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == "__main__":   
+    ensure_dir(runfile)
+    daemon = SysProbeDaemon(runfile)
+    if len(sys.argv) == 2:
+        if 'start' == sys.argv[1]:
+            daemon.start()
+        elif 'stop' == sys.argv[1]:
+            daemon.stop()
+        elif 'restart' == sys.argv[1]:
+            daemon.restart()
+        else:
+            print "Unknown command"
+            sys.exit(2)
+        sys.exit(0)
+    else:
+        print "usage: %s start|stop|restart" % sys.argv[0]
+        sys.exit(2)
 
 
 

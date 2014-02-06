@@ -25,6 +25,10 @@ config file should be stored at /etc/sysprobe.conf and should look like (json fo
 }
 ##################################
 
+launch :
+Sysprobe is defined as a daemon:
+sysprobe.py start|stop|restart
+
 2) CephProbe
 a Ceph info collector (cephprobe.py) should be run on a node thant can access to ceph-rest-api and the mongodb. 
 config file be stored at /etc/cephprobe.conf and should look like (json format). The unit of the refresh times is second. 
@@ -42,5 +46,10 @@ config file be stored at /etc/cephprobe.conf and should look like (json format).
     "df_refresh": 60
 }
 #################################
+
+launch :
+cephprobe is defined as a daemon:
+cephprobe.py start|stop|restart
+
 
 

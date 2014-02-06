@@ -20,9 +20,11 @@ import psutil
 # for ceph command call
 import subprocess
 
+import os
 import sys
 import getopt
 import socket
+from daemon import Daemon
  
 import json
 from StringIO import StringIO
@@ -38,7 +40,7 @@ import signal
 #db.col.find({"_id": ObjectId(obj_id_to_find)})
 
 configfile = "/etc/sysprobe.conf"
-
+runfile = "/var/run/sysprobe/sysprobe.pid"
 
 
 
@@ -458,8 +460,16 @@ class Repeater(Thread):
             self.function(*self.args)
 
 
-
+def ensure_dir(f):
+    d = os.path.dirname(f)
+    if not os.path.exists(d):
+        os.makedirs(d)
     
+
+def ensure_dir(f):
+    d = os.path.dirname(f)
+    if not os.path.exists(d):
+        os.makedirs(d)  
 #ceph probe 
 #cephClient = httplib.HTTPConnection("localhost", port)
 
@@ -480,84 +490,86 @@ def handler(signum, frame):
     print 'Signal handler called with signal', signum
     evt.set()
     
-
-def main(argv=None):
-    if argv is None:
-        argv = sys.argv
-    try:
-        try:
-            opts, args = getopt.getopt(argv[1:], "h:", ["help"])
-        except getopt.error, msg:
-            raise Usage(msg)
-        # more code, unchanged
-    except Usage, err:
-        print >>sys.stderr, err.msg
-        print >>sys.stderr, "for help use --help"
-        return 2
     
-    #load conf
-    data = load_conf()
-    
-    clusterName = data.get("cluster", "ceph")
-    mem_refresh = data.get("mem_refresh", 60)
-    swap_refresh = data.get("swap_refresh", 600)
-    disk_refresh = data.get("disk_refresh", 60)
-    partition_refresh = data.get("partition_refresh", 60)
-    cpu_refresh = data.get("cpu_refresh", 60)
-    net_refresh = data.get("net_refresh", 30)
-    
-    mongodb_host = data.get("mongodb_host", None)
-    mongodb_port = data.get("mongodb_port", None)
-    # end conf extraction
-    
-    
-    hostname = socket.gethostname() #platform.node()
-    
-    client = MongoClient(mongodb_host, mongodb_port)
-    db = client[clusterName]
-    
-    HWdisks, partitions, HWnets, HWcpus = initHost(hostname, db)
-    
-    
-    
-    cpuThread = None    
-    if cpu_refresh > 0 :
-        cpuThread = Repeater(evt, pickCpuStat, [hostname, db], cpu_refresh)
-        cpuThread.start()
-    
-    netThread = None
-    if net_refresh > 0 :
-        netThread = Repeater(evt, pickNetStat, [db, HWnets], net_refresh)
-        netThread.start()
-    
-    memThread = None
-    if mem_refresh > 0:
-        memThread = Repeater(evt, pickMem, [hostname, db], mem_refresh)
-        memThread.start()
-    
-    swapThread = None
-    if swap_refresh > 0 : 
-        swapThread = Repeater(evt, pickSwap, [hostname, db], swap_refresh)
-        swapThread.start()
-    
-    diskThread = None
-    if disk_refresh > 0:
-        diskThread = Repeater(evt, pickDiskStat, [db, HWdisks], disk_refresh)
-        diskThread.start()
-    
-    partThread = None
-    if partition_refresh > 0:
-        partThread = Repeater(evt, pickPartitionsStat, [hostname, db], partition_refresh)
-        partThread.start()
-    
-    signal.signal(signal.SIGTERM, handler)
-    
-    while not evt.isSet() : 
-        evt.wait(600)
-    return 0
+class SysProbeDaemon(Daemon):
+    def run(self):
+        #load conf
+        data = load_conf()
+        
+        clusterName = data.get("cluster", "ceph")
+        mem_refresh = data.get("mem_refresh", 60)
+        swap_refresh = data.get("swap_refresh", 600)
+        disk_refresh = data.get("disk_refresh", 60)
+        partition_refresh = data.get("partition_refresh", 60)
+        cpu_refresh = data.get("cpu_refresh", 60)
+        net_refresh = data.get("net_refresh", 30)
+        
+        mongodb_host = data.get("mongodb_host", None)
+        mongodb_port = data.get("mongodb_port", None)
+        # end conf extraction
+        
+        
+        hostname = socket.gethostname() #platform.node()
+        
+        client = MongoClient(mongodb_host, mongodb_port)
+        db = client[clusterName]
+        
+        HWdisks, partitions, HWnets, HWcpus = initHost(hostname, db)
+        
+        cpuThread = None    
+        if cpu_refresh > 0 :
+            cpuThread = Repeater(evt, pickCpuStat, [hostname, db], cpu_refresh)
+            cpuThread.start()
+        
+        netThread = None
+        if net_refresh > 0 :
+            netThread = Repeater(evt, pickNetStat, [db, HWnets], net_refresh)
+            netThread.start()
+        
+        memThread = None
+        if mem_refresh > 0:
+            memThread = Repeater(evt, pickMem, [hostname, db], mem_refresh)
+            memThread.start()
+        
+        swapThread = None
+        if swap_refresh > 0 : 
+            swapThread = Repeater(evt, pickSwap, [hostname, db], swap_refresh)
+            swapThread.start()
+        
+        diskThread = None
+        if disk_refresh > 0:
+            diskThread = Repeater(evt, pickDiskStat, [db, HWdisks], disk_refresh)
+            diskThread.start()
+        
+        partThread = None
+        if partition_refresh > 0:
+            partThread = Repeater(evt, pickPartitionsStat, [hostname, db], partition_refresh)
+            partThread.start()
+        
+        signal.signal(signal.SIGTERM, handler)
+        
+        while not evt.isSet() : 
+            evt.wait(600)
+        
+        
     
    
 
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == "__main__":   
+    ensure_dir(runfile)
+    daemon = SysProbeDaemon(runfile)
+    if len(sys.argv) == 2:
+        if 'start' == sys.argv[1]:
+            daemon.start()
+        elif 'stop' == sys.argv[1]:
+            daemon.stop()
+        elif 'restart' == sys.argv[1]:
+            daemon.restart()
+        else:
+            print "Unknown command"
+            sys.exit(2)
+        sys.exit(0)
+    else:
+        print "usage: %s start|stop|restart" % sys.argv[0]
+        sys.exit(2)
 
