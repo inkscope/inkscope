@@ -41,18 +41,58 @@
         <div style="align-content: center">
             <div>
                 {{mon.name}}
-            <span>Mon {{mon.name}}<br>
-            health_detail: <strong>{{mon.health_detail}}</strong><br>
-            quorum: {{mon.quorum}}<br>
-            rank: {{mon.rank}}<br>
-            addr: {{mon.addr}}<br>
-            skew: {{mon.skew}}<br>
-            latency: {{mon.latency}}<br>
-            last_updated: {{mon.last_updated}}<br>
-            avail_percent: {{mon.avail_percent}}%<br>
-            kb_total: {{mon.kb_total | bytes:kB}}<br>
-            kb_avail: {{mon.kb_avail | bytes:kB}}<br>
-            kb_used: {{mon.kb_used | bytes:kB}}</span>
+            <span>
+            <table>
+                <tr>
+                    <td><strong>Monitor</strong></td>
+                    <td><strong>{{mon.name}}</strong></td>
+                </tr>
+                <tr>
+                    <td>health_detail</td>
+                    <td><strong>{{mon.health_detail}}</strong></td>
+                </tr>
+                <tr>
+                    <td>quorum</td>
+                    <td>{{mon.quorum}}</td>
+                </tr>
+                <tr>
+                    <td>rank</td>
+                    <td>{{mon.rank}}</td>
+                </tr>
+                <tr>
+                    <td>addr</td>
+                    <td>{{mon.addr}}</td>
+                </tr>
+                <tr>
+                    <td>skew</td>
+                    <td>{{mon.skew}}</td>
+                </tr>
+                <tr>
+                    <td>latency</td>
+                    <td>{{mon.latency}}</td>
+                </tr>
+                <tr>
+                    <td>last_updated</td>
+                    <td>{{mon.last_updated}}</td>
+                </tr>
+                <tr>
+                    <td>avail_percent</td>
+                    <td>{{mon.avail_percent}}%</td>
+                </tr>
+                <tr>
+                    <td>kb_total</td>
+                    <td>{{mon.kb_total | bytes:kB}}</td>
+                </tr>
+                <tr>
+                    <td>kb_avail</td>
+                    <td>{{mon.kb_avail | bytes:kB}}</td>
+                </tr>
+                <tr>
+                    <td>kb_used</td>
+                    <td>{{mon.kb_used | bytes:kB}}</td>
+                </tr>
+            </table>
+            </span>
             </div>
 
         </div>
@@ -60,36 +100,89 @@
 </div>
 
 <div id="pg_status">
-    <h2>Placement groups status</h2>
+    <h2 onclick="document.location='poolspgsosds.html'" style="cursor:pointer">{{pgmap.num_pgs}} Placement groups</h2>
 
-    <div id="pg_status_graph" onclick="document.location='poolspgsosds.html'" style="cursor:pointer">
+    <div id="pg_status_graph">
         <ad-pie id="pie01" value="pgsByState" width="350" labelfield="state_name" valuefield="count"></ad-pie>
     </div>
 
-    <div id="pg_status_details">
-        <h2>{{pgmap.num_pgs}} PG
-            <br>
-            <!--br>Capacity<br>{{pgmap.bytes_used | bytes:MB}} used
-            <br>{{pgmap.bytes_avail | bytes:MB}} avail. -->
-            {{pgmap.bytes_total | bytes:MB}} total
-            <br><br></h2>
+</div>
 
-        <div onclick="document.location='poolUsage.html'" style="cursor:pointer">
-            <ad-gauge value="percentUsed" colormode="desc" width="280"></ad-gauge>
-            <div class="gaugeLegend">
-                {{pgmap.bytes_used | bytes:kB}} used <br>on {{pgmap.bytes_total | bytes:kB}}
-            </div>
+<div id="capacity_details">
+    <h2>Avail. capacity : {{pgmap.bytes_total - pgmap.bytes_used | bytes:MB}}</h2>
+    <br><br>
+
+    <div onclick="document.location='poolUsage.html'" style="cursor:pointer">
+        <ad-gauge value="percentUsed" colormode="desc" width="280"></ad-gauge>
+        <div class="gaugeLegend">
+            {{pgmap.bytes_used | bytes:kB}} used <br>on {{pgmap.bytes_total | bytes:kB}}
         </div>
     </div>
 </div>
-
 <div id="osd_status">
-    <h2>Osd status</h2>
+    <h2 onclick="document.location='osds.html'" style="cursor:pointer">{{osdsUp + osdsDown}} OSD</h2>
 
-    <div id="osd_status_details" onclick="document.location='osds.html'" style="cursor:pointer">
-        <div class="health_status_HEALTH_OK osd">{{osdsUp}} up</div>
-        <div class={{osdClass("WARN",osdsOut)}}>{{osdsOut}} out</div>
-        <div class={{osdClass("ERR",osdsDown)}}>{{osdsDown}} down</div>
+    <div id="osd_status_details">
+        <table>
+            <tr>
+                <td>&nbsp;</td>
+                <td>UP</td>
+                <td>DOWN</td>
+            </tr>
+            <tr>
+                <td>IN</td>
+                <td>
+                    <div class="health_status_HEALTH_OK mybadge" onclick="document.location='osds.html'">{{osdsInUp}}</div>
+                </td>
+                <td>
+                    <div class={{badgeClass("ERR",osdsInDown)}} onclick="document.location='osds.html?state=in+down'">
+                        {{osdsInDown}}
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>OUT</td>
+                <td>
+                    <div class={{badgeClass("WARN",osdsOutUp)}} onclick="document.location='osds.html?state=out+up'">
+                        {{osdsOutUp}}
+                    </div>
+                </td>
+                <td>
+                    <div class={{badgeClass("ERR",osdsOutDown)}} onclick="document.location='osds.html?state=out+down'">
+                        {{osdsOutDown}}
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+
+    </div>
+
+
+</div>
+<div id="pool_status">
+    <h2 onclick="document.location='poolspgsosds.html'" style="cursor:pointer">{{pools}} pools</h2>
+
+    <div id="pool_status_details">
+        <table>
+            <tr>
+                <td>clean</td>
+                <td>unclean</td>
+            </tr>
+            <tr><td>
+                    <div class={{badgeClass("OK",cleanPools)}} onclick="document.location='poolspgsosds.html'">
+                        {{cleanPools}}
+                    </div>
+                </td>
+                <td>
+                    <div class={{badgeClass("WARN",uncleanPools)}} onclick="document.location='poolspgsosds.html'">
+                        {{uncleanPools}}
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+
     </div>
 
 

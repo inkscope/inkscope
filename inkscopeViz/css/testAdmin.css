@@ -110,16 +110,17 @@ label {
 }
 
 
-.osd {
-    width: 100px;
-    height: 60px;
-    line-height:60px;
+.mybadge {
+    width: 50px;
+    height: 40px;
+    line-height:40px;
     text-align: center;
     color:#ffffff;
     font-size:20px;
     font-weight: bold;
-    margin:20px;
+    margin:5px;
     border-radius: 10px;
+    cursor: pointer;
 }
 
 .quorum_in, .quorum_out {
@@ -144,18 +145,18 @@ label {
 
 
 #pg_status_graph {
-    width:350px;
-    height: 370px;
+    width:320px;
+    height: 340px;
     margin-right: 10px;
     background-color: white;
     float : left;
 }
-#pg_status_details {
+#capacity_details {
     float:left;
     font-size :16px;
     font-weight: bold;
 }
-#general_status, #mon_status, #pg_status, #osd_status,.general_status  {
+#general_status, #mon_status, #pg_status, #osd_status, #pool_status,.general_status, #capacity_details {
     border:solid 1px gray;
     border-radius: 10px;
     margin: 5px;
@@ -164,18 +165,33 @@ label {
 }
 #pg_status {
     clear:both;
-    width:650px;
-    height: 400px;
+    width:340px;
+    height: 370px;
 }
 #osd_status{
-    width:160px;
-    height: 400px;
+    width:150px;
 }
 #osd_status_details {
-    margin-top:60px;
+    margin-top:10px;
     font-size :16px;
     font-weight: bold;
-    cursor: pointer;
+}
+#osd_status_details table{
+text-align: center;
+}
+#osd_status_details td{
+    text-align: center;
+}
+#pool_status{
+    width:150px;
+}
+#pool_status_details {
+    margin-top:10px;
+    font-size :16px;
+    font-weight: bold;
+}
+#pool_status_details td{
+    text-align: center;
 }
 
 #journal{
