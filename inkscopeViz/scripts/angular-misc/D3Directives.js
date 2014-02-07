@@ -145,7 +145,8 @@ angular.module('D3Directives', [])
                 width: "=",
                 labelfield: "=",
                 valuefield: "=",
-                id: "="
+                id: "=",
+                url:"="
             },
             link: function (scope, element, attrs) {
                 console.log("enter directive  adPie : " + attrs.id);
@@ -186,8 +187,7 @@ angular.module('D3Directives', [])
                                 .labelType("percent")
                                 .tooltipContent(function (key, y, e, graph) {
                                     return '<h3>' + key + '</h3>' + '<p>' + e.point[attrs.valuefield] + '</p>'
-                                })
-                            ;
+                                });
 
                         d3.select("#" + attrs.id + " svg")
                             .datum(newValue)
@@ -197,6 +197,8 @@ angular.module('D3Directives', [])
                         nv.utils.windowResize(chart.update);
                         return chart;
                     });
+                    var path = d3.selectAll("#" + attrs.id + " path")
+                        .on('click',function(d){document.location="poolspgsosds.html?state="+d.data.state_name;});
                 });
             }
 
