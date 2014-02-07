@@ -1,22 +1,38 @@
 // angular stuff
 // create module for custom directives
-var poolUsageApp = angular.module('PoolUsage', ['D3Directives'])
-    .filter('bytes', function () {
-        return function (bytes, precision) {
-            if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) return '-';
-            if (typeof precision === 'undefined') precision = 1;
-            var units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'],
-                number = Math.floor(Math.log(bytes) / Math.log(1024));
-            return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) + ' ' + units[number];
+var poolUsageApp = angular.module('PoolUsage', ['D3Directives', 'ngTable'])
+    .filter('bytes', funcBytesFilter);
+
+poolUsageApp.controller("PoolUsageCtrl", function ($rootScope, $http, $templateCache, $filter, ngTableParams) {
+    var apiURL = '/ceph-rest-api/';
+
+    $rootScope.tableParams = new ngTableParams({
+        page: 1,            // show first page
+        count: 20,          // count per page
+        sorting: {
+            id: 'asc'     // initial sorting
+        }
+    }, {
+        counts: [], // hide page counts control
+        total: 1,  // value less than count hide pagination
+        getData: function ($defer, params) {
+            // use build-in angular filter
+            $rootScope.orderedData = params.sorting() ?
+                $filter('orderBy')($rootScope.pools, params.orderBy()) :
+                data;
+            $defer.resolve($rootScope.orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
         }
     });
 
-poolUsageApp.controller("PoolUsageCtrl", function ($rootScope, $http, $templateCache) {
-    var apiURL = '/ceph-rest-api/';
-    getPoolUsage();
-    setTimeout(function () {getPoolUsage()}, 10000);
 
-    function getPoolUsage(){
+    getPoolUsage();
+    setInterval(function () {
+        getPoolUsage()
+    }, 10000);
+
+    var data;
+
+    function getPoolUsage() {
         $http({method: "get", url: apiURL + "df.json"}).
             success(function (data, status) {
                 $rootScope.status = status;
@@ -26,6 +42,8 @@ poolUsageApp.controller("PoolUsageCtrl", function ($rootScope, $http, $templateC
                 var totalUsed = data.output.stats.total_used;
                 var totalSpace = data.output.stats.total_space;
                 $rootScope.percentUsed = totalUsed / totalSpace;
+                $rootScope.tableParams.reload();
+
             }).
             error(function (data, status) {
                 $rootScope.status = status;
@@ -34,4 +52,5 @@ poolUsageApp.controller("PoolUsageCtrl", function ($rootScope, $http, $templateC
                 $rootScope.stats.total_space = "N/A";
             });
     }
+
 });

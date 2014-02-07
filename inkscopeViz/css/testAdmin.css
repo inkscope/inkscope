@@ -74,7 +74,7 @@ label {
 #list{
      margin : 2em;
      float:left;
-     width :250px;
+     width :350px;
      padding: 1em;
  }
 
@@ -133,7 +133,8 @@ label {
     font-size:20px;
     font-weight: bold;
     float:left;
-    margin:10px;
+    margin:0px;
+    margin-right: 10px;
 
 }
 .quorum_in {

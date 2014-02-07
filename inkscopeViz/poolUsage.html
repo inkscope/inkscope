@@ -3,7 +3,10 @@
 <head>
     <meta charset=utf-8 />
     <script src="scripts/angular/angular.min.js"></script>
+    <script src="scripts/angular-misc/angular-commons.js"></script>
     <script src="scripts/angular-misc/D3Directives.js"></script>
+    <script src="scripts/angular-misc/ng-table.min.js"></script>
+    <link rel="stylesheet" href="scripts/angular-misc/ng-table.min.css">
     <script src="scripts/poolUsageApp.js"></script>
     <script src="scripts/d3/d3.v3.min.js"></script>
     <script src="scripts/d3/common.js"></script>
@@ -26,12 +29,23 @@
 </div>
 
 <div id="list">
+<table ng-table="tableParams" class="table table-condensed table-hover">
+    <tr ng-repeat="pool in orderedData">
+        <td data-title="'Id'" sortable="'id'">{{pool.id}}</td>
+        <td data-title="'Name'" sortable="'name'">{{pool.name}}</td>
+        <td data-title="'Space used'" sortable="'stats.bytes_used'" style="text-align:right">{{pool.stats.bytes_used|bytes}}</td>
+        <td data-title="'Objects'" sortable="'stats.objects'" style="text-align:right">{{pool.stats.objects}}</td>
+    </tr>
+</table>
+</div>
+
+<!--div id="list">
     <table  class="table table-condensed table-hover">
         <thead>
         <tr>
             <th>Id</th>
             <th>Pool</th>
-            <th>kB used</th>
+            <th>Space used</th>
             <th>Objects</th>
         </tr>
         </thead>
@@ -39,12 +53,13 @@
         <tr ng-repeat="pool in pools ">
             <td>{{pool.id}}</td>
             <td>{{pool.name}}</td>
-            <td>{{pool.stats.kb_used}}</td>
-            <td>{{pool.stats.objects}}</td>
+            <td style="text-align:right">{{pool.stats.bytes_used|bytes}}</td>
+            <td style="text-align:right">{{pool.stats.objects}}</td>
         </tr>
         </tbody>
     </table>
-</div>
+</div-->
+
 
 </body>
 </html>
