@@ -46,6 +46,7 @@ StatusApp.controller("statusCtrl", function ($scope, $http) {
                     if (pools[i] == true) $scope.cleanPools++;
                 }
                 $scope.uncleanPools = nbPools - $scope.cleanPools;
+                $scope.pools = nbPools;
             });
     };
 
@@ -54,9 +55,6 @@ StatusApp.controller("statusCtrl", function ($scope, $http) {
         $scope.date = new Date();
         $http({method: "get", url: apiURL + "status.json"})
             .success(function (data) {
-                // simulated
-                $scope.pools = $scope.cleanPools + $scope.uncleanPools;
-
                 $scope.pgmap = data.output.pgmap;
                 $scope.percentUsed = $scope.pgmap.bytes_used / $scope.pgmap.bytes_total;
                 $scope.pgsByState = $scope.pgmap.pgs_by_state;
