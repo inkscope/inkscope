@@ -59,6 +59,8 @@ def load_conf():
 # mem
 
 def pickMem(hostname, db):
+    print str(datetime.datetime.now()), "-- Pick Mem"  
+    sys.stdout.flush()
     res = psutil.virtual_memory()
     #convert to base
     mem4db = {
@@ -76,6 +78,8 @@ def pickMem(hostname, db):
 # swap
 
 def pickSwap(hostname, db): 
+    print str(datetime.datetime.now()), "-- Pick Swap"  
+    sys.stdout.flush()
     res = psutil.swap_memory()
     #convert to base
     swap4db = {
@@ -111,6 +115,8 @@ def getPartitions(hostname):
 
 
 def pickPartitionsStat(hostname, db):
+    print str(datetime.datetime.now()), "-- Pick Partition Stats"  
+    sys.stdout.flush()
     _partitions = psutil.disk_partitions()
     for p in _partitions :
         # disk usage
@@ -382,6 +388,8 @@ diskStatHdr = ["rrqm_s", "wrqm_s", "r_s" ,"w_s","rkB_s", "wkB_s"]
 
 # disk stat
 def pickDiskStat(db, HWdisks):    
+    print str(datetime.datetime.now()), "-- Pick Disk Stats"  
+    sys.stdout.flush()
     p = subprocess.Popen(args=['iostat','-dx']+[d["logical_name"] for d in HWdisks],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     outdata, errdata = p.communicate()
     if (len(errdata)):
@@ -404,6 +412,8 @@ def pickDiskStat(db, HWdisks):
 
 # net stat
 def pickNetStat(db, HWnets):
+    print str(datetime.datetime.now()), "-- Pick Net Stats"  
+    sys.stdout.flush()
     netio = psutil.net_io_counters(pernic=True)
     for n in HWnets :
         net_interface = n["logical_name"]
@@ -428,6 +438,8 @@ def pickNetStat(db, HWnets):
             
 # cpu stat
 def pickCpuStat(hostname, db):
+    print str(datetime.datetime.now()), "-- Pick CPU Stats"  
+    sys.stdout.flush()
     cputimes = psutil.cpu_times()
     cpus_stat = {
                  "timestamp" : int(round(time.time() * 1000)) ,

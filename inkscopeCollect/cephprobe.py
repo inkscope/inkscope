@@ -134,6 +134,8 @@ def initCluster(restapi, db):
 
 #uri : /api/v0.1/status.json
 def processStatus(restapi, db):
+    print str(datetime.datetime.now()), "-- Process Status"  
+    sys.stdout.flush()
     restapi.request("GET", "/api/v0.1/status.json")
     r1=restapi.getresponse()
     if (r1.status == 200) :
@@ -190,6 +192,8 @@ def processStatus(restapi, db):
 
 #uri : /api/v0.1/osd/dump.json
 def processOsdDump(restapi, db):   
+    print str(datetime.datetime.now()), "-- Process OSDDump"  
+    sys.stdout.flush()
     restapi.request("GET", "/api/v0.1/osd/dump.json")
     r1=restapi.getresponse()
     if (r1.status == 200) :
@@ -266,6 +270,8 @@ def processOsdDump(restapi, db):
 
 #uri : /api/v0.1/pg/dump.json
 def processPgDump(restapi, db):
+    print str(datetime.datetime.now()), "-- Process PGDump"  
+    sys.stdout.flush()
     restapi.request("GET", "/api/v0.1/pg/dump.json")
     r1=restapi.getresponse()
     if (r1.status == 200) :
@@ -289,6 +295,8 @@ def processPgDump(restapi, db):
 
 #uri : /api/v0.1/osd/crush/dump.json
 def processCrushmap(restapi, db):
+    print str(datetime.datetime.now()), "-- Process Crushmap"  
+    sys.stdout.flush()
     restapi.request("GET", "/api/v0.1/osd/crush/dump.json")
     r1=restapi.getresponse()
     if (r1.status == 200) :
@@ -361,6 +369,8 @@ def processCrushmap(restapi, db):
 
 #uri : /api/v0.1/df
 def processDf(restapi, db): 
+    print str(datetime.datetime.now()), "-- Process DF"  
+    sys.stdout.flush()
     restapi.request("GET", "/api/v0.1/df.json")
     r1=restapi.getresponse()
     if (r1.status == 200) :
@@ -422,8 +432,7 @@ class SysProbeDaemon(Daemon):
         Daemon.__init__(self, pidfile, stdout = logfile, stderr = logfile)
         
     def run(self):
-        print str(datetime.datetime.now())
-        print "CephProbe loading"  
+        print str(datetime.datetime.now()), "-- CephProbe loading"  
         #load conf
         conf = load_conf()
         global clusterName
@@ -457,6 +466,8 @@ class SysProbeDaemon(Daemon):
         
         mongodb_port = conf.get("mongodb_port", None)
         print "mongodb_port = ", mongodb_port
+        
+        sys.stdout.flush()
         
         # end conf extraction
         
@@ -505,8 +516,7 @@ class SysProbeDaemon(Daemon):
         while not evt.isSet() : 
             evt.wait(600)
 
-        print str(datetime.datetime.now())
-        print "CephProbe stopped"
+        print str(datetime.datetime.now()), "-- CephProbe stopped"
     
    
 
