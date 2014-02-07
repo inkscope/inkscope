@@ -37,6 +37,7 @@ import signal
 
 configfile = "/opt/inkscope/etc/cephprobe.conf"
 runfile = "/var/run/cephprobe/cephprobe.pid"
+logfile = "/var/run/cephprobe/cephprobe.log"
 clusterName = "ceph"
 fsid = ""
 
@@ -417,22 +418,46 @@ def handler(signum, frame):
     
 
 class SysProbeDaemon(Daemon):
-    def run(self):  
+    def __init__(self, pidfile):
+        Daemon.__init__(self, pidfile, stdout = logfile, stderr = logfile)
+        
+    def run(self):
+        print str(datetime.datetime.now())
+        print "CephProbe loading"  
         #load conf
         conf = load_conf()
         global clusterName
         
         clusterName = conf.get("cluster", "ceph")
+        print "clusterName = ", clusterName
+        
         cephConf = conf.get("ceph_conf", "/etc/ceph/ceph.conf")
+        print "cephConf = ", cephConf
+        
         ceph_rest_api = conf.get("ceph_rest_api", '127.0.0.1:5000')
+        print "ceph_rest_api = ", ceph_rest_api
+        
         status_refresh = conf.get("status_refresh", 3)
+        print "status_refresh = ", status_refresh
+        
         osd_dump_refresh = conf.get("osd_dump_refresh", 3)
+        print "osd_dump_refresh = ", osd_dump_refresh
+        
         pg_dump_refresh = conf.get("pg_dump_refresh", 60)
+        print "pg_dump_refresh = ", pg_dump_refresh
+        
         crushmap_refresh = conf.get("crushmap_refresh", 60)
+        print "crushmap_refresh = ", crushmap_refresh
+        
         df_refresh = conf.get("df_refresh", 60)
+        print "df_refresh = ", df_refresh
         
         mongodb_host = conf.get("mongodb_host", None)
+        print "mongodb_host = ", mongodb_host
+        
         mongodb_port = conf.get("mongodb_port", None)
+        print "mongodb_port = ", mongodb_port
+        
         # end conf extraction
         
         
@@ -480,6 +505,8 @@ class SysProbeDaemon(Daemon):
         while not evt.isSet() : 
             evt.wait(600)
 
+        print str(datetime.datetime.now())
+        print "CephProbe stopped"
     
    
 

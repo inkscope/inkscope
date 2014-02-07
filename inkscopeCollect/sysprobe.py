@@ -11,6 +11,7 @@
 
 from pymongo import MongoClient
 import time
+import datetime
 
 import re
 
@@ -39,8 +40,9 @@ import signal
 #from bson.objectid import ObjectId
 #db.col.find({"_id": ObjectId(obj_id_to_find)})
 
-configfile = "/etc/sysprobe.conf"
+configfile = "/opt/inkscope/etc/sysprobe.conf"
 runfile = "/var/run/sysprobe/sysprobe.pid"
+logfile = "/var/run/sysprobe/sysprobe.log"
 
 
 
@@ -66,7 +68,7 @@ def pickMem(hostname, db):
         "free" : res.free,
         "buffers" : res.buffers,
         "cached" : res.cached,
-        "host" : DBref("hosts", hostname)
+        "host" : DBRef("hosts", hostname)
         }
     mem_id = db.memstat.insert(mem4db)
     db.hosts.update({"_id": hostname}, {"$set": {"mem": DBRef("memstat", mem_id)}})
@@ -81,7 +83,7 @@ def pickSwap(hostname, db):
                "total" : res.total,
                "used" : res.used,
                "free" : res.free,
-               "host" : DBref("hosts", hostname)
+               "host" : DBRef("hosts", hostname)
                }
     swap_id = db.swapstat.insert(swap4db)
     db.hosts.update({"_id": hostname}, {"$set": {"swap": DBRef("swapstat",swap_id)}})
@@ -492,22 +494,45 @@ def handler(signum, frame):
     
     
 class SysProbeDaemon(Daemon):
+    def __init__(self, pidfile):
+        Daemon.__init__(self, pidfile, stdout = logfile, stderr = logfile)
+        
     def run(self):
+        print str(datetime.datetime.now())
+        print "SysProbe loading"
         #load conf
         data = load_conf()
         
         clusterName = data.get("cluster", "ceph")
+        print "cluster = ", clusterName
+        
         mem_refresh = data.get("mem_refresh", 60)
+        print "mem_refresh = ", mem_refresh
+        
         swap_refresh = data.get("swap_refresh", 600)
+        print "swap_refresh = ", swap_refresh
+        
         disk_refresh = data.get("disk_refresh", 60)
+        print "disk_refresh = ", disk_refresh
+        
         partition_refresh = data.get("partition_refresh", 60)
+        print "partition_refresh = ", partition_refresh
+        
         cpu_refresh = data.get("cpu_refresh", 60)
+        print "cpu_refresh = ", cpu_refresh
+        
         net_refresh = data.get("net_refresh", 30)
+        print "net_refresh = ", net_refresh
+        
         
         mongodb_host = data.get("mongodb_host", None)
+        print "mongodb_host = ", mongodb_host
+        
         mongodb_port = data.get("mongodb_port", None)
+        print "mongodb_port = ", mongodb_port
         # end conf extraction
         
+        sys.stdout.flush()
         
         hostname = socket.gethostname() #platform.node()
         
@@ -551,6 +576,8 @@ class SysProbeDaemon(Daemon):
         while not evt.isSet() : 
             evt.wait(600)
         
+        print str(datetime.datetime.now())
+        print "SysProbe stopped"
         
     
    
