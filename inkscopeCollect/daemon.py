@@ -2,7 +2,7 @@
 
 
 import sys, os, time, atexit
-from signal import SIGTERM 
+import signal
 
 class Daemon:
     """
@@ -73,6 +73,7 @@ class Daemon:
             pf = file(self.pidfile,'r')
             pid = int(pf.read().strip())
             pf.close()
+	    print "pid cephprobe" + str(pid)
         except IOError:
             pid = None
     
@@ -103,9 +104,10 @@ class Daemon:
             return # not an error in a restart
 
         # Try killing the daemon process    
-        try:
+	try:
             while 1:
-                os.kill(pid, SIGTERM)
+		print "try to kill cephprob process: "+str(pid)
+		os.kill(pid, signal.SIGQUIT)
                 time.sleep(0.1)
         except OSError, err:
             err = str(err)
