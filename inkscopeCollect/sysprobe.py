@@ -42,7 +42,7 @@ import signal
 
 configfile = "/opt/inkscope/etc/sysprobe.conf"
 runfile = "/var/run/sysprobe/sysprobe.pid"
-logfile = "/var/run/sysprobe/sysprobe.log"
+logfile = "/var/log/sysprobe.log"
 
 
 

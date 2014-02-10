@@ -15,6 +15,8 @@ import psutil
 # for ceph command call
 import subprocess
 
+import datetime
+
 import sys
 import os
 import getopt
@@ -37,7 +39,7 @@ import signal
 
 configfile = "/opt/inkscope/etc/cephprobe.conf"
 runfile = "/var/run/cephprobe/cephprobe.pid"
-logfile = "/var/run/cephprobe/cephprobe.log"
+logfile = "/var/log/cephprobe.log"
 clusterName = "ceph"
 fsid = ""
 
@@ -469,13 +471,13 @@ class SysProbeDaemon(Daemon):
         print "df_refresh = ", df_refresh
         
         
-        cluster_window = data.get("cluster_window", 1200)
+        cluster_window = conf.get("cluster_window", 1200)
         print "cluster_window = ", cluster_window
         
-        osd_window = data.get("osd_window", 1200)
+        osd_window = conf.get("osd_window", 1200)
         print "osd_window = ", osd_window
         
-        pool_window = data.get("pool_window", 1200)
+        pool_window = conf.get("pool_window", 1200)
         print "pool_window = ", pool_window
         
         mongodb_host = conf.get("mongodb_host", None)

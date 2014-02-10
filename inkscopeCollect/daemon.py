@@ -105,10 +105,14 @@ class Daemon:
 
         # Try killing the daemon process    
         try:
+            nbocc = 0
             while 1:
+                nbocc=nbocc+1
                 print "try to kill process: "+str(pid)
                 os.kill(pid, signal.SIGTERM)
                 time.sleep(0.1)
+                if nbocc % 5 == 0:
+                   os.kill(pid,signal.SIGHUP)
         except OSError, err:
             err = str(err)
             if err.find("No such process") > 0:
