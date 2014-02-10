@@ -459,6 +459,12 @@ def pickCpuStat(hostname, db):
         
 
 
+#delete the oldest stats
+def dropStat(db, collection, window):
+    before = int(round(time.time() * 1000)) - window
+    print str(datetime.datetime.now()), "-- drop Stats :", collection, "before", before       
+    db[collection].remove({"timestamp" : {"$lt" : before}})
+
 
 
 class Repeater(Thread):
@@ -521,21 +527,38 @@ class SysProbeDaemon(Daemon):
         mem_refresh = data.get("mem_refresh", 60)
         print "mem_refresh = ", mem_refresh
         
+        mem_window = data.get("mem_window", 1200)
+        print "mem_window = ", mem_window
+        
         swap_refresh = data.get("swap_refresh", 600)
         print "swap_refresh = ", swap_refresh
+        
+        swap_window = data.get("swap_window", 3600)
+        print "swap_window = ", swap_window
         
         disk_refresh = data.get("disk_refresh", 60)
         print "disk_refresh = ", disk_refresh
         
+        disk_window = data.get("disk_window", 1200)
+        print "disk_window = ", disk_window
+        
         partition_refresh = data.get("partition_refresh", 60)
         print "partition_refresh = ", partition_refresh
+        
+        partition_window = data.get("partition_window", 1200)
+        print "partition_window = ", partition_window
         
         cpu_refresh = data.get("cpu_refresh", 60)
         print "cpu_refresh = ", cpu_refresh
         
+        cpu_window = data.get("cpu_window", 1200)
+        print "cpu_window = ", cpu_window
+        
         net_refresh = data.get("net_refresh", 30)
         print "net_refresh = ", net_refresh
         
+        net_window = data.get("net_window", 1200)
+        print "net_window = ", net_window       
         
         mongodb_host = data.get("mongodb_host", None)
         print "mongodb_host = ", mongodb_host
@@ -557,7 +580,7 @@ class SysProbeDaemon(Daemon):
         if cpu_refresh > 0 :
             cpuThread = Repeater(evt, pickCpuStat, [hostname, db], cpu_refresh)
             cpuThread.start()
-        
+            
         netThread = None
         if net_refresh > 0 :
             netThread = Repeater(evt, pickNetStat, [db, HWnets], net_refresh)
@@ -582,6 +605,38 @@ class SysProbeDaemon(Daemon):
         if partition_refresh > 0:
             partThread = Repeater(evt, pickPartitionsStat, [hostname, db], partition_refresh)
             partThread.start()
+            
+        # drop thread
+        cpuDBDropThread = None    
+        if cpu_window > 0 :
+            cpuDBDropThread = Repeater(evt, dropStat, [db, "cpustat", cpu_window], cpu_window)
+            cpuDBDropThread.start()
+        
+        netDBDropThread = None
+        if net_window > 0 :
+            netDBDropThread = Repeater(evt, dropStat, [db, "netstat", net_window], net_window)
+            netDBDropThread.start()
+        
+        memDBDropThread = None
+        if mem_window > 0:
+            memDBDropThread = Repeater(evt, dropStat, [db, "memstat", mem_window], mem_window)
+            memDBDropThread.start()
+        
+        swapDBDropThread = None
+        if swap_window > 0 : 
+            swapDBDropThread = Repeater(evt, dropStat, [db, "swapstat", swap_window], swap_window)
+            swapDBDropThread.start()
+        
+        diskDBDropThread = None
+        if disk_window > 0:
+            diskDBDropThread = Repeater(evt, dropStat, [db, "diskstat", disk_window], disk_window)
+            diskDBDropThread.start()
+        
+        partDBDropThread = None
+        if partition_window > 0:
+            partDBDropThread = Repeater(evt, dropStat, [db, "partitionstat", partition_window], partition_window)
+            partDBDropThread.start()
+        
         
         signal.signal(signal.SIGTERM, handler)
         

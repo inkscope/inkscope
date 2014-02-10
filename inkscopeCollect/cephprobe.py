@@ -394,6 +394,13 @@ def processDf(restapi, db):
             statsid = db.poolstat.insert(pstats)       
             db.pools.update({'_id' : pdf["id"]}, {"$set" : {"df" : DBRef("poolstat",statsid)}})
         
+        
+#delete the oldest stats
+def dropStat(db, collection, window):
+    before = int(round(time.time() * 1000)) - window
+    print str(datetime.datetime.now()), "-- drop Stats :", collection, "before", before       
+    db[collection].remove({"timestamp" : {"$lt" : before}})
+    
 
 def ensure_dir(f):
     d = os.path.dirname(f)
@@ -461,6 +468,16 @@ class SysProbeDaemon(Daemon):
         df_refresh = conf.get("df_refresh", 60)
         print "df_refresh = ", df_refresh
         
+        
+        cluster_window = data.get("cluster_window", 1200)
+        print "cluster_window = ", cluster_window
+        
+        osd_window = data.get("osd_window", 1200)
+        print "osd_window = ", osd_window
+        
+        pool_window = data.get("pool_window", 1200)
+        print "pool_window = ", pool_window
+        
         mongodb_host = conf.get("mongodb_host", None)
         print "mongodb_host = ", mongodb_host
         
@@ -510,6 +527,23 @@ class SysProbeDaemon(Daemon):
             restapi = httplib.HTTPConnection(ceph_rest_api)
             dfThread = Repeater(evt, processDf, [restapi, db], df_refresh)
             dfThread.start()
+            
+            
+        # drop threads : osdstat, poolstat, clusterstat
+        clusterDBDropThread = None    
+        if cluster_window > 0 :
+            clusterDBDropThread = Repeater(evt, dropStat, [db, "clusterstat", cluster_window], cluster_window)
+            clusterDBDropThread.start()
+            
+        osdDBDropThread = None    
+        if osd_window > 0 :
+            osdDBDropThread = Repeater(evt, dropStat, [db, "osdstat", osd_window], osd_window)
+            osdDBDropThread.start()
+            
+        poolDBDropThread = None    
+        if pool_window > 0 :
+            poolDBDropThread = Repeater(evt, dropStat, [db, "poolstat", pool_window], pool_window)
+            poolDBDropThread.start()
         
         signal.signal(signal.SIGTERM, handler)
         
