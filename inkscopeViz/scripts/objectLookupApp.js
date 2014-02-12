@@ -4,15 +4,7 @@
 // angular stuff
 // create module for custom directives
 var ObjectLookupApp = angular.module('ObjectLookupApp', ['D3Directives'])
-    .filter('bytes', function () {
-        return function (bytes, precision) {
-            if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) return '-';
-            if (typeof precision === 'undefined') precision = 1;
-            var units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'],
-                number = Math.floor(Math.log(bytes) / Math.log(1024));
-            return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) + ' ' + units[number];
-        }
-    });
+    .filter('bytes', funcBytesFilter);
 
 ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $http) {
     var mongoURL = '/mongoJuice/';
