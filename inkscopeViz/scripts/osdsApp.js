@@ -15,15 +15,13 @@ var OsdsApp = angular.module('OsdsApp', ['D3Directives'])
     });
 
 OsdsApp.controller("OsdsCtrl", function ($rootScope, $http) {
-    var mongoURL = '/mongoJuice/';
-    var restApiURL = '/ceph-rest-api/';
 
     getOsds();
-    setInterval(function () {getOsds()},5*1000);
+    setInterval(function () {getOsds()},10*1000);
 
     function getOsds() {
         $rootScope.date = new Date();
-        $http({method: "get", url: mongoURL + "ceph/osd?depth=2"}).
+        $http({method: "get", url: inkscopeCtrlURL + "ceph/osd?depth=2"}).
 
             success(function (data, status) {
                 $rootScope.data = data;
@@ -72,7 +70,7 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $http) {
     }
 
     $rootScope.osdIn = function (osd) {
-        $http({method: "put", url: restApiURL + "osd/in?ids="+osd}).
+        $http({method: "put", url: cephRestApiURL + "osd/in?ids="+osd}).
 
             success(function (data, status) {
 
@@ -83,7 +81,7 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $http) {
     }
 
     $rootScope.osdOut = function (osd) {
-        $http({method: "put", url: restApiURL + "osd/out?ids="+osd}).
+        $http({method: "put", url: cephRestApiURL + "osd/out?ids="+osd}).
 
             success(function (data, status) {
 
@@ -94,7 +92,7 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $http) {
     }
 
     $rootScope.osdDown = function (osd) {
-        $http({method: "put", url: restApiURL + "osd/down?ids="+osd}).
+        $http({method: "put", url: cephRestApiURL + "osd/down?ids="+osd}).
 
             success(function (data, status) {
 
