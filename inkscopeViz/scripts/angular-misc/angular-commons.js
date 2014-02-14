@@ -1,7 +1,7 @@
 /**
  * Created by Alain Dechorgnat on 1/14/14.
  */
-var inkscopeCtrlURL = '/mongoJuice/';
+var inkscopeCtrlURL = '/inkscopeCtrl/';
 var cephRestApiURL = '/ceph-rest-api/';
 
 
