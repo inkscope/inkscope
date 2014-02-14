@@ -69,3 +69,15 @@ create a file *inkScopeViz.conf* with this content:
         sudo a2ensite inkScopeViz
    
     No need to restart Apache at this time
+
+
+8. Install inkscopeCtrl
+
+    - install mod-wgsi for Apache
+
+         apt-get install libapache2-mod-wsgi
+
+    - install python dependencies
+
+         pip install pymongo
+
