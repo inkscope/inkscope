@@ -2,11 +2,13 @@ Installation of inkscopeViz
 ---------------------------
 
 1. Download all the directories of the inkScope project to a folder of your choice
+
     *in the following stages, we have chosen /var/www/inkscope*
 
 2. Install Apache V2
 
 3. Choose a tcp port for inkScopeViz
+
     *in the following stages, we have chosen 8080*
 
 4. Modify Apache conf file /etc/apache2/port.conf to add the following line
@@ -14,8 +16,9 @@ Installation of inkscopeViz
         Listen 8080
 
 5. Create a virtual host named **inkScopeViz**
-in the folder */etc/apache2/sites-available* ,
-create a file *inkScopeViz.conf* with this content:
+
+    in the folder */etc/apache2/sites-available* ,
+    create a file *inkScopeViz.conf* with this content:
 
         <VirtualHost *:8080>
             ServerName  localhost
@@ -65,21 +68,23 @@ create a file *inkScopeViz.conf* with this content:
 
     - install mod-wgsi for Apache
 
-         sudo apt-get install libapache2-mod-wsgi
+            sudo apt-get install libapache2-mod-wsgi
 
     - install python dependencies
 
-         sudo pip install pymongo
+            sudo pip install pymongo
 
     - add inkscopeCtrl in */etc/apache2/sites-available/inkScopeViz.conf*
 
-        WSGIScriptAlias /inkscopeCtrl /var/www/inkscope/inkscopeCtrl/mongoJuice.wsgi
-        <Directory "/var/www/inkscope/inkscopeCtrl">
-            Order allow,deny
-            Allow from all
-        </Directory>
+        insert the following lines:
+
+            WSGIScriptAlias /inkscopeCtrl /var/www/inkscope/inkscopeCtrl/mongoJuice.wsgi
+            <Directory "/var/www/inkscope/inkscopeCtrl">
+                Order allow,deny
+                Allow from all
+            </Directory>
 
     - restart Apache
 
-        sudo service apache2 restart
+            sudo service apache2 restart
 
