@@ -500,7 +500,7 @@ def pickCephProcesses(hostname, db):
             #mon 
             db.mon.update({'_id' : id},{"$set" : {"process" : DBRef("process",id)}})            
            
-    
+
 
 
 #delete the oldest stats
@@ -534,6 +534,11 @@ def ensure_dir(f):
     d = os.path.dirname(f)
     if not os.path.exists(d):
         os.makedirs(d)  
+#ceph probe 
+#cephClient = httplib.HTTPConnection("localhost", port)
+
+# gethostname -> hn
+# if hn is mon of rank 0 -> update db
 
 
 

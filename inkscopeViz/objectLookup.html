@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html ng-app="ObjectLookupApp">
+<head>
+    <meta charset=utf-8/>
+    <script src="scripts/angular/angular.min.js"></script>
+    <script src="scripts/angular-misc/angular-commons.js"></script>
+    <script src="scripts/angular-misc/D3Directives.js"></script>
+    <script src="scripts/objectLookupApp.js"></script>
+    <script src="scripts/d3/d3.v3.min.js"></script>
+    <script src="scripts/d3/common.js"></script>
+    <link rel="stylesheet" href="css/tooltip.css"/>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/testAdmin.css">
+    <title>Osds</title>
+    <style>
+        #osds {
+            margin: 10px 200px 10px 50px;
+        }
+
+        .osd {
+            float: left;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            margin: 5px;
+            padding: 0px;
+            border-radius: 26px;
+            color: white;
+            vertical-align: middle;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+        }
+
+        .osd_in {
+            border: solid 4px limegreen;
+        }
+
+        .osd_out {
+            border: solid 4px red;
+        }
+
+        .osd_up {
+            background-color: limegreen;
+        }
+
+        .osd_down {
+            background-color: darkorange;;
+        }
+
+        #controlPanel {
+            border: black solid 1px;
+            position: absolute;
+            top: 150px;
+            right: 0px;
+            margin: 10px;
+            border-radius: 5px;
+            vertical-align: middle;
+            padding: 5px;
+        }
+
+        #controlPanel input[type=number] {
+            width: 40px;
+        }
+    </style>
+
+</head>
+<body ng-controller="ObjectLookupCtrl">
+<h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> Ceph Object Lookup</h1>
+
+
+    <div class="general_status">
+        <h2>Selection</h2>
+        <br>
+        Pool:
+        <input type="text" ng-model="pool" name="pool" placeholder="pool name">
+        Object id:
+        <input type="text" ng-model="objectId" name="objectId" placeholder="object id">
+    </div>
+
+
+<div id="controlPanel" style="display: none">
+    <div class="osd  {{osdClass(osd.stat.in,osd.stat.up)}}" style="float:right">
+        {{osd.node._id}}
+    </div>
+    <h1>{{osd.node.name}}</h1>
+    <strong>{{osdState(osd.stat.in,osd.stat.up)}}</strong>
+    <br><br>
+    {{osd.partition._id}}<br>
+    {{osd.public_addr}}<br>
+    <ad-gauge value="osd.partition.stat.used/osd.partition.stat.total" colormode="desc" width="180"></ad-gauge>
+    <div class="gaugeLegend">
+        {{osd.partition.stat.used| bytes}} used <br>on {{osd.partition.stat.total| bytes}}
+    </div>
+    <hr>
+    <div align="center">
+        <a class="btn btn-success btn-large" ng-hide="osd.stat.in == true" ng-click="osdIn(selectedOsd)"><i
+                class="icon-white icon-plus"></i> get in</a>
+        <a class="btn btn-danger btn-large" ng-hide="osd.stat.in != true" ng-click="osdOut(selectedOsd)"><i
+                class="icon-white icon-minus"></i> get out</a>
+        <a class="btn btn-warning btn-large" ng-hide="osd.stat.up == false" ng-click="osdDown(selectedOsd)"><i
+                class="icon-white icon-arrow-down"></i> down</a>
+    </div>
+</div>
+
+
+<div class="general_status">
+   <h3>Date : {{date | date:'HH:mm:ss'}}</h3>
+    <table  class="table table-condensed" style="width:300px;align-self: center">
+        <tr><td>Object</td><td>{{objectId}}</td></tr>
+        <tr><td>Pool</td><td>{{pool}}</td></tr>
+        <tr><td>PG</td><td>{{data.pgid}}</td></tr>
+        <tr><td>acting</td><td>{{data.acting}}</td></tr>
+        <tr><td>up</td><td>{{data.up}}</td></tr>
+    </table>
+   <div id="osds">
+        <h3>Acting OSD :</h3>
+        <div ng-repeat="osd in acting" class=" tooltips osd  {{osdClass(getOsd(osd).stat.in,getOsd(osd).stat.up)}}">
+            <div ng-click="osdSelect(getOsd(osd));">
+                {{osd}}
+                <div> <!-- tooltip -->
+                <span>
+                    <strong>{{getOsd(osd).node.name}}</strong> {{osdState(getOsd(osd).stat.in,getOsd(osd).stat.up)}}<br><br>
+                    {{getOsd(osd).partition._id}}<br>
+                    {{getOsd(osd).public_addr}}<br>
+                    free : {{getOsd(osd).partition.stat.free|bytes}}<br>
+                    used : {{getOsd(osd).partition.stat.used|bytes}}<br>
+                    total: {{getOsd(osd).partition.stat.total|bytes}}<br>
+                </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

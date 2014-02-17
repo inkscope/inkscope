@@ -1,6 +1,9 @@
 /**
  * Created by Alain Dechorgnat on 1/14/14.
  */
+var inkscopeCtrlURL = '/inkscopeCtrl/';
+var cephRestApiURL = '/ceph-rest-api/';
+
 
 function funcBytesFilter () {
     return function (bytes, precision) {

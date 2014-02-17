@@ -3,25 +3,22 @@
  */
 // angular stuff
 // create module for custom directives
-var OsdsApp = angular.module('OsdsApp', ['D3Directives'])
-    .filter('bytes', function () {
-        return function (bytes, precision) {
-            if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) return '-';
-            if (typeof precision === 'undefined') precision = 1;
-            var units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'],
-                number = Math.floor(Math.log(bytes) / Math.log(1024));
-            return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) + ' ' + units[number];
-        }
-    });
+var ObjectLookupApp = angular.module('ObjectLookupApp', ['D3Directives'])
+    .filter('bytes', funcBytesFilter);
 
-OsdsApp.controller("OsdsCtrl", function ($rootScope, $http) {
+ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $http) {
+    var mongoURL = '/mongoJuice/';
+    var restApiURL = '/ceph-rest-api/';
 
-    getOsds();
-    setInterval(function () {getOsds()},10*1000);
+    $scope.pool = "";
 
-    function getOsds() {
+    getObjectInfo();
+    setInterval(function () {getObjectInfo()},5*1000);
+
+    function getObjectInfo() {
         $rootScope.date = new Date();
-        $http({method: "get", url: inkscopeCtrlURL + "ceph/osd?depth=2"}).
+
+        $http({method: "get", url: mongoURL + "ceph/osd?depth=2"}).
 
             success(function (data, status) {
                 $rootScope.data = data;
@@ -39,6 +36,21 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $http) {
                 $rootScope.status = status;
                 $rootScope.data = data || "Request failed";
             });
+
+        console.log(restApiURL + "osd/map?pool="+ $scope.pool +"&object="+ $scope.objectId );
+
+        if ($scope.pool+"" =="undefined" || $scope.objectId+"" =="undefined") return;
+        $http({method: "get", url: restApiURL + "osd/map.json?pool="+$scope.pool+"&object="+$scope.objectId}).
+
+            success(function (data, status) {
+                $scope.data = data.output;
+                $scope.acting = JSON.parse($scope.data.acting);
+            }).
+            error(function (data, status) {
+                $rootScope.status = status;
+                $scope.data = {"pgid":"not found","acting":"","up":""};
+            });
+
     }
 
     $rootScope.osdClass = function (osdin,osdup){
@@ -69,40 +81,16 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $http) {
         $rootScope.selectedOsd = osd.node._id;
     }
 
-    $rootScope.osdIn = function (osd) {
-        $http({method: "put", url: cephRestApiURL + "osd/in?ids="+osd}).
-
-            success(function (data, status) {
-
-            }).
-            error(function (data, status) {
-
-            });
+    $rootScope.getOsd = function (osd) {
+        //console.log("osd:"+osd);
+        for (var i=0 ;i<$rootScope.data.length;i++){
+            if ($rootScope.data[i].node._id+"" == osd+"") {
+                //console.log("osd found "+$rootScope.data[i]);
+                return $rootScope.data[i];
+            }
+        }
+        //console.log("osd not found");
     }
-
-    $rootScope.osdOut = function (osd) {
-        $http({method: "put", url: cephRestApiURL + "osd/out?ids="+osd}).
-
-            success(function (data, status) {
-
-            }).
-            error(function (data, status) {
-
-            });
-    }
-
-    $rootScope.osdDown = function (osd) {
-        $http({method: "put", url: cephRestApiURL + "osd/down?ids="+osd}).
-
-            success(function (data, status) {
-
-            }).
-            error(function (data, status) {
-
-            });
-    }
-
-
 
 
 });
