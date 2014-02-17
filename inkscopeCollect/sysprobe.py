@@ -458,6 +458,50 @@ def pickCpuStat(hostname, db):
     db.hosts.update({"_id": hostname}, {"$set": {"stat": DBRef("cpus_stat",cpus_stat_hostx_id)}})
         
 
+def pickCephProcesses(hostname, db):
+    print str(datetime.datetime.now()), "-- Pick Ceph Processes"  
+    sys.stdout.flush()
+    iterP = psutil.process_iter()
+    cephProcs = [p for p in iterP if p.name.startswith('ceph-')]
+    
+    
+    
+    for cephProc in cephProcs :
+        options, remainder = getopt.getopt(cephProc.cmdline[1:], 'i:f', ['cluster='])
+        
+        clust = None
+        id = None
+        
+        for opt, arg in options:
+            if opt == '-i':
+                id = arg
+            elif opt in  '--cluster':
+                clust = arg
+            
+        
+        p_db = {
+                "_id" : id,
+                "timestamp" : int(round(time.time() * 1000)) ,
+                "host" : DBRef( "hosts",  hostname),
+                "pid" : cephProc.pid,
+                "mem_rss" : cephProc.get_ext_memory_info().rss,
+                "mem_vms" : cephProc.get_ext_memory_info().vms,
+                "mem_shared" : cephProc.get_ext_memory_info().shared,
+                "num_threads" : cephProc.get_num_threads(),
+                "cpu_times_user" : cephProc.get_cpu_times().user,
+                "cpu_times_system" : cephProc.get_cpu_times().system,            
+                }
+        
+        db.process.update({'_id' : id}, p_db, upsert= True)
+        if cephProc.name == 'ceph-osd' :
+            #osd       
+            db.osd.update({'_id' : id},{"$set" : {"process" : DBRef("process",id)}})            
+        elif cephProc.name == 'ceph-mon' :
+            #mon 
+            db.mon.update({'_id' : id},{"$set" : {"process" : DBRef("process",id)}})            
+           
+    
+
 
 #delete the oldest stats
 def dropStat(db, collection, window):
@@ -490,11 +534,6 @@ def ensure_dir(f):
     d = os.path.dirname(f)
     if not os.path.exists(d):
         os.makedirs(d)  
-#ceph probe 
-#cephClient = httplib.HTTPConnection("localhost", port)
-
-# gethostname -> hn
-# if hn is mon of rank 0 -> update db
 
 
 
