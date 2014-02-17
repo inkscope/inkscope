@@ -10,11 +10,27 @@ from bson.dbref import DBRef
 
 from bson import ObjectId
 
+
+configfile = "/opt/inkscope/etc/inkscopeCtrl.conf"
+#load the conf (from json into file)
+def load_conf():
+    datasource = open(configfile, "r")
+    data = json.load(datasource)
+    datasource.close()
+    return data
+
+
 import  sys
 sys.path.append('.')
 
+conf = load_conf()
 
-client = MongoClient()
+mongodb_host = conf.get("mongodb_host", "127.0.0.1")
+mongodb_port = conf.get("mongodb_port", "27017")
+mongodb_URL = "mongodb://"+mongodb_host+":"+mongodb_port
+
+
+client = MongoClient(mongodb_URL)
 
 def getObject(db, collection, objectId, depth):
     """
