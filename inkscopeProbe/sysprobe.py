@@ -464,8 +464,6 @@ def pickCephProcesses(hostname, db):
     iterP = psutil.process_iter()
     cephProcs = [p for p in iterP if p.name.startswith('ceph-')]
     
-    
-    
     for cephProc in cephProcs :
         options, remainder = getopt.getopt(cephProc.cmdline[1:], 'i:f', ['cluster='])
         
@@ -477,28 +475,31 @@ def pickCephProcesses(hostname, db):
                 id = arg
             elif opt in  '--cluster':
                 clust = arg
+        
+        if db.name == clust :    
+            p_db = {              
+                    "timestamp" : int(round(time.time() * 1000)) ,
+                    "host" : DBRef( "hosts",  hostname),
+                    "pid" : cephProc.pid,
+                    "mem_rss" : cephProc.get_ext_memory_info().rss,
+                    "mem_vms" : cephProc.get_ext_memory_info().vms,
+                    "mem_shared" : cephProc.get_ext_memory_info().shared,
+                    "num_threads" : cephProc.get_num_threads(),
+                    "cpu_times_user" : cephProc.get_cpu_times().user,
+                    "cpu_times_system" : cephProc.get_cpu_times().system,            
+                    }
             
-        
-        p_db = {
-                "_id" : id,
-                "timestamp" : int(round(time.time() * 1000)) ,
-                "host" : DBRef( "hosts",  hostname),
-                "pid" : cephProc.pid,
-                "mem_rss" : cephProc.get_ext_memory_info().rss,
-                "mem_vms" : cephProc.get_ext_memory_info().vms,
-                "mem_shared" : cephProc.get_ext_memory_info().shared,
-                "num_threads" : cephProc.get_num_threads(),
-                "cpu_times_user" : cephProc.get_cpu_times().user,
-                "cpu_times_system" : cephProc.get_cpu_times().system,            
-                }
-        
-        db.process.update({'_id' : id}, p_db, upsert= True)
-        if cephProc.name == 'ceph-osd' :
-            #osd       
-            db.osd.update({'_id' : id},{"$set" : {"process" : DBRef("process",id)}})            
-        elif cephProc.name == 'ceph-mon' :
-            #mon 
-            db.mon.update({'_id' : id},{"$set" : {"process" : DBRef("process",id)}})            
+            
+            if cephProc.name == 'ceph-osd' :
+                #osd       
+                p_db["osd"] = DBRef("osd", id)
+                procid = db.processstat.insert(p_db)
+                db.osd.update({'_id' : id},{"$set" : {"process" : DBRef("process",procid)}})            
+            elif cephProc.name == 'ceph-mon' :
+                #mon 
+                p_db["mon"] = DBRef("mon", id)
+                procid = db.processstat.insert(p_db)
+                db.mon.update({'_id' : id},{"$set" : {"process" : DBRef("process",procid)}})            
            
 
 
@@ -604,6 +605,12 @@ class SysProbeDaemon(Daemon):
         net_window = data.get("net_window", 1200)
         print "net_window = ", net_window       
         
+        process_refresh = data.get("process_refresh", 60)
+        print "process_refresh = ", process_refresh
+        
+        process_window = data.get("process_window", 1200)
+        print "process_window = ", process_window       
+        
         mongodb_host = data.get("mongodb_host", None)
         print "mongodb_host = ", mongodb_host
         
@@ -650,6 +657,11 @@ class SysProbeDaemon(Daemon):
             partThread = Repeater(evt, pickPartitionsStat, [hostname, db], partition_refresh)
             partThread.start()
             
+        processThread = None
+        if process_refresh > 0:
+            processThread = Repeater(evt, pickCephProcesses, [hostname, db], process_refresh)
+            processThread.start()
+            
         # drop thread
         cpuDBDropThread = None    
         if cpu_window > 0 :
@@ -681,6 +693,10 @@ class SysProbeDaemon(Daemon):
             partDBDropThread = Repeater(evt, dropStat, [db, "partitionstat", partition_window], partition_window)
             partDBDropThread.start()
         
+        processDBDropThread = None
+        if process_window > 0:
+            processDBDropThread = Repeater(evt, dropStat, [db, "processstat", process_window], process_window)
+            processDBDropThread.start()
         
         signal.signal(signal.SIGTERM, handler)
         
