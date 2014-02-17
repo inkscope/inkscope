@@ -1,6 +1,6 @@
 #!/bin/sh
 
- # create  inskcope location conf and scripts
+ # create  inkscope location conf and scripts
 
 INKPATHETC='/opt/inkscope/etc'
 INKPATHBIN='/opt/inkscope/bin'
