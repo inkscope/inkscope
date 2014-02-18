@@ -4,15 +4,8 @@
 // angular stuff
 // create module for custom directives
 var OsdsApp = angular.module('OsdsApp', ['D3Directives'])
-    .filter('bytes', function () {
-        return function (bytes, precision) {
-            if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) return '-';
-            if (typeof precision === 'undefined') precision = 1;
-            var units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'],
-                number = Math.floor(Math.log(bytes) / Math.log(1024));
-            return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) + ' ' + units[number];
-        }
-    });
+    .filter('bytes', funcBytesFilter)
+    .filter('duration', funcDurationFilter);
 
 OsdsApp.controller("OsdsCtrl", function ($rootScope, $http) {
 
@@ -21,17 +14,29 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $http) {
 
     function getOsds() {
         $rootScope.date = new Date();
+        //var stateFilter = $routeParams.state;
+        //console.log();
+        now = $rootScope.date.getTime();
         $http({method: "get", url: inkscopeCtrlURL + "ceph/osd?depth=2"}).
 
             success(function (data, status) {
                 $rootScope.data = data;
+                for ( var i=0; i<data.length;i++){
+                    data[i].id = data[i].node._id;
+                    data[i].lastControl = ((+$rootScope.date)-data[0].stat.timestamp)/1000;
+                }
+
+                // search for selected osd, first one if none
                 if ($rootScope.selectedOsd+"" == "undefined"){
                     $rootScope.osd = data[0];
-                    $rootScope.selectedOsd = data[0].node._id;
+                    $rootScope.selectedOsd = data[0].id;
                 }
                 else{
                     for ( var i=0; i<data.length;i++){
-                        if (data[i].node._id == $rootScope.selectedOsd)$rootScope.osd = data[i];
+                        if (data[i].id == $rootScope.selectedOsd){
+                            $rootScope.osd = data[i];
+                            break;
+                        }
                     }
                 }
             }).
