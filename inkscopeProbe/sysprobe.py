@@ -369,6 +369,7 @@ def initHost(hostname, db):
         db.cpus.update({'_id' : c['_id']}, c, upsert= True)
             
     host__ = {
+              '_id' : hostname,
               "hostip" : socket.gethostbyname(hostname),
               "timestamp" : int(round(time.time() * 1000)),
               "mem" : None,
