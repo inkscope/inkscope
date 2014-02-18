@@ -96,10 +96,8 @@ StatusApp.controller("statusCtrl", function ($scope, $http) {
                             for (key in mon2) {
                                 if (( key == "health") && (mon[key]+"" != "undefined"))
                                     mon[key] =healthCompare(mon[key],mon2[key]);
-                                else {
-                                    if (( key == "health") && (mon[key]+"" != "undefined"))
-                                        mon[key] = mon2[key];
-                                }
+                                else
+                                    mon[key] = mon2[key];
                             }
                             break
                         }
