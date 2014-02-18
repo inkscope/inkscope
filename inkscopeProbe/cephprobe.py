@@ -264,7 +264,8 @@ def processOsdDump(restapi, db):
             p = pool.copy()
             p["_id"] = pool["pool"]
             del p["pool"]
-            
+            if p['auid'] : 
+                p['auid'] = str(p['auid'])
             db.pools.update({'_id' : p["_id"]}, p, upsert= True)
             
 # osd host from conf : "host" : DBRef( "hosts", hostmap[i]),
