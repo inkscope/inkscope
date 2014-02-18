@@ -15,3 +15,19 @@ function funcBytesFilter () {
         return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) + ' ' + units[number];
     }
 }
+
+function funcDurationFilter(){
+    return function (duration){
+        duration = Math.floor(duration);
+        var minutes = Math.floor(duration / 60);
+        var str =duration-(60*minutes)+"s"
+        if (minutes == 0) return str;
+        var hours = Math.floor(minutes/ 60);
+        var str =minutes-(60*hours)+"m "+str;
+        if (hours==0) return str;
+        var days = Math.floor(hours/ 24);
+        var str =hours-(24*days)+"h "+str;
+        if (days==0) return str;
+        return days+"d "+str;
+    }
+}
