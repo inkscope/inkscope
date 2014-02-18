@@ -63,7 +63,10 @@ StatusApp.controller("statusCtrl", function ($scope, $http) {
                 $scope.health.severity = data.output.health.overall_status;
                 if (data.output.health.summary[0])
                     $scope.health.summary = data.output.health.summary[0].summary;
-                else $scope.health.summary = "OK";
+                else if (data.output.health.detail[0])
+                    $scope.health.summary = data.output.health.detail[0];
+                else
+                    $scope.health.summary = "OK";
 
                 historise();
 
@@ -90,12 +93,24 @@ StatusApp.controller("statusCtrl", function ($scope, $http) {
                     for (var j = 0; j < data.output.health.health.health_services[0].mons.length; j++) {
                         mon2 = data.output.health.health.health_services[0].mons[j];
                         if (mon.name == mon2.name) {
-                            for (key in mon2) mon[key] = mon2[key];
+                            for (key in mon2) {
+                                if (( key == "health") && (mon[key]+"" != "undefined"))
+                                    mon[key] =healthCompare(mon[key],mon2[key]);
+                                else {
+                                    if (( key == "health") && (mon[key]+"" != "undefined"))
+                                        mon[key] = mon2[key];
+                                }
+                            }
                             break
                         }
                     }
                 }
 
+                function healthCompare(h1,h2){
+                    if ((h1 == "HEALTH_ERROR")||(h2 == "HEALTH_ERROR")) return "HEALTH_ERROR";
+                    if ((h1 == "HEALTH_WARN")||(h2 == "HEALTH_WARN")) return "HEALTH_WARN";
+                    return h1;
+                }
 
                 var osdmap = data.output.osdmap.osdmap;
                 $scope.osdsUp = osdmap.num_up_osds;
