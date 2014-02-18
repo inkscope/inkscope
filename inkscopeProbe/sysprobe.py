@@ -512,6 +512,12 @@ def dropStat(db, collection, window):
     db[collection].remove({"timestamp" : {"$lt" : before}})
 
 
+def heartBeat(hostname, db):
+    beat = {
+            "timestamp" : int(round(time.time() * 1000)),
+            }
+    db.sysprobe.update({'_id' : hostname}, {"$set":beat}, upsert= True)
+    
 
 class Repeater(Thread):
     def __init__(self, event, function, args=[], period = 5.0):
@@ -570,6 +576,9 @@ class SysProbeDaemon(Daemon):
         clusterName = data.get("cluster", "ceph")
         print "cluster = ", clusterName
         
+        hb_refresh = data.get("hb_refresh", 5)
+        print "hb_refresh = ", hb_refresh
+        
         mem_refresh = data.get("mem_refresh", 60)
         print "mem_refresh = ", mem_refresh
         
@@ -627,6 +636,16 @@ class SysProbeDaemon(Daemon):
         db = client[clusterName]
         
         HWdisks, partitions, HWnets, HWcpus = initHost(hostname, db)
+        
+        
+        data["_id"] = hostname   
+        db.sysprobe.remove({'_id' : hostname})
+        db.sysprobe.insert(data)
+        
+        hbThread = None    
+        if hb_refresh > 0 :
+            hbThread = Repeater(evt, heartBeat, [hostname, db], hb_refresh)
+            hbThread.start()
         
         cpuThread = None    
         if cpu_refresh > 0 :

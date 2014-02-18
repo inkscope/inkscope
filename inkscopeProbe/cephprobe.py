@@ -404,6 +404,11 @@ def dropStat(db, collection, window):
     print str(datetime.datetime.now()), "-- drop Stats :", collection, "before", before       
     db[collection].remove({"timestamp" : {"$lt" : before}})
     
+def heartBeat(hostname, db):
+    beat = {
+            "timestamp" : int(round(time.time() * 1000)),
+            }
+    db.cephprobe.update({'_id' : hostname}, {"$set":beat}, upsert= True)
 
 def ensure_dir(f):
     d = os.path.dirname(f)
@@ -456,6 +461,9 @@ class SysProbeDaemon(Daemon):
         ceph_rest_api = conf.get("ceph_rest_api", '127.0.0.1:5000')
         print "ceph_rest_api = ", ceph_rest_api
         
+        hb_refresh = conf.get("hb_refresh", 5)
+        print "hb_refresh = ", hb_refresh
+        
         status_refresh = conf.get("status_refresh", 3)
         print "status_refresh = ", status_refresh
         
@@ -500,6 +508,16 @@ class SysProbeDaemon(Daemon):
         
         restapi = httplib.HTTPConnection(ceph_rest_api)  
         initCluster(restapi, db)
+        
+        
+        conf["_id"] = hostname   
+        db.cephprobe.remove({'_id' : hostname})
+        db.cephprobe.insert(conf)
+        
+        hbThread = None    
+        if hb_refresh > 0 :
+            hbThread = Repeater(evt, heartBeat, [hostname, db], hb_refresh)
+            hbThread.start()
         
         statusThread = None    
         if status_refresh > 0 :
