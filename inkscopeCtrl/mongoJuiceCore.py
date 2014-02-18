@@ -41,7 +41,9 @@ def getObject(db, collection, objectId, depth):
     return _getObject(db, obj, depth)
     
     
-def _getObject(db, obj, depth):   
+def _getObject(db, obj, depth):
+    if obj is None:
+        return None
     if (depth <= 0): 
         for key in obj :
             if isinstance(obj[key], DBRef):
@@ -102,7 +104,7 @@ def _listObjects(db, objs, depth):
         else:    
             for key in obj :     
                 if isinstance(obj[key], DBRef):
-                    obj[key] = getObject(db, obj[key].collection, obj[key].id, depth - 1) 
+                    obj[key] = getObject(db, obj[key].collection, obj[key].id, depth - 1)
                 elif isinstance(obj[key], ObjectId):
                     obj[key] = {'$oid': str(obj[key])}
                 elif isinstance(obj[key], list):
