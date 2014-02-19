@@ -4,43 +4,42 @@
 // angular stuff
 // create module for custom directives
 var ObjectLookupApp = angular.module('ObjectLookupApp', ['D3Directives'])
-    .filter('bytes', funcBytesFilter);
+    .filter('bytes', funcBytesFilter)
+    .filter('duration',funcDurationFilter);
 
 ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $http) {
-    var mongoURL = '/mongoJuice/';
-    var restApiURL = '/ceph-rest-api/';
-
     $scope.pool = "";
+
+    getOsdInfo();
+    setInterval(function () {getOsdInfo()},10*1000);
 
     getObjectInfo();
     setInterval(function () {getObjectInfo()},5*1000);
 
-    function getObjectInfo() {
-        $rootScope.date = new Date();
-
-        $http({method: "get", url: mongoURL + "ceph/osd?depth=2"}).
+    function getOsdInfo(){
+        $http({method: "get", url: inkscopeCtrlURL + "ceph/osd?depth=2"}).
 
             success(function (data, status) {
                 $rootScope.data = data;
-                if ($rootScope.selectedOsd+"" == "undefined"){
-                    $rootScope.osd = data[0];
-                    $rootScope.selectedOsd = data[0].node._id;
+                for ( var i=0; i<data.length;i++){
+                    data[i].id = data[i].node._id;
+                    data[i].lastControl = ((+$rootScope.date)-data[0].stat.timestamp)/1000;
                 }
-                else{
-                    for ( var i=0; i<data.length;i++){
-                        if (data[i].node._id == $rootScope.selectedOsd)$rootScope.osd = data[i];
-                    }
-                }
+                $scope.$apply();
             }).
             error(function (data, status) {
                 $rootScope.status = status;
                 $rootScope.data = data || "Request failed";
             });
+    }
 
-        console.log(restApiURL + "osd/map?pool="+ $scope.pool +"&object="+ $scope.objectId );
 
+    function getObjectInfo() {
+        $rootScope.date = new Date();
         if ($scope.pool+"" =="undefined" || $scope.objectId+"" =="undefined") return;
-        $http({method: "get", url: restApiURL + "osd/map.json?pool="+$scope.pool+"&object="+$scope.objectId}).
+
+        console.log(cephRestApiURL + "osd/map?pool="+ $scope.pool +"&object="+ $scope.objectId );
+        $http({method: "get", url: cephRestApiURL + "osd/map.json?pool="+$scope.pool+"&object="+$scope.objectId}).
 
             success(function (data, status) {
                 $scope.data = data.output;
@@ -58,6 +57,12 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
         osdclass += (osdup == true) ? "osd_up" : "osd_down";
         return osdclass;
 
+    }
+
+    $rootScope.osdClassForId = function (osdid){
+        var osdin = $rootScope.getOsd(osdid).stat.in;
+        var osdup = $rootScope.getOsd(osdid).stat.up;
+        return $rootScope.osdClass(osdin,osdup);
     }
 
     $rootScope.osdState = function (osdin,osdup){

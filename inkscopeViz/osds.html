@@ -13,43 +13,6 @@
     <link rel="stylesheet" href="css/testAdmin.css">
     <title>Osds</title>
     <style>
-        #osds {
-            margin: 10px 200px 10px 50px ;
-        }
-
-        .osd {
-            font-size: 18px;
-            font-weight: bold;
-            float: left;
-            width: 40px;
-            height: 40px;
-            line-height: 40px;
-            margin: 5px;
-            padding: 0px;
-            border-radius: 26px;
-            color: white;
-            vertical-align: middle;
-            text-align: center;
-            vertical-align: middle;
-            cursor:pointer;
-        }
-
-        .osd_in {
-            border: solid 4px limegreen;
-        }
-
-        .osd_out {
-            border: solid 4px red;
-        }
-
-        .osd_up {
-            background-color: limegreen;
-        }
-
-        .osd_down {
-            background-color: darkorange;;
-        }
-
         #controlPanel {
             border: black solid 1px;
             position: absolute;
@@ -99,9 +62,9 @@
 
 <div id="osds">
 
-    <div ng-repeat="osd in data|orderBy:'id'" class=" tooltips osd  {{osdClass(osd.stat.in,osd.stat.up)}}">
+    <div ng-repeat="osd in data|orderBy:'id'" class=" tooltips osd {{osdClass(osd.stat.in,osd.stat.up)}}">
         <div ng-click="osdSelect(osd);">
-            {{osd.node._id}}
+            {{osd.id}}
             <div> <!-- tooltip -->
                 <span>
                     <strong>{{osd.node.name}}</strong> {{osdState(osd.stat.in,osd.stat.up)}}<br>
