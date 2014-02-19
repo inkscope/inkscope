@@ -333,7 +333,7 @@ text-align: center;
     height: 1%;
 }
 
-#osds {
+#osds, #probes {
     margin: 10px 200px 10px 50px ;
 }
 
@@ -341,7 +341,7 @@ text-align: center;
     font-size: 18px;
     font-weight: bold;
     float: left;
-    width: 40px;
+    min-width: 40px;
     height: 40px;
     line-height: 40px;
     margin: 5px;
@@ -353,6 +353,7 @@ text-align: center;
     vertical-align: middle;
     cursor:pointer;
 }
+
 
 .osd_in {
     border: solid 4px limegreen;
@@ -367,5 +368,32 @@ text-align: center;
 }
 
 .osd_down {
-    background-color: darkorange;;
+    background-color: darkorange;
+}
+
+.probe {
+    font-size: 18px;
+    font-weight: bold;
+    float: left;
+    min-width: 40px;
+    min-height: 40px;
+    line-height: 40px;
+    margin: 5px;
+    padding: 0px 10px;
+    border-radius: 26px;
+    color: white;
+    vertical-align: middle;
+    text-align: center;
+    vertical-align: middle;
+    cursor:pointer;
+}
+
+.probe_OK {
+    background-color: limegreen;
+}
+.probe_WARN {
+    background-color: darkorange;
+}
+.probe_ERROR {
+    background-color: red;;
 }

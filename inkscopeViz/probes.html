@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html ng-app="ProbesApp">
+<head>
+    <meta charset=utf-8/>
+    <script src="scripts/angular/angular.min.js"></script>
+    <script src="scripts/angular-misc/angular-commons.js"></script>
+    <script src="scripts/probesApp.js"></script>
+    <link rel="stylesheet" href="css/tooltip.css"/>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/testAdmin.css">
+    <title>Probes status</title>
+</head>
+<body ng-controller="ProbesCtrl">
+<h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> Ceph Probes status</h1>
+
+
+<div id="datePanel">Date : {{date | date:'HH:mm:ss'}}</div>
+<br>
+
+
+<div id="probes">
+    <h3>Ceph probes</h3>
+
+    <div ng-repeat="probe in cephprobes" class=" tooltips {{probe.class}}">
+        {{probe._id}}
+        <div> <!-- tooltip -->
+                <span>
+                    <strong>{{probe._id}}</strong><br>
+                    last heartbeat : {{probe.lastHB|duration}}<br>
+                </span>
+        </div>
+    </div>
+    <br style="clear:both">
+    <br>
+    <h3>Sys probes</h3>
+
+    <div ng-repeat="probe in sysprobes" class=" tooltips {{probe.class}}">
+        {{probe._id}}
+        <div> <!-- tooltip -->
+                <span>
+                    <strong>{{probe._id}}</strong><br>
+                    last heartbeat : {{probe.lastHB|duration}}<br>
+                </span>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
