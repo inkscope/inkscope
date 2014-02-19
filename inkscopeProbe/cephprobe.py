@@ -178,8 +178,9 @@ def processStatus(restapi, db):
                 monstat["capacity_health"] = monstat["health"] 
                 
                 #complete with timecheck
-                tc = timecheckmap[monstat["name"]]
-                monstat.update(tc)
+                if monstat["name"] in timecheckmap:
+                    tc = timecheckmap[monstat["name"]]
+                    monstat.update(tc)
                 
                 monstat["health"] = worstHealth(monstat["capacity_health"], monstat["time_health"] )
                 del monstat["name"]
@@ -193,8 +194,10 @@ def processStatus(restapi, db):
                "host" : DBRef( "hosts", mon['name']),
                "addr" : mon['addr'],
                "rank" : mon['rank'],
-               "stat" : DBRef("monstat", map_stat_mon[mon['name']])
                }
+            
+            if mon['name'] in map_stat_mon :
+                mondb["stat"] = DBRef("monstat", map_stat_mon[mon['name']])
             db.mon.update({"_id" : mon['name']}, mondb, upsert= True)
             map_rk_name[mon['rank']] =  mon['name']        
             #no skew and latency ? 
