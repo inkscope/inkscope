@@ -194,7 +194,16 @@ monstat
 {
 		"_id" : set to mon id + ":"+date of last update
         "mon" : DBRef -> mon
-        ...
+        "latency" : string ("float") 
+        "last_updated" : "2014-02-19 13:50:07.544792", 
+        "avail_percent" : int, 
+        "skew" : string ("float"), 
+        "kb_total" : int, 
+        "time_health" : string health , 
+        "kb_avail" : int, 
+        "health" : string health, 
+        "kb_used" : int, 
+        "capacity_health" : string health
 }
 
 cluster

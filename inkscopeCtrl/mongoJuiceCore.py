@@ -7,7 +7,7 @@ app = Flask(__name__)
 from pymongo import MongoClient
 import json
 from bson.dbref import DBRef 
-
+from bson.json_util import dumps
 from bson import ObjectId
 
 
@@ -118,7 +118,23 @@ def listObjects(db, filters, collection, depth ):
         get a list of filtered objects from mongo database   
         depth specified how to dig the dabase to embed the DBRef
     """
-    objs = list(db[collection].find(filters))
+    
+    select = None
+    template = None
+    
+    if filters != None:
+        _complex = False
+        if "$select" in filters :
+            select = filters["$select"]
+            _complex = True
+        if "$template" in filters :
+            template = filters["$template"]
+            _complex = True
+        if not _complex :
+            select = filters
+            template = None
+            
+    objs = list(db[collection].find(select, template))
     return _listObjects(db, objs, depth) 
 
 
@@ -126,11 +142,11 @@ def listObjects(db, filters, collection, depth ):
 def find(db, collection):
     depth = int(request.args.get('depth', '0'))
     if request.method == 'POST':
-        filters = request.get_json(force=True)
+        body_json = request.get_json(force=True)
         db = client[db]
-        response_body = json.dumps(listObjects(db, filters, collection, depth))
+        response_body = dumps(listObjects(db, body_json, collection, depth))
         return Response(response_body, mimetype='application/json')
     else:
         db = client[db]
-        response_body = json.dumps(listObjects(db, None, collection, depth))
+        response_body = dumps(listObjects(db, None, collection, depth))
         return Response(response_body, mimetype='application/json')

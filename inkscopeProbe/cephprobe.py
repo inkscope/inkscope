@@ -129,10 +129,16 @@ def initCluster(restapi, db):
     processOsdDump(restapi, db)
     processPgDump(restapi, db)
     processDf(restapi, db)
+   
+#health value 
+healthCst = ["HEALTH_OK", "HEALTH_WARN", "HEALTH_ERROR"]
+healthMap = {}
+for idx, h in enumerate(healthCst) :
+    healthMap[h] = idx
     
     
-    
-
+def worstHealth(h1, h2) :
+    return healthCst[max(healthMap[h1], healthMap[h2])]
 
 #uri : /api/v0.1/status.json
 def processStatus(restapi, db):
@@ -149,6 +155,19 @@ def processStatus(restapi, db):
         
         map_stat_mon = {}
         health_services_list = c_status['output']['health']['health']['health_services']
+       
+        time_checks  = c_status['output']['health']['timechecks']
+        timecheckmap = {}
+        for tc in time_checks["mons"]:
+            tc["time_health"] = tc["health"]
+            del tc["health"]
+            monname = tc["name"]
+            del tc["name"]
+            timecheckmap[monname] = tc
+            
+        
+        
+        # complete timecheck
         
         for health_service in health_services_list:
             health_services_mons = health_service['mons']        
@@ -156,6 +175,14 @@ def processStatus(restapi, db):
                 monstat = monst.copy()
                 monstat["mon"] =  DBRef( "mon", monst['name'])
                 monstat["_id"] = monst['name']+":"+monst["last_updated"]
+                monstat["capacity_health"] = monstat["health"] 
+                
+                #complete with timecheck
+                if monstat["name"] in timecheckmap:
+                    tc = timecheckmap[monstat["name"]]
+                    monstat.update(tc)
+                
+                monstat["health"] = worstHealth(monstat["capacity_health"], monstat["time_health"] )
                 del monstat["name"]
                 db.monstat.update({"_id" : monstat["_id"]}, monstat, upsert= True)
                 map_stat_mon[monst['name']] = monstat["_id"]
@@ -167,8 +194,10 @@ def processStatus(restapi, db):
                "host" : DBRef( "hosts", mon['name']),
                "addr" : mon['addr'],
                "rank" : mon['rank'],
-               "stat" : DBRef("monstat", map_stat_mon[mon['name']])
                }
+            
+            if mon['name'] in map_stat_mon :
+                mondb["stat"] = DBRef("monstat", map_stat_mon[mon['name']])
             db.mon.update({"_id" : mon['name']}, mondb, upsert= True)
             map_rk_name[mon['rank']] =  mon['name']        
             #no skew and latency ? 
@@ -177,7 +206,7 @@ def processStatus(restapi, db):
               "created" : monmap['created'],
               "modified" : monmap['modified'],
               "mons" : [DBRef( "mon", m['name']) for m in monmap['mons']],
-              "quorum" :  [DBRef( "mon", map_rk_name[rk]) for rk in c_status['output']['quorum']]
+              "quorum" : [DBRef( "mon", map_rk_name[rk]) for rk in c_status['output']['quorum']]
               }      
         cluster = {"_id" : c_status['output']['fsid'], 
                    "election_epoch" : c_status['output']['election_epoch'], 
@@ -185,7 +214,9 @@ def processStatus(restapi, db):
                    "pgmap" : c_status['output']['pgmap'],
                    "osdmap-info" : c_status['output']['osdmap']['osdmap'],
                    "name" : clusterName, 
-                   "health" : c_status['output']['health']['overall_status']
+                   "health" : c_status['output']['health']['overall_status'],
+                   "health_detail" : c_status['output']['health']['detail'],
+                   "health_summary" : c_status['output']['health']['summary']
                    }     
         db.cluster.update({'_id' : c_status['output']['fsid']}, cluster, upsert= True)
         
