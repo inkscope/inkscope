@@ -206,7 +206,7 @@ def processStatus(restapi, db):
               "created" : monmap['created'],
               "modified" : monmap['modified'],
               "mons" : [DBRef( "mon", m['name']) for m in monmap['mons']],
-              "quorum" :  [DBRef( "mon", map_rk_name[rk]) for rk in c_status['output']['quorum']]
+              "quorum" : [DBRef( "mon", map_rk_name[rk]) for rk in c_status['output']['quorum']]
               }      
         cluster = {"_id" : c_status['output']['fsid'], 
                    "election_epoch" : c_status['output']['election_epoch'], 
