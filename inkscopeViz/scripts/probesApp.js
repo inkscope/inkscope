@@ -14,13 +14,13 @@ ProbesApp.controller("ProbesCtrl", function ($scope, $http) {
 
     function getCephProbes() {
         $scope.date = new Date();
-        now = $scope.date.getTime();
+
         $http({method: "get", url: inkscopeCtrlURL + "ceph/cephprobe"}).
 
-            success(function (data, status) {
+            success(function (data,status,headers,config ) {
                 $scope.cephprobes = data;
                 for ( var i=0; i< $scope.cephprobes.length;i++){
-                    $scope.cephprobes[i].lastHB = (now-$scope.cephprobes[i].timestamp)/1000;
+                    $scope.cephprobes[i].lastHB = (headers().timestamp-$scope.cephprobes[i].timestamp)/1000;
                     $scope.cephprobes[i].class = $scope.probeClass($scope.cephprobes[i].lastHB);
                 }
 
@@ -36,10 +36,10 @@ ProbesApp.controller("ProbesCtrl", function ($scope, $http) {
         now = $scope.date.getTime();
         $http({method: "get", url: inkscopeCtrlURL + "ceph/sysprobe"}).
 
-            success(function (data, status) {
+            success(function (data, status,headers) {
                 $scope.sysprobes = data;
                 for ( var i=0; i< $scope.sysprobes.length;i++){
-                    $scope.sysprobes[i].lastHB = (now-$scope.sysprobes[i].timestamp)/1000;
+                    $scope.sysprobes[i].lastHB = (headers().timestamp-$scope.sysprobes[i].timestamp)/1000;
                     $scope.sysprobes[i].class = $scope.probeClass($scope.sysprobes[i].lastHB);
                 }
 
