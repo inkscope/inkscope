@@ -9,6 +9,7 @@ import json
 from bson.dbref import DBRef 
 from bson.json_util import dumps
 from bson import ObjectId
+import time
 
 
 configfile = "/opt/inkscope/etc/inkscopeCtrl.conf"
@@ -154,8 +155,8 @@ def find(db, collection):
         body_json = request.get_json(force=True)
         db = client[db]
         response_body = dumps(listObjects(db, body_json, collection, depth))
-        return Response(response_body, mimetype='application/json')
+        return Response(response_body, headers = {"timestamp" :  int(round(time.time() * 1000))}, mimetype='application/json')
     else:
         db = client[db]
         response_body = dumps(listObjects(db, None, collection, depth))
-        return Response(response_body, mimetype='application/json')
+        return Response(response_body, headers = {"timestamp" :  int(round(time.time() * 1000))}, mimetype='application/json')
