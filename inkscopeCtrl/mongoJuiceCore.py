@@ -32,18 +32,24 @@ mongodb_URL = "mongodb://"+mongodb_host+":"+mongodb_port
 
 client = MongoClient(mongodb_URL)
 
-def getObject(db, collection, objectId, depth):
+def getObject(db, collection, objectId, depth, branch):
     """
         get an object from mongo database  
         depth specified how to dig the dabase to embed the DBRef
     """
-    obj = db[collection].find_one({"_id" : objectId})
-    return _getObject(db, obj, depth)
+    br = None
+    if branch != None :
+        br = branch.copy()
+        br.add(collection+":"+str(objectId))
+    
+    obj = db[collection].find_one({"_id" : objectId}) 
+    return _getObject(db, obj, depth, br)
     
     
-def _getObject(db, obj, depth):
+def _getObject(db, obj, depth, branch):
     if obj is None:
         return None
+    
     if (depth <= 0): 
         for key in obj :
             if isinstance(obj[key], DBRef):
@@ -54,26 +60,27 @@ def _getObject(db, obj, depth):
             elif isinstance(obj[key], ObjectId):
                 obj[key] = {'$oid': str(obj[key])}
             elif isinstance(obj[key], list):
-                obj[key] = _listObjects(db, obj[key], depth-1)
+                obj[key] = _listObjects(db, obj[key], depth-1, branch)
         return obj
     for key in obj :
         if isinstance(obj[key], DBRef):
-            obj[key] = getObject(db, obj[key].collection, obj[key].id, depth - 1) 
+            if (obj[key].collection+":"+str(obj[key].id) not in branch) :
+                obj[key] = getObject(db, obj[key].collection, obj[key].id, depth - 1, branch) 
         elif isinstance(obj[key], ObjectId):
             obj[key] = {'$oid': str(obj[key])}
         elif isinstance(obj[key], list):
-            obj[key] = _listObjects(db, obj[key], depth)
+            obj[key] = _listObjects(db, obj[key], depth, branch)
     return obj
     
     
-def _listObjects(db, objs, depth):
+def _listObjects(db, objs, depth, branch):
     if (depth <= 0): 
         r_objs = []
         for obj in objs:
             if isinstance(obj, int) or isinstance(obj, long) or isinstance(obj, float) or isinstance(obj, bool) or isinstance(obj, str)  or isinstance(obj, unicode) :
                 pass
             elif isinstance(obj, list):
-                obj = _listObjects(db, obj, depth)
+                obj = _listObjects(db, obj, depth, branch)
             elif isinstance(obj, DBRef):
                 if isinstance(obj.id, ObjectId):
                     obj = {'$ref': obj.collection, '$id' : {'$oid': str(obj.id)}}
@@ -89,7 +96,7 @@ def _listObjects(db, objs, depth):
                     elif isinstance(obj[key], ObjectId):
                         obj[key] = {'$oid': str(obj[key])}
                     elif isinstance(obj[key], list):
-                        obj[key] = _listObjects(db, obj[key], depth-1)
+                        obj[key] = _listObjects(db, obj[key], depth-1, branch)
             r_objs.append(obj)    
         return r_objs
     
@@ -98,17 +105,19 @@ def _listObjects(db, objs, depth):
         if isinstance(obj, int) or isinstance(obj, long) or isinstance(obj, float) or isinstance(obj, bool) or isinstance(obj, str) or isinstance(obj, unicode) :
             pass
         elif isinstance(obj, list):
-            obj = _listObjects(db, obj, depth)
+            obj = _listObjects(db, obj, depth, branch)
         elif isinstance(obj, DBRef):
-            obj = getObject(db, obj.collection, obj.id, depth - 1) 
+            if (obj.collection+":"+str(obj.id) not in branch) :
+                obj = getObject(db, obj.collection, obj.id, depth - 1, branch) 
         else:    
             for key in obj :     
                 if isinstance(obj[key], DBRef):
-                    obj[key] = getObject(db, obj[key].collection, obj[key].id, depth - 1)
+                    if (obj[key].collection+":"+str(obj[key].id) not in branch) :
+                        obj[key] = getObject(db, obj[key].collection, obj[key].id, depth - 1, branch)
                 elif isinstance(obj[key], ObjectId):
                     obj[key] = {'$oid': str(obj[key])}
                 elif isinstance(obj[key], list):
-                    obj[key] = _listObjects(db, obj[key], depth-1)
+                    obj[key] = _listObjects(db, obj[key], depth-1, branch)
         r_objs.append(obj)             
     return r_objs
 
@@ -135,7 +144,7 @@ def listObjects(db, filters, collection, depth ):
             template = None
             
     objs = list(db[collection].find(select, template))
-    return _listObjects(db, objs, depth) 
+    return _listObjects(db, objs, depth, set()) 
 
 
 @app.route('/<db>/<collection>', methods=['GET', 'POST'])
