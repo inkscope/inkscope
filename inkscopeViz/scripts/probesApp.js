@@ -33,7 +33,7 @@ ProbesApp.controller("ProbesCtrl", function ($scope, $http) {
 
     function getSysProbes() {
         $scope.date = new Date();
-        now = $scope.date.getTime();
+
         $http({method: "get", url: inkscopeCtrlURL + "ceph/sysprobe"}).
 
             success(function (data, status,headers) {
