@@ -360,7 +360,7 @@ text-align: center;
 }
 
 .osd_out {
-    border: solid 4px red;
+    border: solid 4px darkorange;
 }
 
 .osd_up {
@@ -368,7 +368,7 @@ text-align: center;
 }
 
 .osd_down {
-    background-color: darkorange;
+    background-color: red;
 }
 
 .probe {

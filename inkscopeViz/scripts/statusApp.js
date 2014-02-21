@@ -11,12 +11,16 @@ StatusApp.controller("statusCtrl", function ($scope, $http) {
     //refresh data every x seconds
     refreshData();
     refreshPGData();
+    refreshOSDData();
     setInterval(function () {
         refreshData()
     }, 3 * 1000);
     setInterval(function () {
         refreshPGData()
     }, 10 * 1000);
+    setInterval(function () {
+        refreshOSDData()
+    }, 3 * 1000);
 
     function refreshPGData() {
         $scope.date = new Date();
@@ -49,6 +53,34 @@ StatusApp.controller("statusCtrl", function ($scope, $http) {
                 $scope.pools = nbPools;
             });
     };
+
+    function refreshOSDData() {
+        $scope.date = new Date();
+        var filter = {
+            "$select":{},
+            "$template":{
+                "stat":1
+            }
+
+        }
+        $http({method: "post", url: inkscopeCtrlURL + "ceph/osd", params :{"depth":1} ,data:filter})
+            .success(function (data, status) {
+                $scope.osdsInUp = 0;
+                $scope.osdsInDown = 0;
+                $scope.osdsOutUp = 0;
+                $scope.osdsOutDown = 0;
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].stat.in) {
+                        if (data[i].stat.up) $scope.osdsInUp ++; else $scope.osdsInDown ++;
+                    }
+                    else {
+                        if (data[i].stat.up) $scope.osdsOutUp ++; else $scope.osdsOutDown ++;
+                    }
+
+                }
+        });
+    };
+
 
     function refreshData() {
         //console.log("refreshing data...");
@@ -115,11 +147,6 @@ StatusApp.controller("statusCtrl", function ($scope, $http) {
                 $scope.osdsIn = parseInt(osdmap.num_in_osds);
                 $scope.osdsOut = osdmap.num_osds - osdmap.num_in_osds;
                 $scope.osdsDown = $scope.osdsIn - $scope.osdsUp + $scope.osdsOut;
-
-                $scope.osdsInUp = $scope.osdsUp;
-                $scope.osdsInDown = $scope.osdsDown;
-                $scope.osdsOutUp = $scope.osdsOut;
-                $scope.osdsOutDown = "";
 
             })
             .error(function (data) {

@@ -148,7 +148,7 @@
                     </div>
                 </td>
                 <td>
-                    <div class={{badgeClass("ERR",osdsOutDown)}} onclick="document.location='osds.html?state=out+down'">
+                    <div class={{badgeClass("WARN",osdsOutDown)}} onclick="document.location='osds.html?state=out+down'">
                         {{osdsOutDown}}
                     </div>
                 </td>
@@ -164,7 +164,7 @@
     <h2 onclick="document.location='poolspgsosds.html'" style="cursor:pointer">{{pools}} pools</h2>
 
     <div id="pool_status_details">
-        <table>
+        <table style="float: right">
             <tr>
                 <td>clean</td>
                 <td>unclean</td>
