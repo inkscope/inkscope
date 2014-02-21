@@ -18,16 +18,17 @@ function funcBytesFilter () {
 
 function funcDurationFilter(){
     return function (duration){
-        duration = Math.floor(duration);
+        var sign= (duration >=0 ? "":"- ");
+        duration = Math.abs(Math.floor(duration));
         var minutes = Math.floor(duration / 60);
         var str =duration-(60*minutes)+"s"
-        if (minutes == 0) return str;
+        if (minutes == 0) return sign+str;
         var hours = Math.floor(minutes/ 60);
         var str =minutes-(60*hours)+"m "+str;
-        if (hours==0) return str;
+        if (hours==0) return sign+str;
         var days = Math.floor(hours/ 24);
         var str =hours-(24*days)+"h "+str;
-        if (days==0) return str;
-        return days+"d "+str;
+        if (days==0) return sign+str;
+        return sign+days+"d "+str;
     }
 }
