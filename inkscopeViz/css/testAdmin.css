@@ -19,6 +19,18 @@ input, textarea {
     vertical-align: top;
 }
 
+.clickable{
+    cursor: pointer;
+}
+
+.text-warning{
+    color:darkorange;
+}
+
+.text-error{
+    color:red;
+}
+
 #sujet {
     width: 250px;
 }
@@ -121,6 +133,25 @@ label {
     margin:5px;
     border-radius: 10px;
     cursor: pointer;
+}
+
+#filters {
+    display: block;
+}
+.filter{
+    float: left;
+    background-color: lightblue;
+    padding: 2px 5px;
+    margin : 10px;
+    min-width: 40px;
+}
+.notfilter{
+    border:1px solid lightgrey;
+    float: left;
+    background-color: white;
+    padding: 2px 5px;
+    margin : 10px;
+    min-width: 40px;
 }
 
 .quorum_in, .quorum_out {
@@ -335,6 +366,7 @@ text-align: center;
 
 #osds, #probes {
     margin: 10px 200px 10px 50px ;
+    clear:both;
 }
 
 .osd {
