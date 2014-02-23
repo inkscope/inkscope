@@ -3,11 +3,13 @@
  */
 
 var StatusApp = angular.module('StatusApp', ['D3Directives'])
-    .filter('bytes', funcBytesFilter);
+    .filter('bytes', funcBytesFilter)
+    .filter('duration', funcDurationFilter);
 
 StatusApp.controller("statusCtrl", function ($scope, $http) {
     var apiURL = '/ceph-rest-api/';
     $scope.journal = [];
+    $scope.osdControl =0;
     //refresh data every x seconds
     refreshData();
     refreshPGData();
@@ -65,6 +67,7 @@ StatusApp.controller("statusCtrl", function ($scope, $http) {
         }
         $http({method: "post", url: inkscopeCtrlURL + "ceph/osd", params :{"depth":1} ,data:filter})
             .success(function (data, status) {
+                $scope.osdControl = ((+$scope.date)-data[0].stat.timestamp)/1000 ;
                 $scope.osdsInUp = 0;
                 $scope.osdsInDown = 0;
                 $scope.osdsOutUp = 0;

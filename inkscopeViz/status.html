@@ -120,19 +120,22 @@
     </div>
 </div>
 <div id="osd_status">
-    <h2 onclick="document.location='osds.html'" style="cursor:pointer">{{osdsUp + osdsDown}} OSD</h2>
+    <h2 onclick="document.location='osds.html'" class="clickable">{{osdsUp + osdsDown}} OSD </h2>
+    <div ng-hide="osdControl<30">
+        <p class="text-warning"><i class="icon-warning-sign" ></i> osds not verified<br>since {{osdControl|duration}}</p>
+    </div>
 
     <div id="osd_status_details">
         <table>
             <tr>
                 <td>&nbsp;</td>
-                <td>UP</td>
-                <td>DOWN</td>
+                <td><div class="clickable"  onclick="document.location='osds.html?state=up'">UP</div></td>
+                <td><div class="clickable"  onclick="document.location='osds.html?state=down'">DOWN</div></td>
             </tr>
             <tr>
-                <td>IN</td>
+                <td><div class="clickable"  onclick="document.location='osds.html?state=in'">IN</div></td>
                 <td>
-                    <div class="health_status_HEALTH_OK mybadge" onclick="document.location='osds.html'">{{osdsInUp}}</div>
+                    <div class="health_status_HEALTH_OK mybadge" onclick="document.location='osds.html?state=in+up'">{{osdsInUp}}</div>
                 </td>
                 <td>
                     <div class={{badgeClass("ERR",osdsInDown)}} onclick="document.location='osds.html?state=in+down'">
@@ -141,7 +144,7 @@
                 </td>
             </tr>
             <tr>
-                <td>OUT</td>
+                <td><div class="clickable"  onclick="document.location='osds.html?state=out'">OUT</div></td>
                 <td>
                     <div class={{badgeClass("WARN",osdsOutUp)}} onclick="document.location='osds.html?state=out+up'">
                         {{osdsOutUp}}
