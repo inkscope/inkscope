@@ -135,9 +135,6 @@ label {
     cursor: pointer;
 }
 
-#filters {
-    display: block;
-}
 .filter{
     float: left;
     background-color: lightblue;
@@ -238,9 +235,14 @@ text-align: center;
 }
 
 
-#datePanel{margin:5px 10px;font-weight: bold;font-size:large}
-
-
+#datePanel, #filters{
+    margin:10px;
+    font-weight: bold;
+    clear:both;
+}
+#datePanel, #filters .title {
+    font-size:large;
+}
 /* D3 visualization */
 
 .gaugeLegend{
