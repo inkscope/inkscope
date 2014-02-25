@@ -138,15 +138,18 @@ label {
 .filter{
     float: left;
     background-color: lightblue;
-    padding: 2px 5px;
+    padding: 0px 5px 3px 5px;
     margin : 10px;
     min-width: 40px;
+    border-radius: 3px;
 }
 .notfilter{
     border:1px solid lightgrey;
+    border-radius: 3px;
+    color:lightgrey;
     float: left;
     background-color: white;
-    padding: 2px 5px;
+    padding: 0px 5px 3px 5px;
     margin : 10px;
     min-width: 40px;
 }

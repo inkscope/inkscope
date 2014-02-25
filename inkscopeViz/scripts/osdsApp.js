@@ -11,6 +11,7 @@ var OsdsApp = angular.module('OsdsApp', ['D3Directives'])
 OsdsApp.controller("OsdsCtrl", function ($rootScope, $http, $location ,$window) {
 
     $rootScope.count = 0;
+    $rootScope.nbOsd = 0;
     $rootScope.filtered = false;
     getOsds();
     setInterval(function () {getOsds()},10*1000);
@@ -26,6 +27,7 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $http, $location ,$window) 
         $http({method: "get", url: inkscopeCtrlURL + "ceph/osd?depth=2"}).
 
             success(function (data, status) {
+                $rootScope.nbOsd = data.length;
                 $rootScope.filtered = $rootScope.inFilter || $rootScope.outFilter || $rootScope.upFilter || $rootScope.downFilter;
                 if ($rootScope.filtered){
                     var filteredData = [];
