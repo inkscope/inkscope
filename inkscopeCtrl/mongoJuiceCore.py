@@ -174,10 +174,14 @@ def execute(db, command, keyvalues):
             return None
         depth = command.get("depth", 0)
         collection = command["collection"]
-        select = evaluate(command.get("select", None))
+        select = evaluate(command.get("select", None), keyvalues)
         template = command.get("template", None)              
         objs = list(db[collection].find(select, template))
-        return _listObjects(db, objs, depth, set())[0]
+        r = _listObjects(db, objs, depth, set())
+        if r :
+            return r[0]
+        else:
+            return None
     elif action == "aggregate":
         return None
     
