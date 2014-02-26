@@ -148,6 +148,98 @@ def listObjects(db, filters, collection, depth ):
     return _listObjects(db, objs, depth, set()) 
 
 
+def execute(db, command, keyvalues):
+    
+    if "action" not in command :
+        return None
+    action = command["action"]
+    
+    
+    if action == "get":
+        return evaluate(command.get("field", None), keyvalues)
+    elif action == "find":
+        if "collection" not in command :
+            return None
+        collection = command["collection"]
+        depth = command.get("depth", 0)
+        select = evaluate(command.get("select", None), keyvalues)
+        template = command.get("template", None)        
+        print "select", select
+        print "template", template      
+        objs = list(db[collection].find(select, template))
+        return _listObjects(db, objs, depth, set()) 
+       
+    elif action == "findOne":
+        if "collection" not in command :
+            return None
+        depth = command.get("depth", 0)
+        collection = command["collection"]
+        select = evaluate(command.get("select", None))
+        template = command.get("template", None)              
+        objs = list(db[collection].find(select, template))
+        return _listObjects(db, objs, depth, set())[0]
+    elif action == "aggregate":
+        return None
+    
+
+def evaluate(obj, keyvalues):
+    if not obj :
+        return obj
+    elif isinstance(obj, basestring):
+        if obj.startswith("@"):
+            return getValue(keyvalues, obj[1:])
+        else :
+            return obj
+    elif isinstance(obj, list):
+        l = []
+        for item in obj:
+            l.append(evaluate(item, keyvalues))
+        return l
+    elif isinstance(obj, dict):
+        d = obj.copy()      
+        for key in d:
+            d[key] = evaluate(d[key], keyvalues)     
+        return d   
+    return obj
+
+def getValue(res, path):
+    wpath = path.split(".")
+    path = []
+    for node in wpath:     
+        if '#' in node:
+            part = node.partition('#')
+            path.append(part[0])
+            path.append(int(part[2]))
+        else:
+            path.append(node)
+    
+    walk = res
+    for node in path:
+        walk = walk[node]
+    return walk
+    
+
+def build(db, obj):
+    res = {}
+    allres = {}
+    steps = {}
+    for key in obj:
+        command = obj[key]
+        command["key"] = key
+        c_step= command.get("step", 0)
+        step = steps.get(c_step, [])
+        step.append(command)
+        steps[c_step] = step 
+        
+    for step in sorted(steps.iterkeys()):
+        for command in steps[step]:
+            resp = execute(db, command, allres)           
+            if not command["key"].startswith("__"):
+                 res[command["key"]] = resp
+            allres[command["key"]] = resp
+    return res
+
+
 @app.route('/<db>/<collection>', methods=['GET', 'POST'])
 def find(db, collection):
     depth = int(request.args.get('depth', '0'))
@@ -159,4 +251,12 @@ def find(db, collection):
     else:
         db = client[db]
         response_body = dumps(listObjects(db, None, collection, depth))
+        return Response(response_body, headers = {"timestamp" :  int(round(time.time() * 1000))}, mimetype='application/json')
+
+@app.route('/<db>', methods=['POST'])
+def full(db):
+    if request.method == 'POST':
+        body_json = request.get_json(force=True)
+        db = client[db]
+        response_body = dumps(build(db, body_json))
         return Response(response_body, headers = {"timestamp" :  int(round(time.time() * 1000))}, mimetype='application/json')

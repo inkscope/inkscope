@@ -4,7 +4,7 @@ At this stage, we use **MongoJuice** which provide a rest-api to read a mongoDb.
 
 MongoJuice can run in a flask stand alone server or inside a apache server through wsgi
 
-It provides 2 methods:
+It provides 3 methods:
 
 - *GET host/\<db-name\>/\<collection-name\>?depth=X*
 
@@ -14,3 +14,16 @@ It provides 2 methods:
 - *POST host/\<db-name\>/\<collection-name\>?depth=X*
 
     the body should contains a JSON that is used by the find function of pymongo as "spec" (see [pymongo](http://api.mongodb.org/python/current) docs)
+
+- *POST host/\<db-name\>*
+
+    the body should contains a JSON that is used to execute multiple request to pymongo. The embedded JSON describes the template of the expected response and the commands to execute to fill each field of this template: *\{key : |<command|> (, key : \<command\>)\*\}*
+Special keys (begining with "__") can be used as working keys and will ot appear in the result. 
+A command is at least defined by an action and a step (to schedule the commands)
+4 command action types are available:
+-- "get" :
+    \{ "action" : "get", "step" : \<num\>, "field" : \<path to a value\>\}
+-- "find"
+-- "findOne"
+-- "agregate"
+
