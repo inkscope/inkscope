@@ -2,8 +2,7 @@
 var colorsGnYlRd = ["#038a00","#05a001","#0ac800","#0ad600","#50d600","#92d600","#d6d600","#e6b000","#ff8c00","#d62800","#C00000"];
 /*---------------------0---------10---------20--------30--------40-------50---------60-------70--------80--------90-------100-------*/
 function color4ascPercent(percent) {
-    //return (colorbrewer.RdYlGn[11])[parseInt(percent*10)];
-    //return (colorbrewer.GnYlRd[9])[8-parseInt(percent*8)];
+    if (percent<0) return "#cccccc";
     return colorsGnYlRd[parseInt(10-(percent*10))];
 }
 
