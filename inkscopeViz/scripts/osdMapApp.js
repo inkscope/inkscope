@@ -1,10 +1,15 @@
 /**
- * Created by arid6405 on 12/1/13.
+ * Created by Alain Dechorgnat on 24/02/14.
  */
-var showCrushMapApp = angular.module('showCrushMapApp', ['components']);
+var osdMapApp = angular.module('osdMapApp', []);
 
 
-showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $scope, $http, $templateCache) {
+osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http) {
+    $scope.osds = [];
+    $scope.dispoModes =["up/down","in/out"];
+    $scope.dispoMode ="up/down";
+    getOsds();
+    setInterval(function () {getOsds()},10*1000);
 
     var w = window, d = document, e = d.documentElement, g = d.getElementsByTagName('body')[0];
     $scope.screenSize ={"x" : w.innerWidth || e.clientWidth || g.clientWidth , "y" : w.innerHeight || e.clientHeight || g.clientHeight};
@@ -13,26 +18,17 @@ showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $sc
         .attr("width", $scope.screenSize.x -40)
         .attr("height", $scope.screenSize.y -200);
 
-    var apiURL = '/ceph-rest-api/';
-    $http({method: "get", url: apiURL + "osd/crush/dump.json", cache: $templateCache}).
+
+    $http({method: "get", url: cephRestApiURL + "osd/crush/dump.json"}).
         success(function (data, status) {
-            $rootScope.status = status;
-            $rootScope.rules = data.output.rules;
-            $rootScope.types = data.output.types;
-            $rootScope.devices = data.output.devices;
-            $rootScope.tunables = data.output.tunables;
-            $rootScope.buckets = computeBucketsTree(data.output.buckets);
+            $scope.status = status;
+            $scope.types = data.output.types;
+            $scope.devices = data.output.devices;
+            $scope.buckets = computeBucketsTree(data.output.buckets);
         }).
         error(function (data, status) {
-            $rootScope.status = status;
+            $scope.status = status;
         });
-
-    $scope.getType = function (id) {
-        for (var i = 0; i < $rootScope.types.length; i++) {
-            if ($rootScope.types[i].type_id == id) return $rootScope.types[i].name;
-        }
-        return "N/A";
-    }
 
     function computeBucketsTree(rawbuckets) {
         var bucketsTab = [];
@@ -41,13 +37,13 @@ showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $sc
         for (var i = 0; i < rawbuckets.length; i++) {
             bucketsTab[rawbuckets[i].id] = rawbuckets[i];
         }
-        for (var i = 0; i < $rootScope.devices.length; i++) {
-            osdTab[$rootScope.devices[i].id] = $rootScope.devices[i].name;
+        for (var i = 0; i < $scope.devices.length; i++) {
+            osdTab[$scope.devices[i].id] = $scope.devices[i].name;
         }
         var buckets = bucketsTab[-1];
 
         function addChildren(bucket) {
-            bucket.dispo = -1.0;
+            bucket.dispo = 1.0;
             bucket.children = [];
             for (var j = 0; j < bucket.items.length; j++) {
                 var item = bucket.items[j];
@@ -58,7 +54,11 @@ showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $sc
                 else {
                     var osd = item;
                     osd.name = osdTab[item.id];
-                    osd.dispo = -1.0;
+                    if (typeof $scope.osds[item.id] !== 'undefined' ){
+                        osd.dispo = $scope.dispo($scope.osds[item.id]);
+                    }
+                    else
+                        osd.dispo = -1.0;
                     bucket.children.push(osd);
                 }
             }
@@ -66,14 +66,53 @@ showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $sc
 
         addChildren(buckets);
 
-
         return buckets;
     }
 
+    function dispo(node){
+        if (typeof node === undefined) return -1;
+        if ($scope.dispoMode =="up/down") return node.stat.up ? 1.0 : 0.0;
+        if ($scope.dispoMode =="in/out") return node.stat.in ? 1.0 : 0.2;
+    }
+
+    $scope.refresh = function(){
+        if ( typeof $scope.osds === 'undefined') return;
+        for ( var i=0; i<$scope.osds.length;i++){
+            if (typeof $scope.buckets !== 'undefined'){
+                var path = d3.select("#osd"+$scope.osds[i].id);
+                path.style("fill",color4ascPercent($scope.osds[i].dispo));
+            }
+        }
+    }
+
+    function getOsds() {
+        $scope.date = new Date();
+
+        $http({method: "get", url: inkscopeCtrlURL + "ceph/osd?depth=2"}).
+
+            success(function (data, status) {
+                $scope.osds = [];
+                for ( var i=0; i<data.length;i++){
+                    data[i].id = data[i].node._id;
+                    data[i].dispo = dispo(data[i]);
+                    data[i].lastControl = ((+$scope.date)-data[0].stat.timestamp)/1000;
+                    $scope.osds[data[i].id] = data[i];
+                    if (typeof $scope.buckets !== 'undefined'){
+                        var path = d3.select("#osd"+data[i].id);
+                        path.style("fill",color4ascPercent(data[i].dispo));
+                    }
+                }
+                $scope.osdControl = data[0].lastControl;
+            }).
+            error(function (data, status) {
+                $scope.status = status;
+                $scope.data = data || "Request failed";
+            });
+    }
 });
 
 
-showCrushMapApp.directive('myTopology', function () {
+osdMapApp.directive('myTopology', function () {
 
     return {
         restrict: 'E',
@@ -104,7 +143,7 @@ showCrushMapApp.directive('myTopology', function () {
                 radius = Math.min(width, height) / 2 - 10;
 
             var x = d3.scale.linear()
-                .range([0, 2 * Math.PI]);
+                .range([0, 2*Math.PI]);
 
             var y = d3.scale.linear()
                 .range([0, radius]);
@@ -122,13 +161,13 @@ showCrushMapApp.directive('myTopology', function () {
 
             scope.$watch('values', function (root, oldRoot) {
 
-                // clear the elements inside of the directive
-                svg.selectAll('*').remove();
-                // if 'percentUsed' is undefined, exit
-                if (!root) {
+                // if 'root' is undefined, exit
+                if (typeof root === 'undefined') {
                     return;
                 }
-
+                console.log("in watch");
+                // clear the elements inside of the directive
+                svg.selectAll('*').remove();
                 var partition = d3.layout.partition()
                     .value(function(d) { return d.weight; });
 
@@ -158,10 +197,9 @@ showCrushMapApp.directive('myTopology', function () {
 
                 var path = g.append("path")
                     .attr("d", arc)
-                    .attr("id",function(d){return "path"+ d.name;})
-                    //.style("fill", function(d) { return color((d.children ? d : d.parent).name); })
+                    .attr('id',function (d){return "osd"+ d.id;})
                     .style("fill", function (d) {
-                        return color4ascPercent(d.dispo);
+                        return color4ascPercent(d['dispo']);
                     })
                     .style("stroke", "#fff")
                     .style("stroke-width", "1");
@@ -175,7 +213,7 @@ showCrushMapApp.directive('myTopology', function () {
                     })
                     .attr("dx", "6") // margin
                     .attr("dy", ".35em") // vertical-align
-                    .style("fill", "#000")
+                    .style("fill", "#fff")
                     .text(function (d) {
                         return d.name;
                     });
@@ -205,7 +243,6 @@ showCrushMapApp.directive('myTopology', function () {
                         });
                 }
 
-
                 d3.select(self.frameElement).style("height", height + "px");
 
                 // Interpolate the scales!
@@ -229,8 +266,9 @@ showCrushMapApp.directive('myTopology', function () {
                 function computeTextRotation(d) {
                     return (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
                 }
+                console.log("out watch");
 
-            });
+            },true);
 
 
         }
