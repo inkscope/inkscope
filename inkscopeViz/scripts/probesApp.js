@@ -51,7 +51,7 @@ ProbesApp.controller("ProbesCtrl", function ($scope, $http) {
     }
 
     $scope.probeClass = function (lastHB){
-        if (lastHB<10) return "probe probe_OK";
+        if (lastHB<15) return "probe probe_OK";
         if (lastHB<60) return "probe probe_WARN";
         return "probe probe_ERROR";
 

@@ -31,10 +31,10 @@
 
 </head>
 <body ng-controller="OsdsCtrl">
-<h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> Ceph OSDs</h1>
+<h1 class="pageTitle"><a ng-click="home()" class="clickable"><img src="img/inkscope_logo100.png" boredr="0"></a> Ceph OSDs</h1>
 
 
-<div id="controlPanel">
+<div id="controlPanel" ng-hide="count == 0">
     <div class="osd  {{osdClass(osd.stat.in,osd.stat.up)}}" style="float:right">
         {{osd.node._id}}
     </div>
@@ -56,12 +56,22 @@
     </div>
 </div>
 
-<div id="datePanel">Date : {{date | date:'HH:mm:ss'}}</div>
+<div id="filters" >
+    <div class="title">Filters</div>
+    <div class="filter clickable" ng-hide="!inFilter"  ng-click="removeFilter('in')"> x in</div>
+    <div class="notfilter clickable" ng-hide="inFilter" ng-click="addFilter('in')"> + in</div>
+    <div class="filter clickable" ng-hide="!outFilter" ng-click="removeFilter('out')"> x out</div>
+    <div class="notfilter clickable" ng-hide="outFilter" ng-click="addFilter('out')"> + out</div>
+    <div class="filter clickable" ng-hide="!upFilter" ng-click="removeFilter('up')"> x up</div>
+    <div class="notfilter clickable" ng-hide="upFilter" ng-click="addFilter('up')"> + up</div>
+    <div class="filter clickable" ng-hide="!downFilter" ng-click="removeFilter('down')"> x down</div>
+    <div class="notfilter clickable" ng-hide="downFilter" ng-click="addFilter('down')"> + down</div>
+</div>
 <br>
+<div id="datePanel"><br>Date : {{date | date:'HH:mm:ss'}} - matching: {{count}} of {{nbOsd}} OSD <div ng-hide="osdControl<10 || count == 0"><p class="text-warning"> <i class="icon-warning-sign" ></i> osds not verified since {{osdControl|duration}}</p></div> </div>
 
 
 <div id="osds">
-
     <div ng-repeat="osd in data|orderBy:'id'" class=" tooltips osd {{osdClass(osd.stat.in,osd.stat.up)}}">
         <div ng-click="osdSelect(osd);">
             {{osd.id}}
