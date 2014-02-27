@@ -16,3 +16,5 @@ The main folders are:
 **inkscopeViz** : to visualize Ceph cluster status and and relations between Ceph cluster objects
 
 **inkscopeMonitor** : for supervision of Ceph
+
+Manual installation is described in the [inkScope wiki](https://github.com/inkscope/inkscope/wiki)
