@@ -7,4 +7,4 @@ Visualize dynamically ceph cluster status and relations between ceph cluster obj
  At this stage of development, data are taken directly via Ceph rest API calls.
  It will take further data from a MongoDb database.
 
- For installation process, look at install.md in documentation folder
+ Manual installation is described in the [inkScope wiki](https://github.com/inkscope/inkscope/wiki)
