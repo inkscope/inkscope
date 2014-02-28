@@ -2,7 +2,7 @@ Summary: inkscopeprobe
 Name: inkscopeprobe
 %define inkscope_version 1.0.0
 Version: %{inkscope_version} 
-Release: 1
+Release: 4
 License: Apache License
 Packager: Eric Mourgaya <eric.mourgaya@arkea.com>
 Distribution: Scientific Linux
@@ -19,6 +19,7 @@ install  sysprobe scripts
 %package cephprobe
 Summary: monitoring  of ceph cluster
 Requires: %{name} = %{version}
+Requires: lshw
 %description cephprobe
 install cephprobe scripts
 
@@ -48,9 +49,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-/opt/inkscope/etc/
 /opt/inkscope/bin/daemon.py
 /opt/inkscope/bin/sysprobe.py
+/opt/inkscope/etc/sysprobe.conf
 /etc/init.d/sysprobe
 
 %files cephprobe

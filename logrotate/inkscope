@@ -1,0 +1,9 @@
+/var/log/*probe.log {
+    rotate 2
+    daily
+    compress
+    sharedscripts
+    postrotate
+    missingok
+endscript
+}
