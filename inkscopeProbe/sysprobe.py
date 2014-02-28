@@ -10,6 +10,9 @@
 
 
 from pymongo import MongoClient
+from pymongo import MongoReplicaSetClient
+from pymongo.read_preferences import ReadPreference
+
 import time
 import datetime
 
@@ -626,13 +629,38 @@ class SysProbeDaemon(Daemon):
         
         mongodb_port = data.get("mongodb_port", None)
         print "mongodb_port = ", mongodb_port
-        # end conf extraction
-        
+        is_mongo_replicat = data.get("is_mongo_replicat", 0)
+        print "is_mongo_replicat = ", is_mongo_replicat
+        mongodb_set = "'"+data.get("mongodb_set",None)+"'"
+        print "mongodb_set = ", mongodb_set
+        mongodb_replicaSet =data.get("mongodb_replicaSet",None)
+        print "mongodb_replicaSet = ",mongodb_replicaSet
+        mongodb_read_preference = data.get("mongodb_read_preference",None)
+        print "mongodb_read_preference = ", mongodb_read_preference
+        is_mongo_authenticate = data.get("is_mongo_authenticate",0)
+        print "is_mongo_authenticate",is_mongo_authenticate
+        mongodb_user = data.get("mongodb_user","cephdefault")
+        print "mongodb_user = ", mongodb_user
+        mongodb_passwd = data.get("mongodb_passwd", None)
+        print "mongodb_passwd = ", mongodb_passwd
+
+	# end conf extraction
+
         sys.stdout.flush()
         
         hostname = socket.gethostname() #platform.node()
-        
-        client = MongoClient(mongodb_host, mongodb_port)
+	if is_mongo_replicat ==  1:
+         print  "replicat set connexion"
+         client=MongoReplicaSetClient(eval(mongodb_set), replicaSet=mongodb_replicaSet, read_preference=eval(mongodb_read_preference))
+        else:
+         print  "no replicat set"
+         client = MongoClient(mongodb_host, mongodb_port)
+        if is_mongo_authenticate == 1:
+         print "authentication  to database"
+         client.ceph.authenticate(mongodb_user,mongodb_passwd)
+        else:
+         print "no authentication" 
+
         db = client[clusterName]
         
         HWdisks, partitions, HWnets, HWcpus = initHost(hostname, db)
