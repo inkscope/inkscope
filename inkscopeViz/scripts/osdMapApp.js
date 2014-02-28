@@ -1,22 +1,28 @@
 /**
  * Created by Alain Dechorgnat on 24/02/14.
  */
-var osdMapApp = angular.module('osdMapApp', []);
+var osdMapApp = angular.module('osdMapApp', [])
+    .filter('duration', funcDurationFilter);
 
 
 osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http) {
     $scope.osds = [];
-    $scope.dispoModes =["up/down","in/out"];
-    $scope.dispoMode ="up/down";
+    $scope.dispoModes = ["up/down", "in/out" , "free space (%)"];
+    $scope.dispoMode = "up/down";
+    $scope.osdControl = 0;
+    $scope.warningMessage = "";
+
+    // get OSD info and refresh every 10s
     getOsds();
     setInterval(function () {getOsds()},10*1000);
 
+    // Prepare OSD topology from crushmap
     var w = window, d = document, e = d.documentElement, g = d.getElementsByTagName('body')[0];
-    $scope.screenSize ={"x" : w.innerWidth || e.clientWidth || g.clientWidth , "y" : w.innerHeight || e.clientHeight || g.clientHeight};
+    $scope.screenSize = {"x": w.innerWidth || e.clientWidth || g.clientWidth, "y": w.innerHeight || e.clientHeight || g.clientHeight};
 
     var svg = d3.select("body").select("#put_the_graph_there")
-        .attr("width", $scope.screenSize.x -40)
-        .attr("height", $scope.screenSize.y -200);
+        .attr("width", $scope.screenSize.x - 40)
+        .attr("height", $scope.screenSize.y - 200);
 
 
     $http({method: "get", url: cephRestApiURL + "osd/crush/dump.json"}).
@@ -34,13 +40,21 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http) {
         var bucketsTab = [];
         var osdTab = [];
 
+        // make array of buckets with bucket id as index
         for (var i = 0; i < rawbuckets.length; i++) {
             bucketsTab[rawbuckets[i].id] = rawbuckets[i];
         }
+        // device's name for OSD (id >=0)
         for (var i = 0; i < $scope.devices.length; i++) {
             osdTab[$scope.devices[i].id] = $scope.devices[i].name;
         }
+        // init tab with  bucket with id -1 as root
         var buckets = bucketsTab[-1];
+
+        //recursively make the tree of buckets for the D3 sunburst viz
+        addChildren(buckets);
+        //console.error(JSON.stringify(buckets));
+        return buckets;
 
         function addChildren(bucket) {
             bucket.dispo = 1.0;
@@ -48,102 +62,133 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http) {
             for (var j = 0; j < bucket.items.length; j++) {
                 var item = bucket.items[j];
                 if (item.id < 0) {
+                    //item is not an OSD
                     bucket.children.push(bucketsTab[item.id]);
                     addChildren(bucketsTab[item.id]);
                 }
                 else {
+                    //item is an OSD
                     var osd = item;
                     osd.name = osdTab[item.id];
-                    if (typeof $scope.osds[item.id] !== 'undefined' ){
+                    //compute dispo if data is available
+                    if (typeof $scope.osds[item.id] !== 'undefined') {
                         osd.dispo = $scope.dispo($scope.osds[item.id]);
                     }
                     else
-                        osd.dispo = -1.0;
+                        osd.dispo = -1.0; //"unknown"
                     bucket.children.push(osd);
                 }
-            }
-        }
-
-        addChildren(buckets);
-
-        return buckets;
-    }
-
-    function dispo(node){
-        if (typeof node === undefined) return -1;
-        if ($scope.dispoMode =="up/down") return node.stat.up ? 1.0 : 0.0;
-        if ($scope.dispoMode =="in/out") return node.stat.in ? 1.0 : 0.2;
-    }
-
-    $scope.refresh = function(){
-        if ( typeof $scope.osds === 'undefined') return;
-        for ( var i=0; i<$scope.osds.length;i++){
-            if (typeof $scope.buckets !== 'undefined'){
-                var path = d3.select("#osd"+$scope.osds[i].id);
-                path.style("fill",color4ascPercent($scope.osds[i].dispo));
             }
         }
     }
 
     function getOsds() {
-        $scope.date = new Date();
-
-        $http({method: "get", url: inkscopeCtrlURL + "ceph/osd?depth=2"}).
-
-            success(function (data, status) {
+        $http({method: "get", url: inkscopeCtrlURL + "ceph/osd?depth=2"})
+            .success(function (data, status) {
+                $scope.date = new Date();
+                $scope.status = status;
                 $scope.osds = [];
-                for ( var i=0; i<data.length;i++){
+                $scope.osdOut = 0;
+                $scope.osdDown = 0;
+                $scope.warningMessage = "";
+                for (var i = 0; i < data.length; i++) {
                     data[i].id = data[i].node._id;
-                    data[i].dispo = dispo(data[i]);
-                    data[i].lastControl = ((+$scope.date)-data[0].stat.timestamp)/1000;
-                    $scope.osds[data[i].id] = data[i];
-                    if (typeof $scope.buckets !== 'undefined'){
-                        var path = d3.select("#osd"+data[i].id);
-                        path.style("fill",color4ascPercent(data[i].dispo));
+                    if (!data[i].stat.in) $scope.osdOut++;
+                    if (!data[i].stat.up) $scope.osdDown++;
+                    data[i].lastControl = ((+$scope.date) - data[0].stat.timestamp) / 1000;
+                    try {
+                        data[i].free = data[i].partition.stat.free;
+                        data[i].total = data[i].partition.stat.total;
                     }
+                    catch (e) {
+                        data[i].free = -1;
+                        data[i].total = -1;
+                    }
+                    $scope.osds[data[i].id] = data[i];
                 }
+                if ($scope.osdDown >0) $scope.warningMessage += " OSD down : "+$scope.osdDown ;
+                if ($scope.osdOut >0)  $scope.warningMessage = $scope.warningMessage ==''? " OSD out : "+$scope.osdOut : $scope.warningMessage +" / OSD out : "+$scope.osdOut ;
                 $scope.osdControl = data[0].lastControl;
-            }).
-            error(function (data, status) {
+                //console.log(JSON.stringify($scope.osds));
+                $scope.refreshStatusDisplay();
+            })
+            .error(function (data, status) {
                 $scope.status = status;
                 $scope.data = data || "Request failed";
             });
     }
+
+    function dispo(node) {
+        if (typeof node === undefined) return -1;
+        if ($scope.dispoMode == "up/down") return node.stat.up ? 1.0 : 0.0;
+        if ($scope.dispoMode == "in/out") return node.stat.in ? 1.0 : 0.2;
+        if ($scope.dispoMode == "free space (%)") return (node.free/node.total);
+    }
+
+    $scope.refreshStatusDisplay = function () {
+        if ((typeof $scope.osds !== 'undefined') &&
+            (typeof $scope.buckets !== 'undefined')) {
+            for (var i = 0; i < $scope.osds.length; i++) {
+                var path = d3.select("#osd" + $scope.osds[i].id);
+                path.style("fill", color4ascPercent(dispo($scope.osds[i])));
+            }
+        }
+    }
+
 });
 
 
 osdMapApp.directive('myTopology', function () {
 
     return {
-        restrict: 'E',
+        restrict: 'EA',
         terminal: true,
-        scope: {
-            values: '='
-        },
         link: function (scope, element, attrs) {
 
 
-            function description(d){
-                var html="";
-                html+="<h2>"+ d.name+"</h2>"
-                html+="id : "+ d.id+"<br />"
-                html+="weight : "+ d.weight+"<br />"
-                if(typeof d.hash !== "undefined"){html+="hash : "+ d.hash+"<br />"}
-                if(typeof d.alg !== "undefined"){html+="alg : "+ d.alg+"<br />"}
-                if(typeof d.type_name !== "undefined"){html+="type : "+ d.type_name+"<br />"}
-                if(typeof d.pos !== "undefined"){html+="pos : "+ d.pos+"<br />"}
+            function description(d) {
+                var html = "";
+                html += "<h2>" + d.name;
+                if (d.id >=0) {//OSD state
+                    var osdstate = (scope.osds[d.id].stat.in == true) ? "in / " : "out / ";
+                    osdstate += (scope.osds[d.id].stat.up == true) ? "up" : "down";
+                    html +=  "<br/>"+osdstate ;
+
+                }
+                html += "</h2>"
+
+                html += "id : " + d.id + "<br />"
+                html += "weight : " + d.weight + "<br />"
+                if (typeof d.hash !== "undefined") {
+                    html += "hash : " + d.hash + "<br />"
+                }
+                if (typeof d.alg !== "undefined") {
+                    html += "alg : " + d.alg + "<br />"
+                }
+                if (typeof d.type_name !== "undefined") {
+                    html += "type : " + d.type_name + "<br />"
+                }
+                if (typeof d.pos !== "undefined") {
+                    html += "pos : " + d.pos + "<br />"
+                }
+                if (d.id >=0){
+                    // OSD specific fields
+                    html += "free space : " + funcBytes(scope.osds[d.id].free) + "<br />";
+                    html += "total space : " + funcBytes(scope.osds[d.id].total) + "<br />";
+                    html += "free : " +(scope.osds[d.id].free*100/scope.osds[d.id].total).toFixed(1) + "% <br />";
+                }
                 return html;
             }
 
             var w = window, d = document, e = d.documentElement, g = d.getElementsByTagName('body')[0];
-            scope.screenSize ={"x" : w.innerWidth || e.clientWidth || g.clientWidth , "y" : w.innerHeight || e.clientHeight || g.clientHeight};
+            scope.screenSize = {"x": w.innerWidth || e.clientWidth || g.clientWidth, "y": w.innerHeight || e.clientHeight || g.clientHeight};
 
-            var width  = scope.screenSize.x -40,
-                height = scope.screenSize.y -200,
+            var width = scope.screenSize.x - 40,
+                height = scope.screenSize.y - 200,
                 radius = Math.min(width, height) / 2 - 10;
 
             var x = d3.scale.linear()
-                .range([0, 2*Math.PI]);
+                .range([0, 2 * Math.PI]);
 
             var y = d3.scale.linear()
                 .range([0, radius]);
@@ -157,28 +202,38 @@ osdMapApp.directive('myTopology', function () {
                 .append("g")
                 .attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
 
-            var divTooltip =  d3.select("body").select("#tooltip");
+            var divTooltip = d3.select("body").select("#tooltip");
 
-            scope.$watch('values', function (root, oldRoot) {
+            scope.$watch('buckets', function (topology, oldTopology) {
 
-                // if 'root' is undefined, exit
-                if (typeof root === 'undefined') {
+                // if 'topology' is undefined, exit
+                if (typeof topology === 'undefined') {
                     return;
                 }
                 console.log("in watch");
                 // clear the elements inside of the directive
                 svg.selectAll('*').remove();
                 var partition = d3.layout.partition()
-                    .value(function(d) { return d.weight; });
+                    .value(function (d) {
+                        return d.weight;
+                    });
 
                 var arc = d3.svg.arc()
-                    .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
-                    .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
-                    .innerRadius(function(d) { return Math.max(0, y(d.y)); })
-                    .outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
+                    .startAngle(function (d) {
+                        return Math.max(0, Math.min(2 * Math.PI, x(d.x)));
+                    })
+                    .endAngle(function (d) {
+                        return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx)));
+                    })
+                    .innerRadius(function (d) {
+                        return Math.max(0, y(d.y));
+                    })
+                    .outerRadius(function (d) {
+                        return Math.max(0, y(d.y + d.dy));
+                    });
 
                 var g = svg.selectAll("g")
-                    .data(partition.nodes(root))
+                    .data(partition.nodes(topology))
                     .enter().append("g")
                     .on("click", click)
                     .on("mouseover", function (d) {
@@ -197,7 +252,9 @@ osdMapApp.directive('myTopology', function () {
 
                 var path = g.append("path")
                     .attr("d", arc)
-                    .attr('id',function (d){return "osd"+ d.id;})
+                    .attr('id', function (d) {
+                        return "osd" + d.id;
+                    })
                     .style("fill", function (d) {
                         return color4ascPercent(d['dispo']);
                     })
@@ -266,9 +323,10 @@ osdMapApp.directive('myTopology', function () {
                 function computeTextRotation(d) {
                     return (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
                 }
+
                 console.log("out watch");
 
-            },true);
+            }, true);
 
 
         }

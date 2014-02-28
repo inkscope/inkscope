@@ -38,18 +38,19 @@
 <form ng-submit="changePeriod()">
     <div id="controlPanel">
         Display attribute:
-        <select ng-model="dispoMode" ng-change="refresh()">
+        <select ng-model="dispoMode" ng-change="refreshStatusDisplay()">
             <option ng-repeat="dispoMode in dispoModes" value="{{dispoMode}}">{{dispoMode}}</option>
         </select>
+        <div ng-hide="warningMessage == ''"><p class="text-warning"> <i class="icon-warning-sign" ></i> {{warningMessage}}</p></div>
     </div>
 </form>
 
-<div id="datePanel">Date : {{date | date:'HH:mm:ss'}}</div>
+<div id="datePanel">Date : {{date | date:'HH:mm:ss'}} <div ng-hide="osdControl<15 || count == 0"><p class="text-warning"> <i class="icon-warning-sign" ></i> osds not verified since {{osdControl|duration}}</p></div></div>
 
 <div style="margin:0 20px">
     <div id="tooltip"></div>
     <div id="put_the_graph_there" style="width:100%">
-        <my-topology values="buckets"></my-topology>
+        <my-topology></my-topology>
     </div>
 </div>
 </body>
