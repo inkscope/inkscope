@@ -38,9 +38,8 @@
 <form ng-submit="changePeriod()">
     <div id="controlPanel">
         Display attribute:
-        <select ng-model="dispoMode" ng-change="refreshStatusDisplay()">
-            <option ng-repeat="dispoMode in dispoModes" value="{{dispoMode}}">{{dispoMode}}</option>
-        </select>
+        <select ng-model="dispoMode" ng-options="dispoMode for dispoMode in dispoModes" ng-change="refreshStatusDisplay()"></select>
+
         <div ng-hide="warningMessage == ''"><p class="text-warning"> <i class="icon-warning-sign" ></i> {{warningMessage}}</p></div>
     </div>
 </form>
