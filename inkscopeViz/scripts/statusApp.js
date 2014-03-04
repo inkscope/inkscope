@@ -150,7 +150,8 @@ StatusApp.controller("statusCtrl", function ($scope, $http) {
                 $scope.osdsIn = parseInt(osdmap.num_in_osds);
                 $scope.osdsOut = osdmap.num_osds - osdmap.num_in_osds;
                 $scope.osdsDown = $scope.osdsIn - $scope.osdsUp + $scope.osdsOut;
-
+                $scope.osdsNearFull = osdmap.nearfull ==  "true" ?1:0;
+                $scope.osdsFull = osdmap.full ==  "true" ?1:0;
             })
             .error(function (data) {
                 $scope.health = {};

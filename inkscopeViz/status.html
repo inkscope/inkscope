@@ -156,9 +156,21 @@
                     </div>
                 </td>
             </tr>
+            <tr><td colspan="3"><hr></td></tr>
+            <tr>
+                <td><div class="clickable"  onclick="document.location='osdMap.html?dispoMode=space'">Full</div></td>
+                <td>
+                    <div class={{badgeClass("WARN",osdsNearFull)}} onclick="document.location='osdMap.html?dispoMode=space'">
+                        near
+                    </div>
+                </td>
+                <td>
+                    <div class={{badgeClass("ERR",osdsFull)}} onclick="document.location='osdMap.html?dispoMode=space'">
+                        full
+                    </div>
+                </td>
+            </tr>
         </table>
-
-
     </div>
 
 
