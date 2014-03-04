@@ -32,7 +32,7 @@
     </style>
 </head>
 <body ng-controller="OsdMapCtrl">
-<h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> OSDs map</h1>
+<h1 class="pageTitle"><a ng-click="home()" class="clickable"><img src="img/inkscope_logo100.png" boredr="0"></a> OSDs map</h1>
 <br/>
 
 <form ng-submit="changePeriod()">
@@ -48,7 +48,7 @@
 
 <div style="margin:0 20px">
     <div id="tooltip"></div>
-    <div id="put_the_graph_there" style="width:100%">
+    <div id="put_the_graph_there">
         <my-topology></my-topology>
     </div>
 </div>

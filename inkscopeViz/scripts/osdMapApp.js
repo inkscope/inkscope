@@ -2,28 +2,23 @@
  * Created by Alain Dechorgnat on 24/02/14.
  */
 var osdMapApp = angular.module('osdMapApp', [])
-    .filter('duration', funcDurationFilter);
+    .filter('duration', funcDurationFilter)
+    .config(function($locationProvider) {$locationProvider.html5Mode(true);});
 
 
-osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http) {
+osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http, $location , $window) {
     $scope.osds = [];
     $scope.dispoModes = ["up/down", "in/out" , "free space (%)"];
     $scope.dispoMode = "up/down";
     $scope.osdControl = 0;
     $scope.warningMessage = "";
-
+    var dispoModeFilter = ($location.search()).dispoMode;
+    if ((typeof dispoModeFilter !=="undefined")&&(dispoModeFilter.indexOf("space") > -1)) $scope.dispoMode = "free space (%)";
     // get OSD info and refresh every 10s
     getOsds();
     setInterval(function () {getOsds()},10*1000);
 
     // Prepare OSD topology from crushmap
-    var w = window, d = document, e = d.documentElement, g = d.getElementsByTagName('body')[0];
-    $scope.screenSize = {"x": w.innerWidth || e.clientWidth || g.clientWidth, "y": w.innerHeight || e.clientHeight || g.clientHeight};
-
-    var svg = d3.select("body").select("#put_the_graph_there")
-        .attr("width", $scope.screenSize.x - 40)
-        .attr("height", $scope.screenSize.y - 200);
-
 
     $http({method: "get", url: cephRestApiURL + "osd/crush/dump.json"}).
         success(function (data, status) {
@@ -99,10 +94,12 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http) {
                     try {
                         data[i].free = data[i].partition.stat.free;
                         data[i].total = data[i].partition.stat.total;
+                        data[i].percent = data[i].free/data[i].total;
                     }
                     catch (e) {
-                        data[i].free = -1;
-                        data[i].total = -1;
+                        data[i].free = "N/A";
+                        data[i].total = "N/A";
+                        data[i].percent = -1;
                     }
                     $scope.osds[data[i].id] = data[i];
                 }
@@ -118,21 +115,26 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http) {
             });
     }
 
-    function dispo(node) {
+    $scope.dispo= function(node) {
         if (typeof node === undefined) return -1;
         if ($scope.dispoMode == "up/down") return node.stat.up ? 1.0 : 0.0;
         if ($scope.dispoMode == "in/out") return node.stat.in ? 1.0 : 0.2;
-        if ($scope.dispoMode == "free space (%)") return (node.free/node.total);
+        if ($scope.dispoMode == "free space (%)") return (node.percent== -1 ? "N/A": node.percent);
     }
 
     $scope.refreshStatusDisplay = function () {
         if ((typeof $scope.osds !== 'undefined') &&
             (typeof $scope.buckets !== 'undefined')) {
             for (var i = 0; i < $scope.osds.length; i++) {
+                //immediate update of osd sectors
                 var path = d3.select("#osd" + $scope.osds[i].id);
-                path.style("fill", color4ascPercent(dispo($scope.osds[i])));
+                path.style("fill", color4ascPercent($scope.dispo($scope.osds[i])));
+
             }
         }
+    }
+    $scope.home = function(){
+        $window.location.href = "index.html";
     }
 
 });
@@ -145,6 +147,56 @@ osdMapApp.directive('myTopology', function () {
         terminal: true,
         link: function (scope, element, attrs) {
 
+            function click(d) {
+                // fade out all text elements
+                text.transition().attr("opacity", 0);
+
+                path.transition()
+                    .duration(750)
+                    .attrTween("d", arcTween(d))
+                    .each("end", function (e, i) {
+                        // check if the animated element's data e lies within the visible angle span given in d
+                        if (e.x >= d.x && e.x < (d.x + d.dx)) {
+                            // get a selection of the associated text element
+                            var arcText = d3.select(this.parentNode).select("text");
+                            // fade in the text element and recalculate positions
+                            arcText.transition().duration(750)
+                                .attr("opacity", 1)
+                                .attr("transform", function () {
+                                    return "rotate(" + computeTextRotation(e) + ")"
+                                })
+                                .attr("x", function (d) {
+                                    return y(d.y);
+                                });
+                        }
+                    });
+            }
+
+            // Interpolate the scales!
+            function arcTween(d) {
+                var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
+                    yd = d3.interpolate(y.domain(), [d.y, 1]),
+                    yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
+                return function (d, i) {
+                    return i
+                        ? function (t) {
+                        return arc(d);
+                    }
+                        : function (t) {
+                        x.domain(xd(t));
+                        y.domain(yd(t)).range(yr(t));
+                        return arc(d);
+                    };
+                };
+            }
+
+            function computeTextRotation(d) {
+                return (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
+            }
+            /*function computeTextRotation(d) {
+             var ang = (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
+             return (ang > 90) ? 180 + ang : ang;
+             }*/
 
             function description(d) {
                 var html = "";
@@ -190,13 +242,12 @@ osdMapApp.directive('myTopology', function () {
             var x = d3.scale.linear()
                 .range([0, 2 * Math.PI]);
 
-            var y = d3.scale.linear()
-                .range([0, radius]);
 
             var color = d3.scale.category20c();
 
             var svg = d3.select(element[0])
                 .append("svg")
+                .attr("id","svgGraph")
                 .attr("width", width)
                 .attr("height", height)
                 .append("g")
@@ -204,15 +255,18 @@ osdMapApp.directive('myTopology', function () {
 
             var divTooltip = d3.select("body").select("#tooltip");
 
-            scope.$watch('buckets', function (topology, oldTopology) {
-
-                // if 'topology' is undefined, exit
-                if (typeof topology === 'undefined') {
-                    return;
-                }
-                console.log("in watch");
-                // clear the elements inside of the directive
+            function makeGraph(topology) {
+                // clear the elements inside the directive
                 svg.selectAll('*').remove();
+
+                var width = scope.screenSize.x - 40,
+                    height = scope.screenSize.y - 200,
+                    radius = Math.min(width, height) / 2 - 10;
+
+                var y = d3.scale.linear()
+                    .range([0, radius]);
+
+                svg.attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
                 var partition = d3.layout.partition()
                     .value(function (d) {
                         return d.weight;
@@ -256,10 +310,20 @@ osdMapApp.directive('myTopology', function () {
                         return "osd" + d.id;
                     })
                     .style("fill", function (d) {
-                        return color4ascPercent(d['dispo']);
+                        if ((typeof scope.osds !== "undefined")&&(typeof scope.osds[d.id] !== "undefined")&&(d.id>=0))
+                            return color4ascPercent(scope.dispo(scope.osds[d.id]));
+                        return color4ascPercent(d["dispo"]);
                     })
                     .style("stroke", "#fff")
                     .style("stroke-width", "1");
+                /*var text = g.append("text")
+                                  .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")rotate(" + computeTextRotation(d) + ")"; })
+                                  .attr('text-anchor', function (d) { return computeTextRotation(d) > 180 ? "end" : "start"; })
+                                  .attr("dx", "6") // margin
+                                  .attr("dy", ".35em") // vertical-align
+                                  .style("fill", "#fff")
+                                  .text(function(d) { return d.name; });
+                                  */
 
                 var text = g.append("text")
                     .attr("transform", function (d) {
@@ -275,56 +339,31 @@ osdMapApp.directive('myTopology', function () {
                         return d.name;
                     });
 
-                function click(d) {
-                    // fade out all text elements
-                    text.transition().attr("opacity", 0);
 
-                    path.transition()
-                        .duration(750)
-                        .attrTween("d", arcTween(d))
-                        .each("end", function (e, i) {
-                            // check if the animated element's data e lies within the visible angle span given in d
-                            if (e.x >= d.x && e.x < (d.x + d.dx)) {
-                                // get a selection of the associated text element
-                                var arcText = d3.select(this.parentNode).select("text");
-                                // fade in the text element and recalculate positions
-                                arcText.transition().duration(750)
-                                    .attr("opacity", 1)
-                                    .attr("transform", function () {
-                                        return "rotate(" + computeTextRotation(e) + ")"
-                                    })
-                                    .attr("x", function (d) {
-                                        return y(d.y);
-                                    });
-                            }
-                        });
+                d3.select(self.frameElement).style("height",
+
+                    height + "px");
+            }
+
+            scope.$watch('buckets', function (topology, oldTopology) {
+
+                // if 'topology' is undefined, exit
+                if (typeof topology === 'undefined') {
+                    return;
                 }
 
-                d3.select(self.frameElement).style("height", height + "px");
+                makeGraph(topology);
 
-                // Interpolate the scales!
-                function arcTween(d) {
-                    var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
-                        yd = d3.interpolate(y.domain(), [d.y, 1]),
-                        yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
-                    return function (d, i) {
-                        return i
-                            ? function (t) {
-                            return arc(d);
-                        }
-                            : function (t) {
-                            x.domain(xd(t));
-                            y.domain(yd(t)).range(yr(t));
-                            return arc(d);
-                        };
-                    };
+            }, true);
+
+            scope.$watch('screenSize', function (screenSize, oldscreenSize) {
+
+                // if 'topology' is undefined, exit
+                if (typeof screenSize === 'undefined') {
+                    return;
                 }
 
-                function computeTextRotation(d) {
-                    return (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
-                }
-
-                console.log("out watch");
+                makeGraph(scope.buckets);
 
             }, true);
 
@@ -332,3 +371,31 @@ osdMapApp.directive('myTopology', function () {
         }
     }
 })
+
+/*javascript external to angular applies to a scope*/
+
+function resizeGraphDiv() {
+    var w = window, d = document, e = d.documentElement, g = d.getElementsByTagName('body')[0];
+    x = w.innerWidth || e.clientWidth || g.clientWidth;
+    y = w.innerHeight || e.clientHeight || g.clientHeight;
+
+    d3.select("body").select("#put_the_graph_there")
+        .attr("width", x - 40 +"px")
+        .attr("height",y - 200 +"px");
+
+    d3.select("body").select("#svgGraph")
+        .attr("width", x - 40)
+        .attr("height",y - 200);
+
+    var domElt = document.getElementById('put_the_graph_there');
+    var scope = angular.element(domElt).scope();
+    scope.$apply(function() {
+        scope.screenSize.x = x;
+        scope.screenSize.y = y;
+    });
+
+    console.log("resizeGraphViz called: x="+(x-40)+", y="+(y-200));
+}
+
+//calling tellAngular on resize event
+window.onresize = resizeGraphDiv;
