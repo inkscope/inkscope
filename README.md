@@ -19,6 +19,6 @@ The main folders are:
 
 Manual installation is described in the [inkScope wiki](https://github.com/inkscope/inkscope/wiki)
 
-Here is the dashboard screenshot. Other screnshots can be found [there](https://github.com/inkscope/inkscope/screenshots)
+Here is the dashboard screenshot. Other screenshots can be found [there](https://github.com/inkscope/inkscope/tree/master/screenshots)
 
 ![dashboard](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-Status.png)
