@@ -147,56 +147,6 @@ osdMapApp.directive('myTopology', function () {
         terminal: true,
         link: function (scope, element, attrs) {
 
-            function click(d) {
-                // fade out all text elements
-                text.transition().attr("opacity", 0);
-
-                path.transition()
-                    .duration(750)
-                    .attrTween("d", arcTween(d))
-                    .each("end", function (e, i) {
-                        // check if the animated element's data e lies within the visible angle span given in d
-                        if (e.x >= d.x && e.x < (d.x + d.dx)) {
-                            // get a selection of the associated text element
-                            var arcText = d3.select(this.parentNode).select("text");
-                            // fade in the text element and recalculate positions
-                            arcText.transition().duration(750)
-                                .attr("opacity", 1)
-                                .attr("transform", function () {
-                                    return "rotate(" + computeTextRotation(e) + ")"
-                                })
-                                .attr("x", function (d) {
-                                    return y(d.y);
-                                });
-                        }
-                    });
-            }
-
-            // Interpolate the scales!
-            function arcTween(d) {
-                var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
-                    yd = d3.interpolate(y.domain(), [d.y, 1]),
-                    yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
-                return function (d, i) {
-                    return i
-                        ? function (t) {
-                        return arc(d);
-                    }
-                        : function (t) {
-                        x.domain(xd(t));
-                        y.domain(yd(t)).range(yr(t));
-                        return arc(d);
-                    };
-                };
-            }
-
-            function computeTextRotation(d) {
-                return (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
-            }
-            /*function computeTextRotation(d) {
-             var ang = (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
-             return (ang > 90) ? 180 + ang : ang;
-             }*/
 
             function description(d) {
                 var html = "";
@@ -289,18 +239,21 @@ osdMapApp.directive('myTopology', function () {
                 var g = svg.selectAll("g")
                     .data(partition.nodes(topology))
                     .enter().append("g")
-                    .on("click", click)
+                    .on("click",click )
+                    .on("mousemove",function(){
+                        divTooltip
+                            .style("left", (d3.event.pageX + 10) + "px")
+                            .style("top", (d3.event.pageY-150) + "px")/**/;
+                    })
                     .on("mouseover", function (d) {
                         divTooltip.transition()
-                            .duration(1000)
+                            .duration(500)
                             .style("opacity", .9);
-                        divTooltip.html(description(d))
-                            .style("left", (d3.event.pageX) + "px")
-                            .style("top", (d3.event.pageY - 28) + "px")/**/;
+                        divTooltip.html(description(d));
                     })
                     .on("mouseout", function (d) {
                         divTooltip.transition()
-                            .duration(1000)
+                            .duration(500)
                             .style("opacity", 0);
                     });
 
@@ -339,10 +292,60 @@ osdMapApp.directive('myTopology', function () {
                         return d.name;
                     });
 
+                function click(d) {
+                    // fade out all text elements
+                    text.transition().attr("opacity", 0);
 
-                d3.select(self.frameElement).style("height",
+                    path.transition()
+                        .duration(750)
+                        .attrTween("d", arcTween(d))
+                        .each("end", function (e, i) {
+                            // check if the animated element's data e lies within the visible angle span given in d
+                            if (e.x >= d.x && e.x < (d.x + d.dx)) {
+                                // get a selection of the associated text element
+                                var arcText = d3.select(this.parentNode).select("text");
+                                // fade in the text element and recalculate positions
+                                arcText.transition().duration(750)
+                                    .attr("opacity", 1)
+                                    .attr("transform", function () {
+                                        return "rotate(" + computeTextRotation(e) + ")"
+                                    })
+                                    .attr("x", function (d) {
+                                        return y(d.y);
+                                    });
+                            }
+                        });
+                }
 
-                    height + "px");
+
+                d3.select(self.frameElement).style("height", height + "px");
+
+                // Interpolate the scales!
+                function arcTween(d) {
+                    var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
+                        yd = d3.interpolate(y.domain(), [d.y, 1]),
+                        yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
+                    return function (d, i) {
+                        return i
+                            ? function (t) {
+                            return arc(d);
+                        }
+                            : function (t) {
+                            x.domain(xd(t));
+                            y.domain(yd(t)).range(yr(t));
+                            return arc(d);
+                        };
+                    };
+                }
+
+                function computeTextRotation(d) {
+                    return (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
+                }
+                /*function computeTextRotation(d) {
+                 var ang = (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
+                 return (ang > 90) ? 180 + ang : ang;
+                 }*/
+
             }
 
             scope.$watch('buckets', function (topology, oldTopology) {
