@@ -32,19 +32,19 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http, $location 
         });
 
     function computeBucketsTree(rawbuckets) {
-        var bucketsTab = [];
+        $scope.bucketsTab = [];
         var osdTab = [];
 
         // make array of buckets with bucket id as index
         for (var i = 0; i < rawbuckets.length; i++) {
-            bucketsTab[rawbuckets[i].id] = rawbuckets[i];
+            $scope.bucketsTab[rawbuckets[i].id] = rawbuckets[i];
         }
         // device's name for OSD (id >=0)
         for (var i = 0; i < $scope.devices.length; i++) {
             osdTab[$scope.devices[i].id] = $scope.devices[i].name;
         }
         // init tab with  bucket with id -1 as root
-        var buckets = bucketsTab[-1];
+        var buckets = $scope.bucketsTab[-1];
 
         //recursively make the tree of buckets for the D3 sunburst viz
         addChildren(buckets);
@@ -58,8 +58,8 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http, $location 
                 var item = bucket.items[j];
                 if (item.id < 0) {
                     //item is not an OSD
-                    bucket.children.push(bucketsTab[item.id]);
-                    addChildren(bucketsTab[item.id]);
+                    bucket.children.push($scope.bucketsTab[item.id]);
+                    addChildren($scope.bucketsTab[item.id]);
                 }
                 else {
                     //item is an OSD
@@ -122,6 +122,31 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http, $location 
         if ($scope.dispoMode == "free space (%)") return (node.percent== -1 ? "N/A": node.percent);
     }
 
+    $scope.dispoOSD= function(nodeId) {
+        if (typeof nodeId === undefined) return {"value":0,"total":0};;
+        if ($scope.dispoMode == "up/down") return {"total":1,"value":$scope.osds[nodeId].stat.up ? 1.0 : 0.0};
+        if ($scope.dispoMode == "in/out") return {"total":1,"value":$scope.osds[nodeId].stat.in ? 1.0 : 0.2};
+        if ($scope.dispoMode == "free space (%)") return {"value":$scope.osds[nodeId].free,"total":$scope.osds[nodeId].total};
+    }
+
+    $scope.dispoOtherNode= function(nodeId) {
+        if (typeof nodeId === undefined) return -1;
+            var node = $scope.bucketsTab[nodeId];
+            var value = 0 ;
+            var total = 0 ;
+            for (var i= 0; i< node.children.length;i++){
+                var res =  node.children[i].id<0? $scope.dispoOtherNode(node.children[i].id) : $scope.dispoOSD(node.children[i].id);
+                value += res.value;
+                total += res.total;
+            }
+        $scope.bucketsTab[nodeId].value= value;
+        $scope.bucketsTab[nodeId].total= total;
+        $scope.bucketsTab[nodeId].dispo= value/total;
+        return {"value":value,"total":total};
+    }
+
+
+
     $scope.refreshStatusDisplay = function () {
         if ((typeof $scope.osds !== 'undefined') &&
             (typeof $scope.buckets !== 'undefined')) {
@@ -131,6 +156,14 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http, $location 
                 path.style("fill", color4ascPercent($scope.dispo($scope.osds[i])));
 
             }
+            $scope.dispoOtherNode(-1);
+            for (var bucketId in $scope.bucketsTab) {
+                //immediate update of sectors
+                var path = d3.select("#osd" + $scope.bucketsTab[bucketId].id);
+                path.style("fill", color4ascPercent($scope.bucketsTab[bucketId].dispo));
+
+            }
+
         }
     }
     $scope.home = function(){
@@ -178,6 +211,15 @@ osdMapApp.directive('myTopology', function () {
                     html += "free space : " + funcBytes(scope.osds[d.id].free) + "<br />";
                     html += "total space : " + funcBytes(scope.osds[d.id].total) + "<br />";
                     html += "free : " +(scope.osds[d.id].free*100/scope.osds[d.id].total).toFixed(1) + "% <br />";
+                }else
+                {
+                    if (scope.dispoMode == "up/down") html += "OSD up : " + scope.bucketsTab[d.id].value + " of " + scope.bucketsTab[d.id].total + "<br />";
+                    if (scope.dispoMode == "in/out") html += "OSD out : " + ((scope.bucketsTab[d.id].total-scope.bucketsTab[d.id].value)/0.8).toFixed(0) + " of " + scope.bucketsTab[d.id].total + "<br />";
+                    if (scope.dispoMode == "free space (%)") {
+                        html += "free space : " + funcBytes(scope.bucketsTab[d.id].value) + "<br />";
+                        html += "total space : " + funcBytes(scope.bucketsTab[d.id].total) + "<br />";
+                        html += "free : " +(scope.bucketsTab[d.id].dispo*100).toFixed(1) + "% <br />";
+                    }
                 }
                 return html;
             }
