@@ -19,7 +19,7 @@ function color4ascPercent(percent) {
     var B = parseInt(Bdown + delta*(Bup-Bdown));
     var C =  "#"+ R.toString(16)+ G.toString(16)+ B.toString(16);
     C="rgb("+R+","+G+","+B+")";
-    console.log("C="+C);
+    //console.log("C="+C);
     return C;
 }
 
@@ -41,7 +41,7 @@ function color4descPercent(percent) {
     var B = parseInt(Bdown + delta*(Bup-Bdown));
     var C =  "#"+ R.toString(16)+ G.toString(16)+ B.toString(16);
     C="rgb("+R+","+G+","+B+")";
-    console.log("C="+C);
+    //console.log("C="+C);
     return C;
     //return colorsGnYlRd[parseInt(percent*10)];
 }

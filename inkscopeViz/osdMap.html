@@ -35,22 +35,22 @@
 <h1 class="pageTitle"><a ng-click="home()" class="clickable"><img src="img/inkscope_logo100.png" boredr="0"></a> OSDs map</h1>
 <br/>
 
-<form ng-submit="changePeriod()">
+<form>
     <div id="controlPanel">
         Display attribute:
-        <select ng-model="dispoMode" ng-options="dispoMode for dispoMode in dispoModes" ng-change="refreshStatusDisplay()"></select>
-
+        <select ng-model="dispoMode" ng-options="dispoMode for dispoMode in dispoModes"></select>
         <div ng-hide="warningMessage == ''"><p class="text-warning"> <i class="icon-warning-sign" ></i> {{warningMessage}}</p></div>
     </div>
 </form>
 
 <div id="datePanel">Date : {{date | date:'HH:mm:ss'}} <div ng-hide="osdControl<15 || count == 0"><p class="text-warning"> <i class="icon-warning-sign" ></i> osds not verified since {{osdControl|duration}}</p></div></div>
 
-<div style="margin:0 20px">
-    <div id="tooltip"></div>
-    <div id="put_the_graph_there">
+<div style="position: relative; width: 100%">
+    <div id="legend" style="position: absolute;top: 0;left: 0;min-width:50px;max-width:70px;margin-left:10px;padding:10px;border:gray thin solid;border-radius: 5px" >Legend<br></div>
+    <div id="put_the_graph_there" style="position:absolute;top: 150;left: 50;width:100%;z-index: 5">
         <my-topology></my-topology>
     </div>
 </div>
+<div id="tooltip" style="z-index: 10"></div>
 </body>
 </html>

@@ -154,18 +154,16 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http, $location 
                 //immediate update of osd sectors
                 var path = d3.select("#osd" + $scope.osds[i].id);
                 path.style("fill", color4ascPercent($scope.dispo($scope.osds[i])));
-
             }
             $scope.dispoOtherNode(-1);
             for (var bucketId in $scope.bucketsTab) {
                 //immediate update of sectors
                 var path = d3.select("#osd" + $scope.bucketsTab[bucketId].id);
                 path.style("fill", color4ascPercent($scope.bucketsTab[bucketId].dispo));
-
             }
-
         }
     }
+
     $scope.home = function(){
         $window.location.href = "index.html";
     }
@@ -241,15 +239,75 @@ osdMapApp.directive('myTopology', function () {
                 .append("svg")
                 .attr("id","svgGraph")
                 .attr("width", width)
-                .attr("height", height)
-                .append("g")
+                .attr("height", height);
+
+            var sunburst= svg.append("g")
+                .attr("id","sunburst")
                 .attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
 
             var divTooltip = d3.select("body").select("#tooltip");
 
+            // add legend
+
+            var legendDataInOut =[
+                {"value":1,"text":"in"},
+                {"value":0.2,"text":"out"}
+            ];
+            var legendDataUpDown =[
+                {"value":1,"text":"up"},
+                {"value":0,"text":"down"}
+            ];
+            var legendDataFreeSpace =[
+                {"value":1,"text":"100 %"},
+                {"value":0.9,"text":"90 %"},
+                {"value":0.8,"text":"80 %"},
+                {"value":0.7,"text":"70 %"},
+                {"value":0.6,"text":"60 %"},
+                {"value":0.5,"text":"50 %"},
+                {"value":0.4,"text":"40 %"},
+                {"value":0.3,"text":"30 %"},
+                {"value":0.2,"text":"20 %"},
+                {"value":0.1,"text":"10 %"},
+                {"value":0,"text":"0 %"}
+            ];
+
+            var divlegend = d3.select("#legend");
+            makeLegend();
+
+            function makeLegend(){
+                if (scope.dispoMode == "up/down") var legendData = legendDataUpDown;
+                if (scope.dispoMode == "in/out") var legendData = legendDataInOut;
+                if (scope.dispoMode == "free space (%)") var legendData = legendDataFreeSpace;
+
+                divlegend.selectAll('*').remove();
+                var legend = divlegend.append("svg").attr("height",20*legendData.length).append("g");
+                legend.selectAll('rect')
+                    .data(legendData)
+                    .enter()
+                    .append("rect")
+                    .attr("x", 0)
+                    .attr("y", function(d, i){ return i *  20 +10;})
+                    .attr("width", 10)
+                    .attr("height", 10)
+                    .style("fill", function(d) {
+                        var color = color4ascPercent(d.value);
+                        return color;
+                    })
+
+                legend.selectAll('text')
+                    .data(legendData)
+                    .enter()
+                    .append("text")
+                    .attr("x", 13)
+                    .attr("y", function(d, i){ return i *  20 + 19;})
+                    .text(function(d) {
+                        return d.text;
+                    });
+            }
+
             function makeGraph(topology) {
                 // clear the elements inside the directive
-                svg.selectAll('*').remove();
+                sunburst.selectAll('*').remove();
 
                 var width = scope.screenSize.x - 40,
                     height = scope.screenSize.y - 200,
@@ -258,7 +316,8 @@ osdMapApp.directive('myTopology', function () {
                 var y = d3.scale.linear()
                     .range([0, radius]);
 
-                svg.attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
+                sunburst.attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
+
                 var partition = d3.layout.partition()
                     .value(function (d) {
                         return d.weight;
@@ -278,7 +337,7 @@ osdMapApp.directive('myTopology', function () {
                         return Math.max(0, y(d.y + d.dy));
                     });
 
-                var g = svg.selectAll("g")
+                var g = sunburst.selectAll("g")
                     .data(partition.nodes(topology))
                     .enter().append("g")
                     .on("click",click )
@@ -311,14 +370,6 @@ osdMapApp.directive('myTopology', function () {
                     })
                     .style("stroke", "#fff")
                     .style("stroke-width", "1");
-                /*var text = g.append("text")
-                                  .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")rotate(" + computeTextRotation(d) + ")"; })
-                                  .attr('text-anchor', function (d) { return computeTextRotation(d) > 180 ? "end" : "start"; })
-                                  .attr("dx", "6") // margin
-                                  .attr("dy", ".35em") // vertical-align
-                                  .style("fill", "#fff")
-                                  .text(function(d) { return d.name; });
-                                  */
 
                 var text = g.append("text")
                     .attr("transform", function (d) {
@@ -383,36 +434,26 @@ osdMapApp.directive('myTopology', function () {
                 function computeTextRotation(d) {
                     return (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
                 }
-                /*function computeTextRotation(d) {
-                 var ang = (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
-                 return (ang > 90) ? 180 + ang : ang;
-                 }*/
-
-            }
+             }
 
             scope.$watch('buckets', function (topology, oldTopology) {
-
                 // if 'topology' is undefined, exit
-                if (typeof topology === 'undefined') {
-                    return;
+                if (typeof topology !== 'undefined') {
+                    makeGraph(topology);
                 }
-
-                makeGraph(topology);
-
             }, true);
 
             scope.$watch('screenSize', function (screenSize, oldscreenSize) {
-
                 // if 'topology' is undefined, exit
-                if (typeof screenSize === 'undefined') {
-                    return;
+                if (typeof screenSize !== 'undefined') {
+                    makeGraph(scope.buckets);
                 }
-
-                makeGraph(scope.buckets);
-
             }, true);
 
-
+            scope.$watch('dispoMode', function (dispoMode, olddispoMode) {
+                makeLegend();
+                scope.refreshStatusDisplay();
+            }, true);
         }
     }
 })
@@ -439,7 +480,7 @@ function resizeGraphDiv() {
         scope.screenSize.y = y;
     });
 
-    console.log("resizeGraphViz called: x="+(x-40)+", y="+(y-200));
+    //console.log("resizeGraphViz called: x="+(x-40)+", y="+(y-200));
 }
 
 //calling tellAngular on resize event
