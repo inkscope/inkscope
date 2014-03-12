@@ -1,4 +1,5 @@
-* some screenshots
+Some screenshots
+================
 
 ![dashboard](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-Status.png)
 ![dashboard2](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-Status2.png)
