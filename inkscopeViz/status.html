@@ -76,20 +76,23 @@
                     <td>{{mon.last_updated}}</td>
                 </tr>
                 <tr>
-                    <td>avail_percent</td>
+                    <td colspan="2"><strong>monitor storage</strong><br><em>reflect data of the partition where monitor is installed</em></td>
+                </tr>
+                <tr>
+                    <td>available percent</td>
                     <td>{{mon.avail_percent}}%</td>
                 </tr>
                 <tr>
-                    <td>kb_total</td>
-                    <td>{{mon.kb_total | bytes:kB}}</td>
+                    <td>total</td>
+                    <td>{{mon.kb_total*1024 | bytes:kB}}</td>
                 </tr>
                 <tr>
-                    <td>kb_avail</td>
-                    <td>{{mon.kb_avail | bytes:kB}}</td>
+                    <td>available</td>
+                    <td>{{mon.kb_avail*1024 | bytes:kB}}</td>
                 </tr>
                 <tr>
-                    <td>kb_used</td>
-                    <td>{{mon.kb_used | bytes:kB}}</td>
+                    <td>used</td>
+                    <td>{{mon.kb_used*1024 | bytes:kB}}</td>
                 </tr>
             </table>
             </span>
