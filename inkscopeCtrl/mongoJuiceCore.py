@@ -164,8 +164,6 @@ def execute(db, command, keyvalues):
         depth = command.get("depth", 0)
         select = evaluate(command.get("select", None), keyvalues)
         template = command.get("template", None)        
-        print "select", select
-        print "template", template      
         objs = list(db[collection].find(select, template))
         return _listObjects(db, objs, depth, set()) 
        
@@ -183,8 +181,16 @@ def execute(db, command, keyvalues):
         else:
             return None
     elif action == "aggregate":
-        return None
-    
+        if "collection" not in command :
+            return None
+        depth = command.get("depth", 0)
+        collection = command["collection"]
+        pipeline = evaluate(command.get("pipeline", None), keyvalues)
+        if not pipeline :
+            return None
+        objs = list(db[collection].aggregate(pipeline))
+        return _listObjects(db, objs, depth, set()) 
+   
 
 def evaluate(obj, keyvalues):
     if not obj :
