@@ -530,9 +530,9 @@ class SysProbeDaemon(Daemon):
         mongodb_port = conf.get("mongodb_port", None)
         print "mongodb_port = ", mongodb_port
         
-	is_mongo_replicat = conf.get("is_mongo_replicat", 0)
+        is_mongo_replicat = conf.get("is_mongo_replicat", 0)
         print "is_mongo_replicat = ", is_mongo_replicat
-        mongodb_set = "'"+conf.get("mongodb_set",None)+"'"
+        mongodb_set = "'"+conf.get("mongodb_set","")+"'"
         print "mongodb_set = ", mongodb_set
         mongodb_replicaSet =conf.get("mongodb_replicaSet",None)
         print "mongodb_replicaSet = ",mongodb_replicaSet
