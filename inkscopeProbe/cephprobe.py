@@ -317,7 +317,7 @@ def processPgDump(restapi, db):
         io = StringIO(data1)
         pgdump = json.load(io)
         for pg in pgdump["output"]["pg_stats"] :
-            db.pg.insert(pg)
+            #db.pg.insert(pg)
             pg['_id'] = pg['pgid']
             del pg['pgid']
             pg['pool'] = DBRef('pools', int(pg['_id'].partition('.')[0]))
