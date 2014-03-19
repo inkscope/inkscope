@@ -188,7 +188,7 @@ label {
     font-size :16px;
     font-weight: bold;
 }
-#general_status, #mon_status, #pg_status, #osd_status, #pool_status,.general_status, #capacity_details {
+#general_status, #mon_status, #pg_status, #osd_status, #pool_status, #mds_status,.general_status, #capacity_details {
     border:solid 1px gray;
     border-radius: 10px;
     margin: 5px;
@@ -223,6 +223,17 @@ text-align: center;
     font-weight: bold;
 }
 #pool_status_details td{
+    text-align: center;
+}
+#mds_status{
+    width:150px;
+}
+#mds_status_details {
+    margin-top:10px;
+    font-size :16px;
+    font-weight: bold;
+}
+#mds_status_details td{
     text-align: center;
 }
 

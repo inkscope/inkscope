@@ -2,15 +2,33 @@
  * Created by Alain Dechorgnat on 12/13/13.
  */
 
-var StatusApp = angular.module('StatusApp', ['D3Directives'])
+var StatusApp = angular.module('StatusApp', ['D3Directives','ngCookies','ngAnimate'])
     .filter('bytes', funcBytesFilter)
     .filter('duration', funcDurationFilter);
 
-StatusApp.controller("statusCtrl", function ($scope, $http) {
+StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
     var apiURL = '/ceph-rest-api/';
     $scope.journal = [];
     $scope.osdControl =0;
     //refresh data every x seconds
+
+    $scope.viewControlPanel = false;
+    $scope.viewMonitorModule = testAndSetCookie('viewMonitorModule',true);
+    $scope.viewCapacityModule = testAndSetCookie('viewCapacityModule',true);
+    $scope.viewPoolModule = testAndSetCookie('viewPoolModule',true);
+    $scope.viewOsdModule = testAndSetCookie('viewOsdModule',true);
+    $scope.viewPgStatusModule = testAndSetCookie('viewPgStatusModule',true);
+    $scope.viewMdsModule = testAndSetCookie('viewMdsModule',true);
+
+    function testAndSetCookie(param,defaultValue) {
+        var value = $cookieStore.get(param);
+        if (typeof value ==="undefined") {
+            $cookieStore.put(param,defaultValue);
+            value = defaultValue;
+        }
+        return value;
+    }
+
     refreshData();
     refreshPGData();
     refreshOSDData();
@@ -23,6 +41,8 @@ StatusApp.controller("statusCtrl", function ($scope, $http) {
     setInterval(function () {
         refreshOSDData()
     }, 3 * 1000);
+
+
 
     function refreshPGData() {
         $scope.date = new Date();
@@ -91,6 +111,7 @@ StatusApp.controller("statusCtrl", function ($scope, $http) {
         $http({method: "get", url: apiURL + "status.json"})
             .success(function (data) {
                 $scope.pgmap = data.output.pgmap;
+                $scope.mdsmap = data.output.mdsmap;
                 $scope.percentUsed = $scope.pgmap.bytes_used / $scope.pgmap.bytes_total;
                 $scope.pgsByState = $scope.pgmap.pgs_by_state;
 
@@ -165,6 +186,11 @@ StatusApp.controller("statusCtrl", function ($scope, $http) {
             return "health_status_HEALTH_UNKNOWN mybadge";
         else
             return "health_status_HEALTH_" + type + " mybadge";
+    }
+
+    $scope.showModule = function(module,view){
+        $cookieStore.put(module,view);
+        $scope[module]=view;
     }
 
     function historise() {
