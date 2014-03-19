@@ -7,8 +7,10 @@
     <link rel="stylesheet" type="text/css" media="screen" href="css/nv.d3.css"/>
     <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.min.css"/>
     <link rel="stylesheet" href="css/tooltip.css"/>
+    <link rel="stylesheet" href="css/animation.css">
     <script src="scripts/angular/angular.min.js"></script>
     <script src="scripts/angular/angular-cookies.min.js"></script>
+    <script src="scripts/angular/angular-animate.min.js"></script>
     <script src="scripts/angular-misc/D3Directives.js"></script>
     <script src="scripts/angular-misc/angular-commons.js"></script>
     <script src="scripts/statusApp.js"></script>
@@ -54,14 +56,15 @@
 <body ng-controller="statusCtrl">
 
 <i id="controlPanelOpen" class="icon-eye-close button" title="show/hide modules" alt="show/view modules" ng-click="viewControlPanel=true"></i>
-<div id="controlPanel" ng-hide="!viewControlPanel">
+<div id="controlPanel" ng-show="viewControlPanel" class="animate-show">
     <i class="icon-remove closeButton" ng-click="viewControlPanel=false" style="float:right"></i>
     Display module: <br>
     <input type="checkbox" ng-model="viewMonitorModule" ng-change="showModule('viewMonitorModule',viewMonitorModule)"> Monitors<br>
     <input type="checkbox" ng-model="viewPgStatusModule" ng-change="showModule('viewPgStatusModule',viewPgStatusModule)"> PG status<br>
     <input type="checkbox" ng-model="viewCapacityModule" ng-change="showModule('viewCapacityModule',viewCapacityModule)"> Capacity<br>
     <input type="checkbox" ng-model="viewOsdModule" ng-change="showModule('viewOsdModule',viewOsdModule)"> OSDs<br>
-    <input type="checkbox" ng-model="viewPoolModule" ng-change="showModule('viewPoolModule',viewPoolModule)"> Pools
+    <input type="checkbox" ng-model="viewPoolModule" ng-change="showModule('viewPoolModule',viewPoolModule)"> Pools<br>
+    <input type="checkbox" ng-model="viewMdsModule" ng-change="showModule('viewMdsModule',viewMdsModule)"> MDSs
 </div>
 
 <h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> Ceph status</h1>
@@ -78,7 +81,7 @@
 
 </div>
 
-<div id="mon_status" ng-hide="!viewMonitorModule">
+<div id="mon_status" ng-show="viewMonitorModule" class="animate-show">
     <i class="icon-remove closeButton" title="hide" alt="hide" ng-click="showModule('viewMonitorModule',false)" style="float:right"></i>
     <h2>Monitors status</h2>
 
@@ -147,7 +150,7 @@
     </div>
 </div>
 
-<div id="pg_status" ng-hide="!viewPgStatusModule">
+<div id="pg_status" ng-show="viewPgStatusModule" class="animate-show">
     <i class="icon-remove closeButton" title="hide" alt="hide" ng-click="showModule('viewPgStatusModule',false)" style="float:right"></i>
     <h2 onclick="document.location='poolspgsosds.html'" style="cursor:pointer">{{pgmap.num_pgs}} Placement groups</h2>
 
@@ -157,7 +160,7 @@
 
 </div>
 
-<div id="capacity_details" ng-hide="!viewCapacityModule">
+<div id="capacity_details" ng-show="viewCapacityModule" class="animate-show">
     <i class="icon-remove closeButton" title="hide" alt="hide" ng-click="showModule('viewCapacityModule',false)" style="float:right"></i>
     <h2>Avail. capacity : {{pgmap.bytes_total - pgmap.bytes_used | bytes:MB}}</h2>
     <br><br>
@@ -169,7 +172,7 @@
         </div>
     </div>
 </div>
-<div id="osd_status" ng-hide="!viewOsdModule">
+<div id="osd_status" ng-show="viewOsdModule"  class="animate-show">
     <i class="icon-remove closeButton" title="hide" alt="hide" ng-click="showModule('viewOsdModule',false)" style="float:right"></i>
     <h2 onclick="document.location='osds.html'" class="clickable">{{osdsUp + osdsDown}} OSD </h2>
     <div ng-hide="osdControl<30">
@@ -226,7 +229,7 @@
 
 
 </div>
-<div id="pool_status" ng-hide="!viewPoolModule">
+<div id="pool_status" ng-show="viewPoolModule" class="animate-show">
     <i class="icon-remove closeButton" title="hide" alt="hide" ng-click="showModule('viewPoolModule',false)" style="float:right"></i>
     <h2 onclick="document.location='poolspgsosds.html'" style="cursor:pointer">{{pools}} pools</h2>
 
@@ -254,6 +257,45 @@
 
 
 </div>
+
+<div id="mds_status" ng-show="viewMdsModule" class="animate-show">
+    <i class="icon-remove closeButton" title="hide" alt="hide" ng-click="showModule('viewMdsModule',false)" style="float:right"></i>
+    <h2>MDSs</h2>
+
+    <div id="mds_status_details">
+        <table style="float: right">
+            <tr>
+                <td>up</td>
+                <td>
+                    <div class={{badgeClass("OK",mdsmap.up)}}>
+                        {{mdsmap.up}}
+                    </div>
+                </td>
+
+            </tr>
+            <tr><td>in</td>
+                <td>
+                    <div class={{badgeClass("OK",mdsmap.in)}} >
+                        {{mdsmap.in}}
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>max</td>
+                <td>
+                    <div class={{badgeClass("OK",mdsmap.max)}}>
+                        {{mdsmap.max}}
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+
+    </div>
+
+
+</div>
+
 
 
 </body>

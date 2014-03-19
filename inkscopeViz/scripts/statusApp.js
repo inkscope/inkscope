@@ -2,7 +2,7 @@
  * Created by Alain Dechorgnat on 12/13/13.
  */
 
-var StatusApp = angular.module('StatusApp', ['D3Directives','ngCookies'])
+var StatusApp = angular.module('StatusApp', ['D3Directives','ngCookies','ngAnimate'])
     .filter('bytes', funcBytesFilter)
     .filter('duration', funcDurationFilter);
 
@@ -18,6 +18,7 @@ StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
     $scope.viewPoolModule = testAndSetCookie('viewPoolModule',true);
     $scope.viewOsdModule = testAndSetCookie('viewOsdModule',true);
     $scope.viewPgStatusModule = testAndSetCookie('viewPgStatusModule',true);
+    $scope.viewMdsModule = testAndSetCookie('viewMdsModule',true);
 
     function testAndSetCookie(param,defaultValue) {
         var value = $cookieStore.get(param);
@@ -110,6 +111,7 @@ StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
         $http({method: "get", url: apiURL + "status.json"})
             .success(function (data) {
                 $scope.pgmap = data.output.pgmap;
+                $scope.mdsmap = data.output.mdsmap;
                 $scope.percentUsed = $scope.pgmap.bytes_used / $scope.pgmap.bytes_total;
                 $scope.pgsByState = $scope.pgmap.pgs_by_state;
 
