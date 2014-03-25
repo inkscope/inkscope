@@ -1,0 +1,447 @@
+.css-form input.ng-invalid.ng-dirty {
+    background-color: #FA787E;
+}
+.css-form input.ng-valid.ng-dirty {
+    background-color: #78FA89;
+}
+
+h1.pageTitle {
+    font-size:45px;
+}
+h1.pageTitle img {
+    margin:5px 10px ;
+}
+
+input, textarea {
+    /*déjà en inline-block*/
+    width: 150px;
+    padding: 4px;
+    vertical-align: top;
+}
+
+.clickable{
+    cursor: pointer;
+}
+
+.text-warning{
+    color:darkorange;
+}
+
+.text-error{
+    color:red;
+}
+
+#sujet {
+    width: 250px;
+}
+
+#tooltip {
+    position:absolute;
+    opacity:0;
+    background-color: lightyellow;
+    min-width:150px;
+    min-height:150px;
+    border:solid gray 1px;
+    border-radius: 10px;
+    padding:10px;
+    margin:10px
+}
+
+textarea {
+    width: 300px;
+    height: 5em;
+}
+
+label {
+    display: inline-block;
+    width: 80px;
+    margin-right: 20px;
+    vertical-align: top;
+    text-align: right;
+}
+
+.button-bar {
+    width: 260px;
+    text-align: right
+}
+
+#control{
+    margin : 2em;
+    float:left;
+    width :500px;
+    border: solid gray 1px ;
+    border-radius: 1em;
+    padding: 1em;
+}
+#graph{
+    margin : 2em;
+    float:left;
+    width :300px;
+    min-height :200px;
+    border: solid gray 1px ;
+    border-radius: 1em;
+    padding: 1em;
+}
+
+#list{
+     margin : 2em;
+     float:left;
+     width :350px;
+     padding: 1em;
+ }
+
+
+.health_status {
+    height: 40px;width: 40px;border:solid 1px black;
+    float:left;
+    margin:10px;
+}
+.health_status_HEALTH_OK {background-color: limegreen}
+.health_status_HEALTH_WARN {background-color: darkorange}
+.health_status_HEALTH_ERR {background-color: red}
+.health_status_HEALTH_UNKNOWN {background-color: lightgrey}
+
+.health_summary{
+    font-size:20px;
+    font-weight: bold;
+    color:white;
+    text-align: center;
+    vertical-align: middle;
+    width:100%;
+    height:45px;
+    line-height:45px;
+    border-radius: 10px;
+    margin:20px auto;
+}
+/* Mon status */
+#general_status, .general_status, #mon_status {
+    clear:both;
+    width:850px;
+    min-height:80px;
+    display:block;
+}
+
+
+.mybadge {
+    width: 50px;
+    height: 40px;
+    line-height:40px;
+    text-align: center;
+    color:#ffffff;
+    font-size:20px;
+    font-weight: bold;
+    margin:5px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.filter{
+    float: left;
+    background-color: lightblue;
+    padding: 0px 5px 3px 5px;
+    margin : 10px;
+    min-width: 40px;
+    border-radius: 3px;
+}
+.notfilter{
+    border:1px solid lightgrey;
+    border-radius: 3px;
+    color:lightgrey;
+    float: left;
+    background-color: white;
+    padding: 0px 5px 3px 5px;
+    margin : 10px;
+    min-width: 40px;
+}
+
+.quorum_in, .quorum_out {
+    height: 25px;
+    line-height: 25px;
+    min-width: 80px;
+    text-align: center;
+    vertical-align: middle;
+    color:#ffffff;
+    font-size:20px;
+    font-weight: bold;
+    float:left;
+    margin:0px;
+    margin-right: 10px;
+
+}
+.quorum_in {
+    border:solid 10px limegreen;border-radius: 15px;
+}
+.quorum_out {
+    border:solid 10px lightgray;border-radius: 15px;
+}
+
+
+#pg_status_graph {
+    width:320px;
+    height: 340px;
+    margin-right: 10px;
+    background-color: white;
+    float : left;
+}
+#capacity_details {
+    float:left;
+    font-size :16px;
+    font-weight: bold;
+}
+#general_status, #mon_status, #pg_status, #osd_status, #pool_status, #mds_status,.general_status, #capacity_details {
+    border:solid 1px gray;
+    border-radius: 10px;
+    margin: 5px;
+    padding: 1em;
+    float:left;
+}
+#pg_status {
+    clear:both;
+    width:340px;
+    height: 370px;
+}
+#osd_status{
+    width:150px;
+}
+#osd_status_details {
+    margin-top:10px;
+    font-size :16px;
+    font-weight: bold;
+}
+#osd_status_details table{
+text-align: center;
+}
+#osd_status_details td{
+    text-align: center;
+}
+#pool_status{
+    width:150px;
+}
+#pool_status_details {
+    margin-top:10px;
+    font-size :16px;
+    font-weight: bold;
+}
+#pool_status_details td{
+    text-align: center;
+}
+#mds_status{
+    width:150px;
+}
+#mds_status_details {
+    margin-top:10px;
+    font-size :16px;
+    font-weight: bold;
+}
+#mds_status_details td{
+    text-align: center;
+}
+
+#journal{
+    border:solid 1px gray;
+    border-radius: 10px;
+    margin: 5px;
+    padding: 3px;
+    float:right;
+    width:750px;
+    height: 35px;
+    overflow: auto;
+}
+
+
+#datePanel, #filters{
+    margin:10px;
+    font-weight: bold;
+    clear:both;
+}
+#datePanel, #filters .title {
+    font-size:large;
+}
+/* D3 visualization */
+
+.gaugeLegend{
+    margin-top:1em;
+    width: 100%;
+    text-align: center;
+}
+.gaugeLegend a , .gaugeLegend a:hover, .gaugeLegend a:visited{
+    text-decoration: none;
+}
+
+
+
+/* CSS MENU */
+#cssmenu ul {
+    float: left;
+    margin: 3px;
+    padding: 3px 3px 0;
+    background: #7d7d7d url(../img/overlay.png) repeat-x 0 -110px;
+    line-height: 100%;
+    border-radius: 2em;
+    font: normal 0.5333333333333333em Arial, Helvetica, sans-serif;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    width: 100%;
+}
+#cssmenu li {
+    margin: 0 5px;
+    padding: 0 0 8px;
+    float: left;
+    position: relative;
+    list-style: none;
+}
+#cssmenu a,
+#cssmenu a:link {
+    font-weight: bold;
+    font-size: 13px;
+    color: #e7e5e5;
+    text-decoration: none;
+    display: block;
+    padding: 8px 20px;
+    margin: 0;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+#cssmenu a:hover {
+    background: #000;
+    color: #fff;
+}
+#cssmenu .active a,
+#cssmenu li:hover > a {
+    background: #979797 url(../img/overlay.png) repeat-x 0 -40px;
+    background: #666666 url(../img/overlay.png) repeat-x 0 -40px;
+    color: #444;
+    border-top: solid 1px  #f8f8f8;
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 1px 0 #ffffff;
+}
+#cssmenu ul ul li:hover a,
+#cssmenu li:hover li a {
+    background: none;
+    border: none;
+    color: #666;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+}
+#cssmenu ul ul a:hover {
+    background: #7d7d7d url(../img/overlay.png) repeat-x 0 -100px !important;
+    color: #fff !important;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+#cssmenu li:hover > ul {
+    display: block;
+}
+#cssmenu ul ul {
+    display: none;
+    margin: 0;
+    padding: 0;
+    width: 185px;
+    position: absolute;
+    top: 40px;
+    left: 0px;
+    background: url(../img/overlay.png) repeat-x 0 0;
+    border: solid 1px #b4b4b4;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+#cssmenu ul ul li {
+    float: none;
+    margin: 0;
+    padding: 3px;
+}
+#cssmenu ul ul a,
+#cssmenu ul ul a:link {
+    font-weight: normal;
+    font-size: 12px;
+}
+#cssmenu ul:after {
+    content: '.';
+    display: block;
+    clear: both;
+    visibility: hidden;
+    line-height: 0;
+    height: 0;
+}
+* html #cssmenu ul {
+    height: 1%;
+}
+
+#osds, #probes {
+    margin: 10px 200px 10px 50px ;
+    clear:both;
+}
+
+.osd {
+    font-size: 18px;
+    font-weight: bold;
+    float: left;
+    min-width: 40px;
+    height: 40px;
+    line-height: 40px;
+    margin: 5px;
+    padding: 0px;
+    border-radius: 26px;
+    color: white;
+    vertical-align: middle;
+    text-align: center;
+    vertical-align: middle;
+    cursor:pointer;
+}
+
+
+.osd_in {
+    border: solid 4px limegreen;
+}
+
+.osd_out {
+    border: solid 4px darkorange;
+}
+
+.osd_up {
+    background-color: limegreen;
+}
+
+.osd_down {
+    background-color: red;
+}
+
+.probe {
+    font-size: 18px;
+    font-weight: bold;
+    float: left;
+    min-width: 40px;
+    min-height: 40px;
+    line-height: 40px;
+    margin: 5px;
+    padding: 0px 10px;
+    border-radius: 26px;
+    color: white;
+    vertical-align: middle;
+    text-align: center;
+    vertical-align: middle;
+    cursor:pointer;
+}
+
+.probe_OK {
+    background-color: limegreen;
+}
+.probe_WARN {
+    background-color: darkorange;
+}
+.probe_ERROR {
+    background-color: red;;
+}

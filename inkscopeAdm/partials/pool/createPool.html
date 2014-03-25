@@ -1,0 +1,29 @@
+<h3>Pool creation</h3>
+<br />
+<form name="form" novalidate>
+    <label for="pool.name" class="col-sm-2 control-label">Pool name :</label>
+    <input type=text id="pool.name" class="form-control" ng-model="pool.name" placeholder="Pool name" required/>
+    <br>
+    <label for="pool.pg_num" class="col-sm-2 control-label">pg num : </label>
+    <input type=number id="pool.pg_num" class="form-control" ng-model="pool.pg_num" required/>
+    &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>100 is a common value</span></a>
+    <br/>
+    <br />
+
+    <div class="button-bar">
+        <a href="#/" class="btn btn-default">Cancel</a>
+        <button ng-click="reset()" ng-disabled="isUnchanged(pool)" class="btn btn-default">
+            Reset
+        </button>
+        <button ng-click="createPool()" ng-disabled="form.$invalid || isUnchanged(pool)" class="btn btn-primary">
+            Create
+        </button>
+
+    </div>
+</form>
+
+<!--pre>form = {{pool | json}}</pre>
+<pre>master = {{master | json}}</pre>
+<pre>url: {{url}}</pre>
+<pre>http status code: {{status}}</pre>
+<pre>http response data: {{data}}</pre-->

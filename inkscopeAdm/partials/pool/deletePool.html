@@ -1,0 +1,18 @@
+<h3>Pool deletion</h3>
+        <br />
+<form name="myForm">
+    <p>Are you sure you want to delete pool named <strong>{{poolName}}</strong> ?</p>
+
+    <br>
+    <p class="text-info"><i class="icon-warning-sign"></i> <em>If you created your own rulesets and rules for a pool you created, you should consider removing them when you no longer need your pool. If you created users with permissions strictly for a pool that no longer exists, you should consider deleting those users too.</em></p>
+
+    <div class="button-bar">
+        <a href="#/" class="btn">Cancel</a>
+        <button ng-click="poolDelete()" ng-show="poolName" class="btn btn-danger">Delete</button>
+    </div>
+</form>
+<!--
+<pre>url: {{url}}</pre>
+<pre>http status code: {{status}}</pre>
+<pre>http response data: {{data}}</pre>
+-->
