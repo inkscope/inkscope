@@ -4,10 +4,12 @@
     <meta charset=utf-8 />
     <script src="scripts/angular/angular.min.js"></script>
     <script src="scripts/angular/angular-route.min.js"></script>
+    <script src="scripts/angular-misc/ng-table.min.js"></script>
     <script src="scripts/poolApp.js"></script>
     <link rel="stylesheet" href="css/testAdmin.css" />
     <link rel="stylesheet" href="css/tooltip.css" />
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="scripts/angular-misc/ng-table.min.css">
     <title>Ceph pools admin</title>
 </head>
 <body>
@@ -17,29 +19,21 @@
 <h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> Pool management</h1>
 
 <div id="list" ng-controller="ListCtrl">
-
-    <input type="text" ng-model="search" class="search-query" placeholder="Search" style="width:100%">
-    <table  class="table table-condensed table-hover" style="width:100%">
-        <thead>
+    <table>
         <tr>
-            <th>Id</th>
-            <th>Pool</th>
-            <th></th>
-            <th><a href="#/new"><i class="icon-plus-sign"></i></a></th>
+            <th><input type="text" ng-model="search" class="search-query" placeholder="Search"></th>
+            <th>&nbsp; &nbsp; </th>
+            <th><a href="#/new"><i class="icon-plus-sign" alt="add a new pool" title="add a new pool"></i></a></th>
         </tr>
-        </thead>
-        <tbody>
-        <tr ng-repeat="pool in pools | filter:search ">
-            <td>{{pool.pool}}</td>
-            <td>{{pool.pool_name}}</td>
-            <td>
-                <a href="#/detail/{{pool.pool_name}}"><i class="icon-eye-open"></i></a>
-            </td>
-            <td>
-                <a href="#/delete/{{pool.pool_name}}"><i class="icon-minus-sign"></i></a>
-            </td>
+    </table>
+    <br>
+    <table ng-table="tableParams" class="table table-condensed table-hover">
+        <tr ng-repeat="pool in orderedData | filter:search">
+            <td data-title="'Id'" sortable="'pool'">{{pool.pool}}</td>
+            <td data-title="'Pool'" sortable="'pool_name'">{{pool.pool_name}}</td>
+            <td data-title="'View'" sortable="pool" style="text-align:center"><a href="#/detail/{{pool.pool_name}}"><i class="icon-eye-open" alt="view details of {{pool.pool_name}}" title="view details of {{pool.pool_name}}"></i></a></td>
+            <td data-title="'Delete'" sortable="pool" style="text-align:center"><a href="#/delete/{{pool.pool_name}}"><i class="icon-minus-sign" alt="delete {{pool.pool_name}}" title="delete {{pool.pool_name}}"></i></a></td>
         </tr>
-        </tbody>
     </table>
 </div>
 

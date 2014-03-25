@@ -2,13 +2,13 @@
  * Created by arid6405 on 11/21/13.
  */
 
-angular.module('poolApp', ['ngRoute'])
+angular.module('poolApp', ['ngRoute','ngTable'])
     .config(function ($routeProvider) {
         $routeProvider.
-            when('/', {controller: ListCtrl, templateUrl: 'partials/pool/aboutPools.html'}).
-            when('/detail/:poolName', {controller: DetailCtrl, templateUrl: 'partials/pool/detailPool.html'}).
-            when('/new', {controller: CreateCtrl, templateUrl: 'partials/pool/createPool.html'}).
-            when('/delete/:poolName', {controller: DeleteCtrl, templateUrl: 'partials/pool/deletePool.html'}).
+            when('/', {controller: ListCtrl, templateUrl: 'partials/pools/aboutPools.html'}).
+            when('/detail/:poolName', {controller: DetailCtrl, templateUrl: 'partials/pools/detailPool.html'}).
+            when('/new', {controller: CreateCtrl, templateUrl: 'partials/pools/createPool.html'}).
+            when('/delete/:poolName', {controller: DeleteCtrl, templateUrl: 'partials/pools/deletePool.html'}).
             otherwise({redirectTo: '/'})
 
     });
@@ -19,6 +19,7 @@ function refreshPools($http, $rootScope, $templateCache) {
         success(function (data, status) {
             $rootScope.status = status;
             $rootScope.pools =  data.output.pools;
+            $rootScope.tableParams.reload();
         }).
         error(function (data, status) {
             $rootScope.status = status;
@@ -26,12 +27,28 @@ function refreshPools($http, $rootScope, $templateCache) {
         });
 }
 
-function ListCtrl($rootScope,$http) {
+function ListCtrl($rootScope,$http, $filter, ngTableParams) {
+    $rootScope.tableParams = new ngTableParams({
+        page: 1,            // show first page
+        count: 20,          // count per page
+        sorting: {
+            pool: 'asc'     // initial sorting
+        }
+    }, {
+        counts: [], // hide page counts control
+        total: 1,  // value less than count hide pagination
+        getData: function ($defer, params) {
+            // use build-in angular filter
+            $rootScope.orderedData = params.sorting() ?
+                $filter('orderBy')($rootScope.pools, params.orderBy()) :
+                data;
+            $defer.resolve($rootScope.orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+        }
+    });
     refreshPools($http,$rootScope);
 }
 
 function DetailCtrl($rootScope,$scope, $http, $templateCache, $routeParams, $location) {
-
     $scope.poolName = $routeParams.poolName;
     $scope.detailedPool = $rootScope.pools[0];
     for (var i = 0; i < $rootScope.pools.length; i++) {
@@ -62,7 +79,6 @@ function DeleteCtrl($scope, $http, $templateCache, $routeParams, $location) {
                 $scope.status = status;
             });
     }
-
 }
 
 function CreateCtrl($rootScope, $scope, $location, $http, $templateCache) {
