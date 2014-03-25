@@ -14,8 +14,7 @@ angular.module('poolApp', ['ngRoute','ngTable'])
     });
 
 function refreshPools($http, $rootScope, $templateCache) {
-    var apiURL = '/ceph-rest-api/';
-    $http({method: "get", url: apiURL + "osd/dump.json", cache: $templateCache}).
+    $http({method: "get", url: inkscopeCtrlURL + "pools", cache: $templateCache}).
         success(function (data, status) {
             $rootScope.status = status;
             $rootScope.pools =  data.output.pools;
@@ -61,13 +60,12 @@ function DetailCtrl($rootScope,$scope, $http, $templateCache, $routeParams, $loc
 
 function DeleteCtrl($scope, $http, $templateCache, $routeParams, $location) {
     $scope.poolName = $routeParams.poolName;
-    var apiURL = '/ceph-rest-api/';
-    $scope.url = apiURL + "osd/pool/delete?pool=" + $scope.poolName + "&pool2=" + $scope.poolName + "&sure=--yes-i-really-really-mean-it";
+    $scope.uri = inkscopeCtrlURL + "pools/" + $scope.poolName;
 
     $scope.poolDelete = function () {
         $scope.status = "en cours ...";
 
-        $http({method: "put", url: $scope.url, cache: $templateCache}).
+        $http({method: "delete", url: $scope.uri, cache: $templateCache}).
             success(function (data, status) {
                 $scope.status = status;
                 $scope.data = data;
@@ -102,9 +100,13 @@ function CreateCtrl($rootScope, $scope, $location, $http, $templateCache) {
         $scope.code = null;
         $scope.response = null;
 
-        $scope.url = "/ceph-rest-api/osd/pool/create?pool=" + $scope.pool.name + "&pg_num=" + $scope.pool.pg_num + "&pgp_num=" + $scope.pool.pg_num;
+        $scope.uri = inkscopeCtrlURL+"pools/" + $scope.pool.name;
+        $scope.poolData = {
+            'pg_num': $scope.pg_num ,
+            'size' : 2
+        };
 
-        $http({method: "put", url: $scope.url, cache: $templateCache}).
+        $http({method: "post", url: $scope.uri, data: $scope.poolData, cache: $templateCache}).
             success(function (data, status) {
                 $scope.status = status;
                 $scope.data = data;
