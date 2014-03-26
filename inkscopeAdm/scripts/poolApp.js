@@ -63,8 +63,8 @@ function DetailCtrl($rootScope,$scope, $routeParams) {
 }
 
 function DeleteCtrl($scope, $http, $templateCache, $routeParams, $location) {
-    $scope.poolName = $routeParams.poolName;
-    $scope.uri = inkscopeCtrlURL + "pools/" + $scope.poolName;
+    var poolNum = $routeParams.poolNum;
+    $scope.uri = inkscopeCtrlURL + "pools/" + poolNum;
 
     $scope.poolDelete = function () {
         $scope.status = "en cours ...";
