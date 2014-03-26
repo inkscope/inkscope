@@ -1,12 +1,31 @@
 <h3>Pool creation</h3>
 <br />
-<form name="form" novalidate>
-    <label for="pool.name" class="col-sm-2 control-label">Pool name :</label>
-    <input type=text id="pool.name" class="form-control" ng-model="pool.name" placeholder="Pool name" required/>
-    <br>
-    <label for="pool.pg_num" class="col-sm-2 control-label">pg num : </label>
-    <input type=number id="pool.pg_num" class="form-control" ng-model="pool.pg_num" required/>
-    &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>100 is a common value</span></a>
+<form name="form" novalidate class="form-horizontal">
+    <div class="control-group">
+        <label for="pool.name" class="col-sm-2 control-label">Pool name :</label>
+        <div class="controls">
+            <input type=text id="pool.name"  ng-model="pool.name" placeholder="Pool name" required/>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="pool.size" class="col-sm-2 control-label">size : </label>
+        <div class="controls">
+            <input type=number id="pool.size"  ng-model="pool.size" required/>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="pool.size_min" class="col-sm-2 control-label">size min : </label>
+        <div class="controls">
+            <input type=number id="pool.size_min"  ng-model="pool.size_min" required/>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="pool.pg_num" class="col-sm-2 control-label">pg num : </label>
+        <div class="controls">
+            <input type=number id="pool.pg_num"  ng-model="pool.pg_num" required/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>recommended value: ?</span></a>
+        </div>
+    </div>
     <br/>
     <br />
 

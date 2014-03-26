@@ -6,21 +6,22 @@ angular.module('poolApp', ['ngRoute','ngTable'])
     .config(function ($routeProvider) {
         $routeProvider.
             when('/', {controller: ListCtrl, templateUrl: 'partials/pools/aboutPools.html'}).
-            when('/detail/:poolName', {controller: DetailCtrl, templateUrl: 'partials/pools/detailPool.html'}).
+            when('/detail/:poolNum', {controller: DetailCtrl, templateUrl: 'partials/pools/detailPool.html'}).
             when('/new', {controller: CreateCtrl, templateUrl: 'partials/pools/createPool.html'}).
-            when('/delete/:poolName', {controller: DeleteCtrl, templateUrl: 'partials/pools/deletePool.html'}).
+            when('/delete/:poolNum', {controller: DeleteCtrl, templateUrl: 'partials/pools/deletePool.html'}).
             otherwise({redirectTo: '/'})
 
     });
 
 function refreshPools($http, $rootScope, $templateCache) {
-    $http({method: "get", url: inkscopeCtrlURL + "pools", cache: $templateCache}).
+    $http({method: "get", url: inkscopeCtrlURL + "pools/", cache: $templateCache}).
         success(function (data, status) {
             $rootScope.status = status;
-            $rootScope.pools =  data.output.pools;
+            $rootScope.pools =  data.output;
             $rootScope.tableParams.reload();
         }).
-        error(function (data, status) {
+        error(function (data, status, headers) {
+            //alert("refresh pools failed with status "+status);
             $rootScope.status = status;
             $rootScope.pools =  data || "Request failed";
         });
@@ -47,15 +48,18 @@ function ListCtrl($rootScope,$http, $filter, ngTableParams) {
     refreshPools($http,$rootScope);
 }
 
-function DetailCtrl($rootScope,$scope, $http, $templateCache, $routeParams, $location) {
-    $scope.poolName = $routeParams.poolName;
-    $scope.detailedPool = $rootScope.pools[0];
-    for (var i = 0; i < $rootScope.pools.length; i++) {
-        if ($rootScope.pools[i].pool_name == $scope.poolName){
-            $scope.detailedPool = $rootScope.pools[i];
-            break;
-        }
-    }
+function DetailCtrl($rootScope,$scope, $routeParams) {
+
+    $http({method: "get", url: inkscopeCtrlURL + "pools/"+$routeParams.poolNum }).
+        success(function (data, status) {
+            $rootScope.status = status;
+            $rootScope.detailedPool =  data.output;
+        }).
+        error(function (data, status, headers) {
+            alert("pools with num "+$routeParams.poolNum+" not found");
+            $rootScope.status = status;
+            $rootScope.pools =  data || "Request failed";
+        });
 }
 
 function DeleteCtrl($scope, $http, $templateCache, $routeParams, $location) {

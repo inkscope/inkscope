@@ -19,7 +19,9 @@
 
 <h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> Pool management</h1>
 
-<div id="list" ng-controller="ListCtrl">
+<div ng-controller="ListCtrl">
+<div id="status" >{{status}}</div>
+<div id="list">
     <table>
         <tr>
             <th><input type="text" ng-model="search" class="search-query" placeholder="Search"></th>
@@ -30,14 +32,14 @@
     <br>
     <table ng-table="tableParams" class="table table-condensed table-hover">
         <tr ng-repeat="pool in orderedData | filter:search">
-            <td data-title="'Id'" sortable="'pool'">{{pool.pool}}</td>
-            <td data-title="'Pool'" sortable="'pool_name'">{{pool.pool_name}}</td>
-            <td data-title="'View'" sortable="pool" style="text-align:center"><a href="#/detail/{{pool.pool_name}}"><i class="icon-eye-open" alt="view details of {{pool.pool_name}}" title="view details of {{pool.pool_name}}"></i></a></td>
-            <td data-title="'Delete'" sortable="pool" style="text-align:center"><a href="#/delete/{{pool.pool_name}}"><i class="icon-minus-sign" alt="delete {{pool.pool_name}}" title="delete {{pool.pool_name}}"></i></a></td>
+            <td data-title="'Id'" sortable="'poolnum'">{{pool.poolnum}}</td>
+            <td data-title="'Pool'" sortable="'poolname'">{{pool.poolname}}</td>
+            <td data-title="'View'" sortable="pool" style="text-align:center"><a href="#/detail/{{pool.poolnum}}"><i class="icon-eye-open" alt="view details of {{pool.poolname}}" title="view details of {{pool.poolname}}"></i></a></td>
+            <td data-title="'Delete'" sortable="pool" style="text-align:center"><a href="#/delete/{{pool.poolnum}}"><i class="icon-minus-sign" alt="delete {{pool.poolname}}" title="delete {{pool.poolname}}"></i></a></td>
         </tr>
     </table>
 </div>
-
+</div>
 <div ng-view id="control" ></div>
 
 
