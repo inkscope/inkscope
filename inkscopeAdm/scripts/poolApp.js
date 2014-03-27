@@ -48,9 +48,9 @@ function ListCtrl($rootScope,$http, $filter, ngTableParams) {
     refreshPools($http,$rootScope);
 }
 
-function DetailCtrl($rootScope,$scope, $routeParams) {
-
-    $http({method: "get", url: inkscopeCtrlURL + "pools/"+$routeParams.poolNum }).
+function DetailCtrl($rootScope,$scope, $http, $routeParams) {
+    var uri = inkscopeCtrlURL + "pools/"+$routeParams.poolNum ;
+    $http({method: "get", url: uri }).
         success(function (data, status) {
             $rootScope.status = status;
             $rootScope.detailedPool =  data.output;
