@@ -8,42 +8,88 @@
         </div>
     </div>
     <div class="control-group">
+        <label for="pool.pg_num" class="col-sm-2 control-label">pg num : </label>
+        <div class="controls">
+            <input type=number id="pool.pg_num"  ng-model="pool.pg_num" required/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>recommended value:<br>(OSDS * 100)/nb replicas<br>rounded up to the nearest power of 2</span></a>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="pool.pgp_num" class="col-sm-2 control-label">pgp num : </label>
+        <div class="controls">
+            <input type=number id="pool.pgp_num"  ng-model="pool.pgp_num" required/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>may be the same as pg num</span></a>
+        </div>
+    </div>
+    <div class="control-group">
         <label for="pool.size" class="col-sm-2 control-label">size : </label>
         <div class="controls">
             <input type=number id="pool.size"  ng-model="pool.size" required/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>number of replicas for objects in the pool</span></a>
         </div>
     </div>
     <div class="control-group">
         <label for="pool.size_min" class="col-sm-2 control-label">size min : </label>
         <div class="controls">
             <input type=number id="pool.size_min"  ng-model="pool.size_min" required/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>minimum number of replicas required for io</span></a>
         </div>
     </div>
     <div class="control-group">
-        <label for="pool.pg_num" class="col-sm-2 control-label">pg num : </label>
+        <label for="pool.crash_replay_interval" class="col-sm-2 control-label">crash replay interval : </label>
         <div class="controls">
-            <input type=number id="pool.pg_num"  ng-model="pool.pg_num" required/>
-            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>recommended value: ?</span></a>
+            <input type=number id="pool.crash_replay_interval"  ng-model="pool.crash_replay_interval" required/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>number of seconds to allow clients to replay acknowledged, but uncommitted requests</span></a>
         </div>
     </div>
+    <div class="control-group">
+        <label for="pool.crush_ruleset" class="col-sm-2 control-label">crush ruleset : </label>
+        <div class="controls">
+            <input type=number id="pool.crush_ruleset"  ng-model="pool.crush_ruleset" required/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>ruleset to use for mapping object placement in the cluster</span></a>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="pool.quota_max_objects" class="col-sm-2 control-label">quota max objects : </label>
+        <div class="controls">
+            <input type=number id="pool.quota_max_objects"  ng-model="pool.quota_max_objects" required/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>0 = infinite</span></a>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="pool.quota_max_bytes" class="col-sm-2 control-label">quota max bytes : </label>
+        <div class="controls">
+            <input type=number id="pool.quota_max_bytes"  ng-model="pool.quota_max_bytes" required/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>0 = infinite</span></a>
+        </div>
+    </div>
+
     <br/>
     <br />
 
     <div class="button-bar">
-        <a href="#/" class="btn btn-default">Cancel</a>
-        <button ng-click="reset()" ng-disabled="isUnchanged(pool)" class="btn btn-default">
-            Reset
-        </button>
-        <button ng-click="createPool()" ng-disabled="form.$invalid || isUnchanged(pool)" class="btn btn-primary">
+        <button ng-click="createPool()" ng-disabled="form.$invalid || isUnchanged(pool)" class="btn btn-success">
             Create
         </button>
+       <button ng-click="reset()" ng-disabled="isUnchanged(pool)" class="btn btn-default">
+            Reset
+        </button>
+        <a href="#/" class="btn btn-default">Cancel</a>
 
     </div>
 </form>
 <br>
-Debug info : <br><br>
-<pre>form = {{pool | json}}</pre>
-<pre>master = {{master | json}}</pre>
-<pre>url: {{url}}</pre>
-<pre>http status code: {{status}}</pre>
-<pre>http response data: {{data}}</pre>
+<!--
+<pre>
+Debug info :
+
+form = {{pool | json}}
+
+master = {{master | json}}
+
+url: {{uri}}
+
+http status code: {{status}}
+
+http response data: {{data}}</pre>
+-->

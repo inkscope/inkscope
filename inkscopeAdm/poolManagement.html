@@ -4,8 +4,11 @@
     <meta charset=utf-8 />
     <script src="scripts/angular/angular.min.js"></script>
     <script src="scripts/angular/angular-route.min.js"></script>
+    <script src="scripts/angular/angular-sanitize.min.js"></script>
     <script src="scripts/angular-misc/ng-table.min.js"></script>
     <script src="scripts/angular-misc/angular-commons.js"></script>
+    <script src="scripts/angular-misc/ui-bootstrap-tpls-0.10.0.min.js"></script>
+    <script src="http://m-e-conroy.github.io/angular-dialog-service/javascripts/dialogs.v2.min.js" type="text/javascript"></script>
     <script src="scripts/poolApp.js"></script>
     <link rel="stylesheet" href="css/testAdmin.css" />
     <link rel="stylesheet" href="css/tooltip.css" />
@@ -35,7 +38,6 @@
             <td data-title="'Id'" sortable="'poolnum'">{{pool.poolnum}}</td>
             <td data-title="'Pool'" sortable="'poolname'">{{pool.poolname}}</td>
             <td data-title="'View'" sortable="pool" style="text-align:center"><a href="#/detail/{{pool.poolnum}}"><i class="icon-eye-open" alt="view details of {{pool.poolname}}" title="view details of {{pool.poolname}}"></i></a></td>
-            <td data-title="'Delete'" sortable="pool" style="text-align:center"><a href="#/delete/{{pool.poolnum}}"><i class="icon-minus-sign" alt="delete {{pool.poolname}}" title="delete {{pool.poolname}}"></i></a></td>
         </tr>
     </table>
 </div>

@@ -2,7 +2,7 @@
  * Created by arid6405 on 11/21/13.
  */
 
-angular.module('poolApp', ['ngRoute','ngTable'])
+angular.module('poolApp', ['ngRoute','ngTable','ui.bootstrap','dialogs'])
     .config(function ($routeProvider) {
         $routeProvider.
             when('/', {controller: ListCtrl, templateUrl: 'partials/pools/aboutPools.html'}).
@@ -63,17 +63,17 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams) {
 }
 
 function DeleteCtrl($scope, $http, $templateCache, $routeParams, $location) {
-    var poolNum = $routeParams.poolNum;
-    $scope.uri = inkscopeCtrlURL + "pools/" + poolNum;
+    $scope.poolNum = $routeParams.poolNum;
+    $scope.uri = inkscopeCtrlURL + "pools/" + $scope.poolNum;
 
     $scope.poolDelete = function () {
         $scope.status = "en cours ...";
 
-        $http({method: "delete", url: $scope.uri, cache: $templateCache}).
+        $http({method: "delete", url: $scope.uri }).
             success(function (data, status) {
                 $scope.status = status;
                 $scope.data = data;
-                refreshPools($http, $templateCache, $scope);
+                refreshPools($http, $scope);
                 $location.url('/');
             }).
             error(function (data, status) {
@@ -83,9 +83,9 @@ function DeleteCtrl($scope, $http, $templateCache, $routeParams, $location) {
     }
 }
 
-function CreateCtrl($rootScope, $scope, $location, $http, $templateCache) {
-    $scope.master = {};
+function CreateCtrl($rootScope, $scope, $location, $http, $dialogs) {
 
+    // functions declaration
     $scope.update = function (pool) {
         $scope.master = angular.copy(pool);
     };
@@ -98,28 +98,44 @@ function CreateCtrl($rootScope, $scope, $location, $http, $templateCache) {
         return angular.equals(pool, $scope.master);
     };
 
-    $scope.reset();
-
     $scope.createPool = function () {
-        $scope.code = null;
-        $scope.response = null;
+        $scope.code = "";
+        $scope.response = "";
 
-        $scope.uri = inkscopeCtrlURL+"pools/" + $scope.pool.name;
-        $scope.poolData = {
-            'pg_num': $scope.pg_num ,
-            'size' : 2
-        };
+        $scope.uri = inkscopeCtrlURL+"pools/";
 
-        $http({method: "post", url: $scope.uri, data: $scope.poolData, cache: $templateCache}).
+        $http({method: "post", url: $scope.uri, data: "json="+JSON.stringify($scope.pool), headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
             success(function (data, status) {
                 $scope.status = status;
                 $scope.data = data;
-                refreshPools($http, $templateCache, $scope);
+                $dialogs.notify("Pool creation","Pool <strong>"+$scope.pool.name+"</strong> was created");
+                refreshPools($http, $scope);
                 $location.path('/');
             }).
             error(function (data, status) {
                 $scope.data = data || "Request failed";
                 $scope.status = status;
+
+                $dialogs.error("<h3>Cant' create pool <strong>"+$scope.pool.name+"</strong> !</h3> <br>"+$scope.data);
+
             });
     };
+
+    // init
+    $scope.code = "";
+    $scope.response = "";
+
+    // default values
+    $scope.master = {};
+    $scope.pool = {};
+    $scope.master.crash_replay_interval = 0;
+    $scope.master.quota_max_bytes = 0;
+    $scope.master.quota_max_objects = 0;
+    /*
+    $scope.pool.crash_replay_interval = 0;
+    $scope.pool.quota_max_bytes = 0;
+    $scope.pool.quota_max_objects = 0;
+    */
+    $scope.reset();
+
 }

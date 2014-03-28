@@ -1,7 +1,7 @@
 <h3>Pool details for {{detailedPool.pool_name}}</h3>
 <br />
 
-<table  class="table table-condensed " style="width:300px">
+<table  class="table table-condensed ">
     <tbody>
     <tr ng-repeat="(key, value) in detailedPool">
         <td> {{key}} </td> <td> {{ value }} </td>
@@ -10,10 +10,8 @@
 </table>
 
 
-    <div class="button-bar">
+<div class="button-bar">
+        <a href="#/" class="btn btn-success">Modify</a>
+        <a href="#/delete/{{detailedPool.pool}}" class="btn btn-danger">Delete</a>
         <a href="#/" class="btn btn-default">Close</a>
-    </div>
-</form>
-
-<!--pre>{{poolName}}</pre>
-<pre>{{detailedPool}}</pre-->
+</div>
