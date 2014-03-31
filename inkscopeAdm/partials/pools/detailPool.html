@@ -11,7 +11,10 @@
 
 
 <div class="button-bar">
-        <a href="#/" class="btn btn-success">Modify</a>
-        <a href="#/delete/{{detailedPool.pool}}" class="btn btn-danger">Delete</a>
-        <a href="#/" class="btn btn-default">Close</a>
+    <a href="#/snapshot/{{detailedPool.pool}}/{{detailedPool.pool_name}}" class="btn btn-info"><i class="icon-white icon-camera"></i> make snapshot </a>
+    <button ng-click="removeSnapshot()" class="btn btn-danger" ng-show="hasSnap"><i class="icon-white icon-camera"></i> remove snapshot </button>
+    <div style="width:35px;display: inline-block"></div>
+    <a href="#/modify/{{detailedPool.pool}}" class="btn btn-success">Modify</a>
+    <a href="#/delete/{{detailedPool.pool}}" class="btn btn-danger">Delete</a>
+    <a href="#/" class="btn btn-default">Close</a>
 </div>

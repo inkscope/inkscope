@@ -1,10 +1,10 @@
-<h3>Pool creation</h3>
+<h3>Pool {{operation}}</h3>
 <br />
 <form name="form" novalidate class="form-horizontal">
     <div class="control-group">
-        <label for="pool.name" class="col-sm-2 control-label">Pool name :</label>
+        <label for="pool.pool_name" class="col-sm-2 control-label">Pool name :</label>
         <div class="controls">
-            <input type=text id="pool.name"  ng-model="pool.name" placeholder="Pool name" required/>
+            <input type=text id="pool.pool_name"  ng-model="pool.pool_name" placeholder="Pool name" required/>
         </div>
     </div>
     <div class="control-group">
@@ -15,9 +15,9 @@
         </div>
     </div>
     <div class="control-group">
-        <label for="pool.pgp_num" class="col-sm-2 control-label">pgp num : </label>
+        <label for="pool.pg_placement_num" class="col-sm-2 control-label">pg placement num : </label>
         <div class="controls">
-            <input type=number id="pool.pgp_num"  ng-model="pool.pgp_num" required/>
+            <input type=number id="pool.pg_placement_num"  ng-model="pool.pg_placement_num" required/>
             &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>may be the same as pg num</span></a>
         </div>
     </div>
@@ -29,9 +29,9 @@
         </div>
     </div>
     <div class="control-group">
-        <label for="pool.size_min" class="col-sm-2 control-label">size min : </label>
+        <label for="pool.min_size" class="col-sm-2 control-label">min size : </label>
         <div class="controls">
-            <input type=number id="pool.size_min"  ng-model="pool.size_min" required/>
+            <input type=number id="pool.min_size"  ng-model="pool.min_size" required/>
             &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>minimum number of replicas required for io</span></a>
         </div>
     </div>
@@ -68,13 +68,13 @@
     <br />
 
     <div class="button-bar">
-        <button ng-click="createPool()" ng-disabled="form.$invalid || isUnchanged(pool)" class="btn btn-success">
-            Create
+        <button ng-click="submit()" ng-disabled="form.$invalid || isUnchanged(pool)" class="btn btn-success">
+            {{ (operation=="creation"?"Create":"Modify") }}
         </button>
        <button ng-click="reset()" ng-disabled="isUnchanged(pool)" class="btn btn-default">
             Reset
         </button>
-        <a href="#/" class="btn btn-default">Cancel</a>
+        <button ng-click="cancel()" class="btn btn-default">Cancel</button>
 
     </div>
 </form>
