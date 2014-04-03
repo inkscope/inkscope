@@ -10,8 +10,7 @@ from bson import ObjectId
 import time
 
 
-#configfile = "/opt/inkscope/etc/inkscopeCtrl.conf"
-configfile = "/home/inkscope/Connect_Mongo/inkscopeCtrl.conf"
+configfile = "/opt/inkscope/etc/inkscopeCtrl.conf"
 #load the conf (from json into file)
 def load_conf():
     datasource = open(configfile, "r")
