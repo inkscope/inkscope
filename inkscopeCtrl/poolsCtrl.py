@@ -1,7 +1,6 @@
 # Alpha O. Sall
 # 03/24/2014
-# Alpha O. Sall
-# 03/24/2014
+
 from flask import Flask, request, Response
 import json
 import requests
