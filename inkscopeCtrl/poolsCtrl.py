@@ -1,22 +1,18 @@
 # Alpha O. Sall
 # 03/24/2014
+# Alpha O. Sall
+# 03/24/2014
 from flask import Flask, request, Response
 import json
 import requests
 from array import *
+
+port = 8080
+url = 'http://localhost:'+str(port)
 class Pools:
     """docstring for pools"""
     def __init__(self):
-        self.name = None
-        self.pg_num = None
-        self.pgp_num = None
-        self.size = None
-        self.min_size = None
-        self.crash_replay_interval = None
-        self.crush_ruleset = None
-        self.quota_max_objects = None
-        self.quota_max_bytes = None
-        
+        pass       
 
     def newpool_attribute(self, jsonform):
         jsondata = json.loads(jsonform)
@@ -44,13 +40,13 @@ class Pools:
 
     #osd lspools    
     def show(self):
-        r = requests.get('http://localhost:8080/ceph-rest-api/osd/lspools.json')
+        r = requests.get(url+'/ceph-rest-api/osd/lspools.json')
         return r.text
 
-    def register(self):
+    def register(self):      
         register_pool = requests.put('http://localhost:8080/ceph-rest-api/osd/pool/create?pool='+self.name+'&pg_num='+str(self.pg_num)+'&pgp_num='+str(self.pgp_num))
         # if newpool.register().status_code != 200:
-        #     return 'Error '+str(r.status_code)+' on creating pools'
+        # #     return 'Error '+str(r.status_code)+' on creating pools'
         # else:
     def delete(self):
         check = ''
@@ -59,12 +55,13 @@ class Pools:
 
 
 def getindice(id, jsondata):
-    r = jsondata.json()
+    r = jsondata.content
+    r = json.loads(r)
     mypoolsnum = array('i',[])
     for i in r['output']['pools']:
         mypoolsnum.append(i[u'pool'])
     if id not in  mypoolsnum:
-        return "That pool's id does not exit"
+        return "Pool not found"
 
     else:
         for i in range(len(mypoolsnum)):
@@ -73,10 +70,39 @@ def getindice(id, jsondata):
         return id
 
 def getpoolname(ind, jsondata):
+
     r = jsondata.json()
     poolname = r['output']['pools'][ind]['pool_name']
 
     return str(poolname)
+
+def checkpool(pool_id, jsondata):
+    skeleton = {'status':'','output':{}}
+    if isinstance(pool_id, int):
+        ind = getindice(pool_id, jsondata)
+        id = ind
+        if id == "Pool id not found":
+            skeleton['status'] = id
+            result = json.dumps(skeleton)
+            return Response(result, mimetype='application/json')
+        else:
+            skeleton['status'] = 'OK'
+            result = json.dumps(skeleton)
+            return Response(result, mimetype='application/json')   
+    if isinstance(pool_id, str):
+        r = jsondata.content
+        r = json.loads(r)
+        mypoolsname = array('i',[])
+        for i in r['output']:
+            mypoolsname.append(i[u'poolname'])
+        if pool_id not in  mypoolsname:
+            skeleton['status'] = 'OK'
+            result = json.dumps(skeleton)
+            return Response(result, mimetype='application/json')   
+        else:
+            skeleton['status'] = pool_id+'already exits. Please enter a new pool name'
+            result = json.dumps(skeleton)
+            return Response(result, mimetype='application/json')       
 
 def geterrors(url, methods):
     try:
@@ -95,28 +121,34 @@ def geterrors(url, methods):
 def pool_manage(id):
     if request.method == 'GET':
         if id == None:
-            
-            r = requests.get('http://localhost:8080/ceph-rest-api/osd/lspools.json')
+
+            r = requests.get(url+'/ceph-rest-api/osd/lspools.json')
              
             if r.status_code != 200:
                 return Response(r.raise_for_status())
             else:
+                r = r.content
                 return Response(r, mimetype='application/json')
+
         else:
-            data = requests.get('http://localhost:8080/ceph-rest-api/osd/dump.json')
+            data = requests.get(url+'/ceph-rest-api/osd/dump.json')
             if data.status_code != 200:
-                return 'Error '+str(r.status_code)+' on the request getting pools'
+                return 'Error '+str(data.status_code)+' on the request getting pools'
             else:
 
                 ind = getindice(id, data)
                 id = ind
-                if id == "That pool's id does not exit":
-                    return id
+                skeleton = {'status':'','output':{}}
+                if id == "Pool id not found":
+                    skeleton['status'] = id
+                    result = json.dumps(skeleton)
+                    return Response(result, mimetype='application/json')
 
                 else:
-                    skeleton = {'status':'','output':{}}
                     
-                    r = data.json()
+                    r = data.content
+                    r = json.loads(r)
+                    #r = data.json()
                     skeleton['status'] = r['status']
                     skeleton['output'] = r['output']['pools'][id]
 
@@ -125,15 +157,19 @@ def pool_manage(id):
 
     elif request.method =='POST':
         jsonform = request.form['json']
-        newpool = poolsCtrl.Pools()
+        newpool = Pools()
         newpool.newpool_attribute(jsonform)
+        
         newpool.register()
 
-        jsondata = requests.get('http://localhost:8080/ceph-rest-api/osd/dump.json')
-        r = jsondata.json()
+        jsondata = requests.get(url+'/ceph-rest-api/osd/dump.json')
+
+        r = jsondata.content
+        r = json.loads(r)
+        #r = jsondata.json()
         nbpool = len(r['output']['pools'])
 
-        poolcreated = poolsCtrl.Pools()
+        poolcreated = Pools()
         poolcreated.savedpool_attribute(nbpool-1, jsondata)
 
         # set poool parameter
@@ -144,7 +180,7 @@ def pool_manage(id):
 
         for i in range(len(default_param_list)):
             if param_to_set_list[i] != default_param_list[i]:
-                r = requests.put('http://localhost:8080/ceph-rest-api/osd/pool/set?pool='+str(poolcreated.name)+'&var='+var_name[i]+'&val='+str(param_to_set_list[i])) 
+                r = requests.put(url+'/ceph-rest-api/osd/pool/set?pool='+str(poolcreated.name)+'&var='+var_name[i]+'&val='+str(param_to_set_list[i])) 
             else:
                 pass
         
@@ -156,18 +192,20 @@ def pool_manage(id):
 
         for i in range(len(default_param)):
             if param_to_set[i] != default_param[i]:
-                r = requests.put('http://localhost:8080/ceph-rest-api/osd/pool/set-quota?pool='+str(poolcreated.name)+'&field='+field_name[i]+'&val='+str(param_to_set[i])) 
+                r = requests.put(url+'/ceph-rest-api/osd/pool/set-quota?pool='+str(poolcreated.name)+'&field='+field_name[i]+'&val='+str(param_to_set[i])) 
             
             else:
                 pass        
         return 'None'
 
     elif request.method == 'DELETE':
-        data = requests.get('http://localhost:8080/ceph-rest-api/osd/dump.json')
+        data = requests.get(url+'/ceph-rest-api/osd/dump.json')
         # if data.status_code != 200:
         #     return 'Error '+str(r.status_code)+' on the request getting pools'
         # else:
-        r = data.json()
+        #r = data.json()
+        r = data.content
+        r = json.loads(r)
 
         # data = requests.get('http://localhost:8080/ceph-rest-api/osd/dump.json')
         ind = getindice(id, data)
@@ -175,28 +213,30 @@ def pool_manage(id):
 
         poolname = r['output']['pools'][id]['pool_name']
         poolname = str(poolname)
-        delete_request = requests.put('http://localhost:8080/ceph-rest-api/osd/pool/delete?pool='+poolname+'&pool2='+poolname+'&sure=--yes-i-really-really-mean-it')
+        delete_request = requests.put(url+'/ceph-rest-api/osd/pool/delete?pool='+poolname+'&pool2='+poolname+'&sure=--yes-i-really-really-mean-it')
         return str(delete_request.status_code)
 
     else:
 
         jsonform = request.form['json']
-        newpool = poolsCtrl.Pools()
+        newpool = Pools()
         newpool.newpool_attribute(jsonform)
        
-        data = requests.get('http://localhost:8080/ceph-rest-api/osd/dump.json')
+        data = requests.get(url+'/ceph-rest-api/osd/dump.json')
         if data.status_code != 200:
             return 'Error '+str(r.status_code)+' on the request getting pools'
         else:
-            r = data.json()
+            #r = data.json()
+            r = data.content
+            r = json.loads(r)
             ind = getindice(id, data)
-            savedpool = poolsCtrl.Pools()
+            savedpool = Pools()
             savedpool.savedpool_attribute(ind, data)
 
             # rename the poolname
 
             if str(newpool.name) != str(savedpool.name):
-                r = requests.put('http://localhost:8080/ceph-rest-api/osd/pool/rename?srcpool='+str(savedpool.name)+'&destpool='+str(newpool.name)) 
+                r = requests.put(url+'/ceph-rest-api/osd/pool/rename?srcpool='+str(savedpool.name)+'&destpool='+str(newpool.name)) 
                       
             # set poool parameter
 
@@ -206,7 +246,7 @@ def pool_manage(id):
 
             for i in range(len(default_param_list)):
                 if param_to_set_list[i] != default_param_list[i]:
-                    r = requests.put('http://localhost:8080/ceph-rest-api/osd/pool/set?pool='+str(newpool.name)+'&var='+var_name[i]+'&val='+str(param_to_set_list[i])) 
+                    r = requests.put(url+'/ceph-rest-api/osd/pool/set?pool='+str(newpool.name)+'&var='+var_name[i]+'&val='+str(param_to_set_list[i])) 
                 else:
                     pass
        
@@ -218,15 +258,17 @@ def pool_manage(id):
 
             for i in range(len(default_param)):
                 if param_to_set[i] != default_param[i]:
-                    r = requests.put('http://localhost:8080/ceph-rest-api/osd/pool/set-quota?pool='+str(newpool.name)+'&field='+field_name[i]+'&val='+str(param_to_set[i])) 
+                    r = requests.put(url+'/ceph-rest-api/osd/pool/set-quota?pool='+str(newpool.name)+'&field='+field_name[i]+'&val='+str(param_to_set[i])) 
                 else:
                     pass        
             return str(r.status_code)
 
 # @app.route('/pools/<int:id>/snapshot', methods=['POST'])
 def makesnapshot(id):
-    data = requests.get('http://localhost:8080/ceph-rest-api/osd/dump.json')
-    r = data.json()
+    data = requests.get(url+'/ceph-rest-api/osd/dump.json')
+    #r = data.json()
+    r = data.content
+    r = json.loads(r)
     ind = getindice(id,data)
     id = ind
 
@@ -235,20 +277,22 @@ def makesnapshot(id):
     jsondata = request.form['json']
     jsondata = json.loads(jsondata)
     snap = jsondata['snapshot_name']
-    r = requests.put('http://localhost:8080/ceph-rest-api/osd/pool/mksnap?pool='+str(poolname)+'&snap='+str(snap)) 
+    r = requests.put(url+'/ceph-rest-api/osd/pool/mksnap?pool='+str(poolname)+'&snap='+str(snap)) 
     return str(r.status_code)
 
 # @app.route('/pools/<int:id>/snapshot/<namesnapshot>', methods=['DELETE'])
-def removesnapshot(id,namesnapshot):
-    data = requests.get('http://localhost:8080/ceph-rest-api/osd/dump.json')
-    r = data.json()
+def removesnapshot(id, namesnapshot):
+    data = requests.get(url+'/ceph-rest-api/osd/dump.json')
+    #r = data.json()
+    r = data.content
+    r = json.loads(r)
     ind = getindice(id,data)
     id = ind
 
     poolname = r['output']['pools'][id]['pool_name']
 
     try:
-        r = requests.put('http://localhost:8080/ceph-rest-api/osd/pool/rmsnap?pool='+str(poolname)+'&snap='+str(namesnapshot))
+        r = requests.put(url+'/ceph-rest-api/osd/pool/rmsnap?pool='+str(poolname)+'&snap='+str(namesnapshot))
     except HTTPException, e:
         return e    
     else:
