@@ -10,6 +10,7 @@ angular.module('poolApp', ['ngRoute','ngTable','ui.bootstrap','dialogs'])
             when('/new', {controller: CreateCtrl, templateUrl: 'partials/pools/createPool.html'}).
             when('/modify/:poolNum', {controller: ModifyCtrl, templateUrl: 'partials/pools/createPool.html'}).
             when('/delete/:poolNum/:poolName', {controller: DeleteCtrl, templateUrl: 'partials/pools/deletePool.html'}).
+            when('/delete/:poolNum', {controller: DeleteCtrl, templateUrl: 'partials/pools/deletePool.html'}).
             when('/snapshot/:poolNum/:poolName', {controller: SnapshotCtrl, templateUrl: 'partials/pools/snapshot.html'}).
             otherwise({redirectTo: '/'})
 
@@ -116,7 +117,7 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $route, $dialogs) {
 function DeleteCtrl($scope, $http, $templateCache, $routeParams, $location, $dialogs) {
     $scope.poolNum = $routeParams.poolNum;
     $scope.poolName = $routeParams.poolName;
-    $scope.uri = inkscopeCtrlURL + "pools/" + $scope.poolNum;
+    $scope.uri = inkscopeCtrlURL + "pools/" + $scope.poolNum  ;
 
     $scope.poolDelete = function () {
         $scope.status = "en cours ...";
