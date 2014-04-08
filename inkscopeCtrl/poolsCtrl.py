@@ -43,13 +43,13 @@ class Pools:
         return r.text
 
     def register(self):      
-        register_pool = requests.put('http://localhost:8080/ceph-rest-api/osd/pool/create?pool='+self.name+'&pg_num='+str(self.pg_num)+'&pgp_num='+str(self.pgp_num))
+        register_pool = requests.put(url+'/ceph-rest-api/osd/pool/create?pool='+self.name+'&pg_num='+str(self.pg_num)+'&pgp_num='+str(self.pgp_num))
         # if newpool.register().status_code != 200:
         # #     return 'Error '+str(r.status_code)+' on creating pools'
         # else:
     def delete(self):
         check = ''
-        return requests.put('http://localhost:8080/ceph-rest-api/osd/pool/delete?pool='+poolname+'&sure=--yes-i-really-really-mean-it')
+        return requests.put(url+'/ceph-rest-api/osd/pool/delete?pool='+poolname+'&sure=--yes-i-really-really-mean-it')
 
 
 
