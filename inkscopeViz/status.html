@@ -162,7 +162,7 @@
 
 <div id="capacity_details" ng-show="viewCapacityModule" class="animate-show">
     <i class="icon-remove closeButton" title="hide" alt="hide" ng-click="showModule('viewCapacityModule',false)" style="float:right"></i>
-    <h2>Avail. capacity : {{pgmap.bytes_total - pgmap.bytes_used | bytes:MB}}</h2>
+    <h2>Avail. capacity :<br>{{pgmap.bytes_total - pgmap.bytes_used | bytes:MB}}</h2>
     <br><br>
 
     <div onclick="document.location='poolUsage.html'" style="cursor:pointer">

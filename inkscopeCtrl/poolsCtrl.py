@@ -1,5 +1,7 @@
 # Alpha O. Sall
 # 03/24/2014
+# Alpha O. Sall
+# 03/24/2014
 from flask import Flask, request, Response
 import json
 import requests
@@ -42,13 +44,13 @@ class Pools:
         return r.text
 
     def register(self):      
-        register_pool = requests.put(url+'/ceph-rest-api/osd/pool/create?pool='+self.name+'&pg_num='+str(self.pg_num)+'&pgp_num='+str(self.pgp_num))
+        register_pool = requests.put('http://localhost:8080/ceph-rest-api/osd/pool/create?pool='+self.name+'&pg_num='+str(self.pg_num)+'&pgp_num='+str(self.pgp_num))
         # if newpool.register().status_code != 200:
         # #     return 'Error '+str(r.status_code)+' on creating pools'
         # else:
     def delete(self):
         check = ''
-        return requests.put(url+'/ceph-rest-api/osd/pool/delete?pool='+poolname+'&sure=--yes-i-really-really-mean-it')
+        return requests.put('http://localhost:8080/ceph-rest-api/osd/pool/delete?pool='+poolname+'&sure=--yes-i-really-really-mean-it')
 
 
 
@@ -121,18 +123,16 @@ def pool_manage(id):
         if id == None:
 
             r = requests.get(url+'/ceph-rest-api/osd/lspools.json')
-   
+             
             if r.status_code != 200:
                 return Response(r.raise_for_status())
             else:
-                # r = r.content
-                #r = json.dumps(r)
-                return Response(r)#, mimetype='application/json')
+                r = r.content
+                return Response(r, mimetype='application/json')
 
         else:
             data = requests.get(url+'/ceph-rest-api/osd/dump.json')
             if data.status_code != 200:
-
                 return 'Error '+str(data.status_code)+' on the request getting pools'
             else:
 
@@ -160,13 +160,9 @@ def pool_manage(id):
         newpool = Pools()
         newpool.newpool_attribute(jsonform)
         
-
+        newpool.register()
 
         jsondata = requests.get(url+'/ceph-rest-api/osd/dump.json')
-
-        #if checkpool(newpool.name, jsondata) == True: #True for things are ok
-
-        newpool.register()
 
         r = jsondata.content
         r = json.loads(r)
