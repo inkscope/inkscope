@@ -531,8 +531,12 @@ class Repeater(Thread):
         self.args = args
     def run(self):
         while not self.stopped.wait(self.period):
-            # call a function
-            self.function(*self.args)
+            try:
+                # call a function
+                self.function(*self.args)
+            except:
+                # try later
+                pass
 
 
 def ensure_dir(f):

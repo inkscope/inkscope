@@ -460,8 +460,12 @@ class Repeater(Thread):
         self.args = args
     def run(self):
         while not self.stopped.wait(self.period):
-            # call a function
-            self.function(*self.args)
+            try:
+                # call a function
+                self.function(*self.args)
+            except:
+                # retry later
+                pass
 
 
 
@@ -554,16 +558,16 @@ class SysProbeDaemon(Daemon):
         
 	 # take care with mongo set and authentication
         if is_mongo_replicat ==  1:
-         print  "replicat set connexion"
-         client=MongoReplicaSetClient(eval(mongodb_set), replicaSet=mongodb_replicaSet, read_preference=eval(mongodb_read_preference))
+            print  "replicat set connexion"
+            client=MongoReplicaSetClient(eval(mongodb_set), replicaSet=mongodb_replicaSet, read_preference=eval(mongodb_read_preference))
         else:
-         print  "no replicat set"
-         client = MongoClient(mongodb_host, mongodb_port)
+            print  "no replicat set"
+            client = MongoClient(mongodb_host, mongodb_port)
         if is_mongo_authenticate == 1:
-         print "authentication  to database"
-         client.ceph.authenticate(mongodb_user,mongodb_passwd)
+            print "authentication  to database"
+            client.ceph.authenticate(mongodb_user,mongodb_passwd)
         else:
-         print "no authentication"
+            print "no authentication"
 
         db = client[clusterName]
         
