@@ -148,8 +148,10 @@ def worstHealth(h1, h2) :
 def processStatus(restapi, db):
     print str(datetime.datetime.now()), "-- Process Status"  
     sys.stdout.flush()
+    restapi.connect()
     restapi.request("GET", "/api/v0.1/status.json")
     r1=restapi.getresponse()
+    restapi.close()
     if (r1.status == 200) :
         data1 = r1.read()
         io = StringIO(data1)
@@ -231,8 +233,10 @@ def processStatus(restapi, db):
 def processOsdDump(restapi, db):   
     print str(datetime.datetime.now()), "-- Process OSDDump"  
     sys.stdout.flush()
+    restapi.connect()
     restapi.request("GET", "/api/v0.1/osd/dump.json")
     r1=restapi.getresponse()
+    restapi.close()
     if (r1.status == 200) :
         data1 = r1.read()
         io = StringIO(data1)
@@ -310,8 +314,10 @@ def processOsdDump(restapi, db):
 def processPgDump(restapi, db):
     print str(datetime.datetime.now()), "-- Process PGDump"  
     sys.stdout.flush()
+    restapi.connect()
     restapi.request("GET", "/api/v0.1/pg/dump.json")
     r1=restapi.getresponse()
+    restapi.close()
     if (r1.status == 200) :
         data1 = r1.read()
         io = StringIO(data1)
@@ -335,8 +341,10 @@ def processPgDump(restapi, db):
 def processCrushmap(restapi, db):
     print str(datetime.datetime.now()), "-- Process Crushmap"  
     sys.stdout.flush()
+    restapi.connect()
     restapi.request("GET", "/api/v0.1/osd/crush/dump.json")
     r1=restapi.getresponse()
+    restapi.close()
     if (r1.status == 200) :
         data1 = r1.read()
         io = StringIO(data1)
@@ -409,8 +417,10 @@ def processCrushmap(restapi, db):
 def processDf(restapi, db): 
     print str(datetime.datetime.now()), "-- Process DF"  
     sys.stdout.flush()
+    restapi.connect()
     restapi.request("GET", "/api/v0.1/df.json")
     r1=restapi.getresponse()
+    restapi.close()
     if (r1.status == 200) :
         data1 = r1.read()
         io = StringIO(data1)
