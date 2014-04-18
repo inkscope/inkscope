@@ -8,6 +8,7 @@ from array import *
 
 
 def getCephRestApiUrl(request):
+    # discover ceph-rest-api URL
     return request.url_root.replace("inkscopeCtrl","ceph-rest-api")
 
 class Pools:
