@@ -18,11 +18,8 @@ from cgi import escape
 from S3.utils import (_amz_canonicalize, metadata_headers, rfc822_fmtdate, _iso8601_dt,
                     aws_md5, aws_urlquote, guess_mimetype, info_dict, expire2datetime)
 
-amazon_s3_domain = "p-sbceph11"
-# amazon_s3_domain = "r-cephrgw01"
-amazon_s3_ns_url = "http://s3.amazonaws.com/doc/2006-03-01/" #ne pas changer
-# proxies = {'http': 'proxy:8080'}
-proxies = {}
+amazon_s3_domain = "s3.amazonaws.com"  # default for amazon, could be overwritten with base_url parameter
+amazon_s3_ns_url = "http://s3.amazonaws.com/doc/2006-03-01/" # do not change
 
 class S3Error(Exception):
     fp = None
@@ -263,7 +260,7 @@ class S3Bucket(object):
 
     @classmethod
     def build_opener(cls):
-        return urllib2.build_opener(StreamHTTPHandler, StreamHTTPSHandler, urllib2.ProxyHandler(proxies=proxies))
+        return urllib2.build_opener(StreamHTTPHandler, StreamHTTPSHandler, urllib2.ProxyHandler())
 
     def request(self, *a, **k):
         k.setdefault("bucket", self.name)
