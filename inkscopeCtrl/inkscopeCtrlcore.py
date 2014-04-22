@@ -13,14 +13,31 @@ from bson.json_util import dumps
 import time
 import mongoJuiceCore
 import poolsCtrl
+from S3Ctrl import S3Ctrl
+from Log import Log
+
+
+# Load configuration from file
+configfile = "/opt/inkscope/etc/inkscopeCtrl.conf"
+datasource = open(configfile, "r")
+conf = json.load(datasource)
+datasource.close()
+
+#
+# mongoDB query facility
+#
 
 @app.route('/<db>/<collection>', methods=['GET', 'POST'])
 def find(db, collection):
-    return mongoJuiceCore.find(db, collection)
+    return mongoJuiceCore.find(conf, db, collection)
 
 @app.route('/<db>', methods=['POST'])
 def full(db):
-    return mongoJuiceCore.full(db)
+    return mongoJuiceCore.full(conf, db)
+
+#
+# Pools management
+#
 
 @app.route('/pools/', methods=['GET','POST'])
 @app.route('/pools/<int:id>', methods=['GET','DELETE','PUT'])
@@ -35,38 +52,48 @@ def makesnapshot(id):
 def removesnapshot(id, namesnapshot):
     return poolsCtrl.removesnapshot(id, namesnapshot)
 
+#
+# Object storage management
+#
 
+# User management
+@app.route('/S3/user', methods=['GET'])
+def listUser():
+    return Response(S3Ctrl(conf).listUser(),mimetype='application/json')
 
+@app.route('/S3/users', methods=['GET'])
+def listUsers():
+    try :
+        return Response(S3Ctrl(conf).listUsers(),mimetype='application/json')
+    except Exception , e:
+        Log.err( e.__str__())
+        return Response(e.__str__(), status=e.code)
 
+@app.route('/S3/user', methods=['POST'])
+def createUser():
+    return Response(S3Ctrl(conf).createUser(),mimetype='application/json')
 
+@app.route('/S3/user/<string:uid>', methods=['GET'])
+def getUser(uid):
+    try :
+        return Response(S3Ctrl(conf).getUser(uid),mimetype='application/json')
+    except Exception , e:
+        Log.err( e.__str__())
+        return Response("Not found", status=e.code)
 
+@app.route('/S3/user/<string:uid>', methods=['PUT'])
+def modifyUser(uid):
+    try :
+        return Response(S3Ctrl(conf).modifyUser(uid),mimetype='application/json')
+    except Exception , e:
+        Log.err( e.__str__())
+        return Response("Not found", status=e.code)
 
+@app.route('/S3/user/<string:uid>', methods=['DELETE'])
+def removeUser(uid):
+    try :
+        return Response(S3Ctrl(conf).removeUser(uid),mimetype='application/json')
+    except Exception , e:
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        Log.err( e.__str__())
+        return Response("Not found", status=e.code)

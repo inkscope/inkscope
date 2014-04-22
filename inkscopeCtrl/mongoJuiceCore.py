@@ -10,26 +10,11 @@ from bson import ObjectId
 import time
 
 
-configfile = "/opt/inkscope/etc/inkscopeCtrl.conf"
-#load the conf (from json into file)
-def load_conf():
-    datasource = open(configfile, "r")
-    data = json.load(datasource)
-    datasource.close()
-    return data
-
-
-import  sys
-sys.path.append('.')
-
-conf = load_conf()
-
-mongodb_host = conf.get("mongodb_host", "127.0.0.1")
-mongodb_port = conf.get("mongodb_port", "27017")
-mongodb_URL = "mongodb://"+mongodb_host+":"+mongodb_port
-
-
-client = MongoClient(mongodb_URL)
+def getClient(conf):
+    mongodb_host = conf.get("mongodb_host", "127.0.0.1")
+    mongodb_port = conf.get("mongodb_port", "27017")
+    mongodb_URL = "mongodb://"+mongodb_host+":"+mongodb_port
+    return MongoClient(mongodb_URL)
 
 def getObject(db, collection, objectId, depth, branch):
     """
@@ -249,23 +234,23 @@ def build(db, obj):
 
 
 #@app.route('/<db>/<collection>', methods=['GET', 'POST'])
-def find(db, collection):
+def find(conf, db, collection):
     depth = int(request.args.get('depth', '0'))
     if request.method == 'POST':
         body_json = request.get_json(force=True)
-        db = client[db]
+        db = getClient(conf)[db]
         response_body = dumps(listObjects(db, body_json, collection, depth))
         return Response(response_body, headers = {"timestamp" :  int(round(time.time() * 1000))}, mimetype='application/json')
     else:
-        db = client[db]
+        db = getClient(conf)[db]
         response_body = dumps(listObjects(db, None, collection, depth))
         return Response(response_body, headers = {"timestamp" :  int(round(time.time() * 1000))}, mimetype='application/json')
 
 # @app.route('/<db>', methods=['POST'])
-def full(db):
+def full(conf, db):
     if request.method == 'POST':
         body_json = request.get_json(force=True)
-        db = client[db]
+        db = getClient(conf)[db]
         response_body = dumps(build(db, body_json))
         return Response(response_body, headers = {"timestamp" :  int(round(time.time() * 1000))}, mimetype='application/json')
 
