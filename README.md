@@ -5,17 +5,17 @@ inkScope
 
 The main folders are:
 
-**documentation** contains diagram of inkScope architecture, datamodel and screenshots
+**documentation** contains diagram of inkScope architecture, datamodel...
+
+**inkscopeViz** : GUI to visualize Ceph cluster status (dashboard) and and relations between Ceph cluster objects
 
 **inkscopeAdm** : GUI for management  of a ceph cluster
 
 **inkscopeCtrl** : server part for inkscopeAdm and inkscopeViz
 
-**inkscopeProbe** : for collect information about the cluster (Ceph and system info)
+**inkscopeProbe** : probes to collect information about the cluster (Ceph and system info)
 
-**inkscopeViz** : to visualize Ceph cluster status and and relations between Ceph cluster objects
-
-**inkscopeMonitor** : for supervision of Ceph
+**inkscopeMonitor** : for supervision of Ceph 
 
 Manual installation is described in the [inkScope wiki](https://github.com/inkscope/inkscope/wiki)
 
