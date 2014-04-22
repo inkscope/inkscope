@@ -1,18 +1,19 @@
 # Alpha O. Sall
 # 03/24/2014
-# Alpha O. Sall
-# 03/24/2014
+
 from flask import Flask, request, Response
 import json
 import requests
 from array import *
 
-port = 8080
-url = 'http://localhost:'+str(port)
+
+def getCephRestApiUrl(request):
+    return request.url_root.replace("inkscopeCtrl","ceph-rest-api")
+
 class Pools:
     """docstring for pools"""
     def __init__(self):
-        pass       
+        pass
 
     def newpool_attribute(self, jsonform):
         jsondata = json.loads(jsonform)
@@ -38,19 +39,11 @@ class Pools:
         self.quota_max_objects = r['output']['pools'][ind]['quota_max_objects']
         self.quota_max_bytes = r['output']['pools'][ind]['quota_max_bytes']
 
-    #osd lspools    
-    def show(self):
-        r = requests.get(url+'/ceph-rest-api/osd/lspools.json')
-        return r.text
-
-    def register(self):      
-        register_pool = requests.put('http://localhost:8080/ceph-rest-api/osd/pool/create?pool='+self.name+'&pg_num='+str(self.pg_num)+'&pgp_num='+str(self.pgp_num))
+    def register(self):
+        register_pool = requests.put(self.cephRestApiUrl+'osd/pool/create?pool='+self.name+'&pg_num='+str(self.pg_num)+'&pgp_num='+str(self.pgp_num))
         # if newpool.register().status_code != 200:
         # #     return 'Error '+str(r.status_code)+' on creating pools'
         # else:
-    def delete(self):
-        check = ''
-        return requests.put('http://localhost:8080/ceph-rest-api/osd/pool/delete?pool='+poolname+'&sure=--yes-i-really-really-mean-it')
 
 
 
@@ -88,7 +81,7 @@ def checkpool(pool_id, jsondata):
         else:
             skeleton['status'] = 'OK'
             result = json.dumps(skeleton)
-            return Response(result, mimetype='application/json')   
+            return Response(result, mimetype='application/json')
     if isinstance(pool_id, str):
         r = jsondata.content
         r = json.loads(r)
@@ -98,11 +91,11 @@ def checkpool(pool_id, jsondata):
         if pool_id not in  mypoolsname:
             skeleton['status'] = 'OK'
             result = json.dumps(skeleton)
-            return Response(result, mimetype='application/json')   
+            return Response(result, mimetype='application/json')
         else:
             skeleton['status'] = pool_id+'already exits. Please enter a new pool name'
             result = json.dumps(skeleton)
-            return Response(result, mimetype='application/json')       
+            return Response(result, mimetype='application/json')
 
 def geterrors(url, methods):
     try:
@@ -111,7 +104,7 @@ def geterrors(url, methods):
         else:
             r = requests.put(url)
     except HTTPError, e:
-        return 'Error '+str(r.status_code) 
+        return 'Error '+str(r.status_code)
     else:
         return  'ok'
 
@@ -119,11 +112,12 @@ def geterrors(url, methods):
 # @app.route('/pools/', methods=['GET','POST'])
 # @app.route('/pools/<int:id>', methods=['GET','DELETE','PUT'])
 def pool_manage(id):
+    cephRestApiUrl = getCephRestApiUrl(request);
     if request.method == 'GET':
         if id == None:
 
-            r = requests.get(url+'/ceph-rest-api/osd/lspools.json')
-             
+            r = requests.get(cephRestApiUrl+'osd/lspools.json')
+
             if r.status_code != 200:
                 return Response(r.raise_for_status())
             else:
@@ -131,7 +125,7 @@ def pool_manage(id):
                 return Response(r, mimetype='application/json')
 
         else:
-            data = requests.get(url+'/ceph-rest-api/osd/dump.json')
+            data = requests.get(cephRestApiUrl+'osd/dump.json')
             if data.status_code != 200:
                 return 'Error '+str(data.status_code)+' on the request getting pools'
             else:
@@ -145,7 +139,7 @@ def pool_manage(id):
                     return Response(result, mimetype='application/json')
 
                 else:
-                    
+
                     r = data.content
                     r = json.loads(r)
                     #r = data.json()
@@ -158,11 +152,12 @@ def pool_manage(id):
     elif request.method =='POST':
         jsonform = request.form['json']
         newpool = Pools()
+        newpool.cephRestApiUrl = getCephRestApiUrl(request)
         newpool.newpool_attribute(jsonform)
-        
+
         newpool.register()
 
-        jsondata = requests.get(url+'/ceph-rest-api/osd/dump.json')
+        jsondata = requests.get(cephRestApiUrl+'osd/dump.json')
 
         r = jsondata.content
         r = json.loads(r)
@@ -180,26 +175,26 @@ def pool_manage(id):
 
         for i in range(len(default_param_list)):
             if param_to_set_list[i] != default_param_list[i]:
-                r = requests.put(url+'/ceph-rest-api/osd/pool/set?pool='+str(poolcreated.name)+'&var='+var_name[i]+'&val='+str(param_to_set_list[i])) 
+                r = requests.put(cephRestApiUrl+'osd/pool/set?pool='+str(poolcreated.name)+'&var='+var_name[i]+'&val='+str(param_to_set_list[i]))
             else:
                 pass
-        
+
         # set object or byte limit on pool
-        
+
         field_name = ['max_objects','max_bytes']
         param_to_set = [newpool.quota_max_objects, newpool.quota_max_bytes]
         default_param = [poolcreated.quota_max_objects, poolcreated.quota_max_bytes]
 
         for i in range(len(default_param)):
             if param_to_set[i] != default_param[i]:
-                r = requests.put(url+'/ceph-rest-api/osd/pool/set-quota?pool='+str(poolcreated.name)+'&field='+field_name[i]+'&val='+str(param_to_set[i])) 
-            
+                r = requests.put(cephRestApiUrl+'osd/pool/set-quota?pool='+str(poolcreated.name)+'&field='+field_name[i]+'&val='+str(param_to_set[i]))
+
             else:
-                pass        
+                pass
         return 'None'
 
     elif request.method == 'DELETE':
-        data = requests.get(url+'/ceph-rest-api/osd/dump.json')
+        data = requests.get(cephRestApiUrl+'osd/dump.json')
         # if data.status_code != 200:
         #     return 'Error '+str(r.status_code)+' on the request getting pools'
         # else:
@@ -213,7 +208,7 @@ def pool_manage(id):
 
         poolname = r['output']['pools'][id]['pool_name']
         poolname = str(poolname)
-        delete_request = requests.put(url+'/ceph-rest-api/osd/pool/delete?pool='+poolname+'&pool2='+poolname+'&sure=--yes-i-really-really-mean-it')
+        delete_request = requests.put(cephRestApiUrl+'osd/pool/delete?pool='+poolname+'&pool2='+poolname+'&sure=--yes-i-really-really-mean-it')
         return str(delete_request.status_code)
 
     else:
@@ -221,8 +216,8 @@ def pool_manage(id):
         jsonform = request.form['json']
         newpool = Pools()
         newpool.newpool_attribute(jsonform)
-       
-        data = requests.get(url+'/ceph-rest-api/osd/dump.json')
+
+        data = requests.get(cephRestApiUrl+'osd/dump.json')
         if data.status_code != 200:
             return 'Error '+str(r.status_code)+' on the request getting pools'
         else:
@@ -236,8 +231,8 @@ def pool_manage(id):
             # rename the poolname
 
             if str(newpool.name) != str(savedpool.name):
-                r = requests.put(url+'/ceph-rest-api/osd/pool/rename?srcpool='+str(savedpool.name)+'&destpool='+str(newpool.name)) 
-                      
+                r = requests.put(cephRestApiUrl+'osd/pool/rename?srcpool='+str(savedpool.name)+'&destpool='+str(newpool.name))
+
             # set poool parameter
 
             var_name= ['size', 'min_size', 'crash_replay_interval','crush_ruleset']
@@ -246,26 +241,27 @@ def pool_manage(id):
 
             for i in range(len(default_param_list)):
                 if param_to_set_list[i] != default_param_list[i]:
-                    r = requests.put(url+'/ceph-rest-api/osd/pool/set?pool='+str(newpool.name)+'&var='+var_name[i]+'&val='+str(param_to_set_list[i])) 
+                    r = requests.put(cephRestApiUrl+'osd/pool/set?pool='+str(newpool.name)+'&var='+var_name[i]+'&val='+str(param_to_set_list[i]))
                 else:
                     pass
-       
+
             # set object or byte limit on pool
-            
+
             field_name = ['max_objects','max_bytes']
             param_to_set = [newpool.quota_max_objects, newpool.quota_max_bytes]
             default_param = [savedpool.quota_max_objects, savedpool.quota_max_bytes]
 
             for i in range(len(default_param)):
                 if param_to_set[i] != default_param[i]:
-                    r = requests.put(url+'/ceph-rest-api/osd/pool/set-quota?pool='+str(newpool.name)+'&field='+field_name[i]+'&val='+str(param_to_set[i])) 
+                    r = requests.put(cephRestApiUrl+'osd/pool/set-quota?pool='+str(newpool.name)+'&field='+field_name[i]+'&val='+str(param_to_set[i]))
                 else:
-                    pass        
+                    pass
             return str(r.status_code)
 
 # @app.route('/pools/<int:id>/snapshot', methods=['POST'])
 def makesnapshot(id):
-    data = requests.get(url+'/ceph-rest-api/osd/dump.json')
+    cephRestApiUrl = getCephRestApiUrl(request);
+    data = requests.get(cephRestApiUrl+'osd/dump.json')
     #r = data.json()
     r = data.content
     r = json.loads(r)
@@ -277,12 +273,13 @@ def makesnapshot(id):
     jsondata = request.form['json']
     jsondata = json.loads(jsondata)
     snap = jsondata['snapshot_name']
-    r = requests.put(url+'/ceph-rest-api/osd/pool/mksnap?pool='+str(poolname)+'&snap='+str(snap)) 
+    r = requests.put(cephRestApiUrl+'osd/pool/mksnap?pool='+str(poolname)+'&snap='+str(snap))
     return str(r.status_code)
 
 # @app.route('/pools/<int:id>/snapshot/<namesnapshot>', methods=['DELETE'])
 def removesnapshot(id, namesnapshot):
-    data = requests.get(url+'/ceph-rest-api/osd/dump.json')
+    cephRestApiUrl = getCephRestApiUrl(request);
+    data = requests.get(cephRestApiUrl+'osd/dump.json')
     #r = data.json()
     r = data.content
     r = json.loads(r)
@@ -292,8 +289,8 @@ def removesnapshot(id, namesnapshot):
     poolname = r['output']['pools'][id]['pool_name']
 
     try:
-        r = requests.put(url+'/ceph-rest-api/osd/pool/rmsnap?pool='+str(poolname)+'&snap='+str(namesnapshot))
+        r = requests.put(cephRestApiUrl+'osd/pool/rmsnap?pool='+str(poolname)+'&snap='+str(namesnapshot))
     except HTTPException, e:
-        return e    
+        return e
     else:
         return r.content
