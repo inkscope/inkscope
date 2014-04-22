@@ -158,6 +158,31 @@ class S3User:
 
     @staticmethod
     def list( conn):
-        request= conn.request(method="GET", key="user")
+        request= conn.request(method="GET", key="metadata/user")
         res = conn.send(request)
-        print res.read()
+        userList = res.read()
+        return userList
+
+    @staticmethod
+    def getBuckets (uid , jsonData, conn):
+        # Content of jsonData :
+        # --------------------
+        # stats / Specify whether the stats should be returned / Boolean Example:	False [False] / not required
+
+        self = S3User()
+        if jsonData is not None :
+            data = json.loads(jsonData)
+            self.stats = data.get('stats', None)
+        else:
+            self.stats = "True"
+        myargs = []
+        myargs.append(("uid",uid))
+
+        if self.stats is not None :
+            myargs.append(("stats",self.stats))
+
+        Log.debug("myArgs: "+myargs.__str__())
+        request= conn.request(method="GET", key="bucket", args= myargs)
+        res = conn.send(request)
+        info = res.read()
+        return info

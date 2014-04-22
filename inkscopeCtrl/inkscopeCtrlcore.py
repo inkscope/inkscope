@@ -59,10 +59,6 @@ def removesnapshot(id, namesnapshot):
 # User management
 @app.route('/S3/user', methods=['GET'])
 def listUser():
-    return Response(S3Ctrl(conf).listUser(),mimetype='application/json')
-
-@app.route('/S3/users', methods=['GET'])
-def listUsers():
     try :
         return Response(S3Ctrl(conf).listUsers(),mimetype='application/json')
     except Exception , e:
@@ -97,3 +93,23 @@ def removeUser(uid):
 
         Log.err( e.__str__())
         return Response("Not found", status=e.code)
+
+@app.route('/S3/user/<string:uid>/buckets', methods=['GET'])
+def getUserBuckets(uid,bucket=None):
+    try :
+        return Response(S3Ctrl(conf).getUserBuckets(uid),mimetype='application/json')
+    except Exception , e:
+        Log.err( e.__str__())
+        return Response("Not found", status=e.code)
+
+# bucket management
+
+@app.route('/S3/bucket/<string:bucket>', methods=['GET'])
+def getBucketInfo(bucket):
+    try :
+        return Response(S3Ctrl(conf).getCephBucket(bucket),mimetype='application/json')
+    except Exception , e:
+        Log.err( e.__str__())
+        return Response("Not found", status=e.code)
+
+

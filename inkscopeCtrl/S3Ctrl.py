@@ -25,16 +25,6 @@ class S3Ctrl:
     def getAdminConnection(self):
         return S3Bucket(self.admin, access_key=self.key, secret_key=self.secret , base_url= self.url)
 
-
-    def listUser(self):
-        Log.debug( "list users")
-        userList= ' [{"uid":"alaind", "display-name":"Alain Dechorgnat"}, ' \
-                  '{"uid":"jacques", "display-name":"Jacques Denoual"}, ' \
-                  '{"uid":"johndoe", "display-name":"John Doe"},' \
-                  '{"uid":"funambol", "display-name":"Funambol"},' \
-                  '{"uid":"toto", "display-name":"Computer John Doe"}]'
-        return userList
-
     def listUsers(self):
         Log.debug( "list users from rgw api")
         return S3User.list(self.getAdminConnection())
@@ -44,15 +34,34 @@ class S3Ctrl:
         jsonform = request.form['json']
         return S3User.create(jsonform,self.getAdminConnection())
 
-    def modifyUser(self,uid):
+    def modifyUser(self, uid):
         Log.debug( "get user with uid "+ uid)
         jsonform = request.form['json']
         return S3User.modify(uid,jsonform,self.getAdminConnection())
 
-    def getUser(self,uid):
+    def getUser(self, uid):
         Log.debug( "get user with uid "+ uid)
         return S3User.view(uid,self.getAdminConnection())
 
-    def removeUser(self,uid):
+    def removeUser(self, uid):
         Log.debug( "remove user with uid "+ uid)
         return S3User.remove(uid,self.getAdminConnection())
+
+    def getUserBuckets(self, uid):
+        Log.debug( "getBuckets for uid " + uid)
+        jsonform = None
+        return S3User.getBuckets(uid,jsonform,self.getAdminConnection())
+
+    def getCephBucket(self, bucket):
+        Log.debug( "getCephBucket for bucket " + bucket)
+        jsonform = None
+        return self.getBucketInfo(bucket,jsonform,self.getAdminConnection())
+
+
+    def getBucketInfo (self,bucket, jsonform, conn):
+        myargs = [("bucket",bucket),("stats","True")]
+        request= conn.request(method="GET", key="bucket", args= myargs)
+        res = conn.send(request)
+        info = res.read()
+        print info
+        return info
