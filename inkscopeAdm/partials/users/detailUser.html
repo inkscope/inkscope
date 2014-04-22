@@ -1,0 +1,20 @@
+<h3>User details for {{detailedUser.user_id}}</h3>
+<br />
+
+<table  class="table table-condensed ">
+    <tbody>
+    <tr ng-repeat="(key, value) in detailedUser">
+        <td> {{key}} </td> <td> {{ value }} </td>
+    </tr>
+    </tbody>
+</table>
+
+
+<div class="button-bar">
+   <!-- <a href="#/snapshot/{{detailedPool.pool}}/{{detailedPool.pool_name}}" class="btn btn-info"><i class="icon-white icon-camera"></i> make snapshot </a>
+    <button ng-click="removeSnapshot()" class="btn btn-danger" ng-show="hasSnap"><i class="icon-white icon-camera"></i> remove snapshot </button>
+    <div style="width:35px;display: inline-block"></div>-->
+    <a href="#/modify/{{detailedUser.user_id}}" class="btn btn-success">Modify</a>
+    <a href="#/delete/{{detailedUser.user_id}}/{{detailedUser['display-name']}}" class="btn btn-danger">Delete</a>
+    <a href="#/" class="btn btn-default">Close</a>
+</div>

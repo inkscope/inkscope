@@ -1,0 +1,103 @@
+<h3>User {{operation}}</h3>
+<br />
+<form name="form" novalidate class="form-horizontal">
+    <div class="control-group">
+        <label for="user.uid" class="col-sm-2 control-label">user ID :</label>
+        <div class="controls">
+            <input type=text id="user.uid"  ng-model="user.uid" placeholder="uid" required/>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="user.display_name" class="col-sm-2 control-label">display name : </label>
+        <div class="controls">
+            <input type=text id="user.display_name"  ng-model="user['display-name']" required/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>user name you want to be displayed</span></a>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="user.email" class="col-sm-2 control-label">email : </label>
+        <div class="controls">
+            <input type=text id="user.email"  ng-model="user.email" />
+
+        </div>
+    </div>
+ <!--   <div class="control-group">
+        <label class="col-sm-2 control-label">key-type : </label>
+        <div class="controls">
+            S3<input type="radio"  ng-model="user.key_type" value="S3" ng-init="user.key_type='S3'"/>&nbsp;
+            Swift<input type="radio" ng-model="user.key_type" value="Swift"/>
+
+        </div>
+
+
+    </div>-->
+    <div class="control-group">
+        <label for="user.access_key" class="col-sm-2 control-label">access key : </label>
+        <div class="controls">
+            <input type=text id="user.access_key"  ng-model="user.access_key"/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>user access key</span></a>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="user.secret_key" class="col-sm-2 control-label">secret key : </label>
+        <div class="controls">
+            <input type=text id="user.secret_key"  ng-model="user.secret_key"/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>user secret key</span></a>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="user.caps" class="col-sm-2 control-label">user capabilities : </label>
+        <div class="controls">
+            <input type=text id="user.caps"  ng-model="user.caps"/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>Example: usage=read, write; users=read</span></a>
+        </div>
+    </div>
+ <!--   <div class="control-group">
+        <label for="user.generate_key" class="col-sm-2 control-label">generate new key : </label>
+        <div class="controls">
+            <input type=checkbox id="user.generate_key"  ng-model="user.generate_key" value=false ng-init="user.generate_key=true"/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>Generate a new key pair and add to the existing keyring./Boolean Example:    True [True]</span></a>
+        </div>
+    </div>-->
+    <div class="control-group">
+        <label for="user.max_buckets" class="col-sm-2 control-label">max-buckets : </label>
+        <div class="controls">
+            <input type=number id="user.max_buckets"  ng-model="user.max_buckets"/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>Specify the maximum number of buckets the user can own</span></a>
+        </div>
+    </div>
+<!--    <div class="control-group">
+        <label for="suspended" class="col-sm-2 control-label">Suspended : </label>
+        <div class="controls">
+            <input type=checkbox id="suspended"  ng-model="user.suspended" ng-init="user.suspended=false" />
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>Specify whether the user should be suspended Example: False [False]</span></a>
+        </div>
+    </div>-->
+   
+    <br />
+
+    <div class="button-bar">
+        <button ng-click="submit()" ng-disabled="form.$invalid || isUnchanged(user)" class="btn btn-success">
+            {{ (operation=="creation"?"Create":"Modify") }}
+        </button>
+       <button ng-click="reset()" ng-disabled="isUnchanged(pool)" class="btn btn-default">
+            Reset
+        </button>
+        <button ng-click="cancel()" class="btn btn-default">Cancel</button>
+
+    </div>
+</form>
+<br>
+<pre>
+Debug info :
+
+form = {{user | json}}
+
+master = {{master | json}}
+
+url: {{uri}}
+
+http status code: {{status}}
+
+http response data: {{data}}</pre>
+
