@@ -2,4 +2,13 @@
 
 Early stage of an admin interface.
 
-Not actually suitable for production.
+
+Available:
+
+* pool management
+
+
+Wip
+
+* rados gateway S3 user management
+* rados gateway bucket management
