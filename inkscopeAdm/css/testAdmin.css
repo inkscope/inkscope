@@ -31,6 +31,9 @@ input, textarea {
     color:red;
 }
 
+.table-nohead tr:first-child td {
+    border:0;
+}
 #sujet {
     width: 250px;
 }
