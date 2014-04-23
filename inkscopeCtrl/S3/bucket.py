@@ -87,6 +87,9 @@ class S3Error(Exception):
     @property
     def code(self): return self.extra.get("code")
 
+    @property
+    def reason(self): return self.extra.get("reason")
+
 class KeyNotFound(S3Error, KeyError):
     @property
     def key(self): return self.extra.get("key")

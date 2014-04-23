@@ -1,19 +1,66 @@
-<h3>User details for {{detailedUser.user_id}}</h3>
+<h3>User details for {{detailedUser.display_name}}</h3>
 <br />
 
-<table  class="table table-condensed ">
+<table  class="table table-condensed table-nohead">
     <tbody>
-    <tr ng-repeat="(key, value) in detailedUser">
-        <td> {{key}} </td> <td> {{ value }} </td>
+    <tr><td width="100px">User id</td> <td> {{ detailedUser.user_id }} </td></tr>
+    <tr><td>Display Name</td> <td> {{ detailedUser.display_name }} </td></tr>
+    <tr><td>Suspended</td> <td> <input type="checkbox" ng-model="detailedUser.suspended" ng-true-value="1" ng-false-value="0" disabled> </td></tr>
+    <tr><td>Email</td> <td> <a href="mailto: {{ detailedUser.email }}">{{ detailedUser.email }}</a> </td></tr>
+    <tr><td>Max buckets</td> <td> {{ detailedUser.max_buckets }} </td></tr>
+    <tr>
+        <td>Keys</td>
+        <td>
+            <div ng-hide="detailedUser.keys">none</div>
+            <table  class="table table-condensed ">
+                <tr ng-repeat="key in detailedUser.keys">
+                    <td>{{key.user}}</td>
+                    <td>{{key.access_key}}<br>{{key.secret_key}}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td>Sub users</td>
+        <td>
+            <div ng-hide="detailedUser.subusers">none</div>
+            <table  class="table table-condensed ">
+                <tr ng-repeat="subuser in detailedUser.subusers">
+                    <td>{{subuser.id}}</td>
+                    <td>{{subuser.permissions}}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td>Swift Keys</td>
+        <td>
+            <div ng-hide="detailedUser.swift_keys">none</div>
+            <table  class="table table-condensed">
+                <tr ng-repeat="key in detailedUser.swift_keys">
+                    <td>{{key.user}}</td>
+                    <td>{{key.secret_key}}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td>Caps</td>
+        <td>
+            <div ng-hide="detailedUser.caps">none</div>
+            <table  class="table table-condensed ">
+                <tr ng-repeat="cap in detailedUser.caps">
+                    <td>{{cap.type}}</td>
+                    <td>{{cap.perm}}</td>
+                </tr>
+            </table>
+        </td>
     </tr>
     </tbody>
 </table>
 
 
 <div class="button-bar">
-   <!-- <a href="#/snapshot/{{detailedPool.pool}}/{{detailedPool.pool_name}}" class="btn btn-info"><i class="icon-white icon-camera"></i> make snapshot </a>
-    <button ng-click="removeSnapshot()" class="btn btn-danger" ng-show="hasSnap"><i class="icon-white icon-camera"></i> remove snapshot </button>
-    <div style="width:35px;display: inline-block"></div>-->
     <a href="#/modify/{{detailedUser.user_id}}" class="btn btn-success">Modify</a>
     <a href="#/delete/{{detailedUser.user_id}}/{{detailedUser['display-name']}}" class="btn btn-danger">Delete</a>
     <a href="#/" class="btn btn-default">Close</a>

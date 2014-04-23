@@ -13,7 +13,7 @@ from bson.json_util import dumps
 import time
 import mongoJuiceCore
 import poolsCtrl
-from S3Ctrl import S3Ctrl
+from S3Ctrl import S3Ctrl, S3Error
 from Log import Log
 
 
@@ -61,46 +61,49 @@ def removesnapshot(id, namesnapshot):
 def listUser():
     try :
         return Response(S3Ctrl(conf).listUsers(),mimetype='application/json')
-    except Exception , e:
-        Log.err( e.__str__())
-        return Response(e.__str__(), status=e.code)
+    except S3Error , e:
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
 
 @app.route('/S3/user', methods=['POST'])
 def createUser():
-    return Response(S3Ctrl(conf).createUser(),mimetype='application/json')
+    try:
+        return Response(S3Ctrl(conf).createUser(),mimetype='application/json')
+    except S3Error , e:
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
 
 @app.route('/S3/user/<string:uid>', methods=['GET'])
 def getUser(uid):
     try :
         return Response(S3Ctrl(conf).getUser(uid),mimetype='application/json')
-    except Exception , e:
-        Log.err( e.__str__())
-        return Response("Not found", status=e.code)
+    except S3Error , e:
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
 
 @app.route('/S3/user/<string:uid>', methods=['PUT'])
 def modifyUser(uid):
     try :
         return Response(S3Ctrl(conf).modifyUser(uid),mimetype='application/json')
-    except Exception , e:
-        Log.err( e.__str__())
-        return Response("Not found", status=e.code)
+    except S3Error , e:
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
 
 @app.route('/S3/user/<string:uid>', methods=['DELETE'])
 def removeUser(uid):
     try :
         return Response(S3Ctrl(conf).removeUser(uid),mimetype='application/json')
-    except Exception , e:
-
-        Log.err( e.__str__())
-        return Response("Not found", status=e.code)
+    except S3Error , e:
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
 
 @app.route('/S3/user/<string:uid>/buckets', methods=['GET'])
 def getUserBuckets(uid,bucket=None):
     try :
         return Response(S3Ctrl(conf).getUserBuckets(uid),mimetype='application/json')
-    except Exception , e:
-        Log.err( e.__str__())
-        return Response("Not found", status=e.code)
+    except S3Error , e:
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
 
 # bucket management
 
@@ -108,8 +111,8 @@ def getUserBuckets(uid,bucket=None):
 def getBucketInfo(bucket):
     try :
         return Response(S3Ctrl(conf).getCephBucket(bucket),mimetype='application/json')
-    except Exception , e:
-        Log.err( e.__str__())
-        return Response("Not found", status=e.code)
+    except S3Error , e:
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
 
 

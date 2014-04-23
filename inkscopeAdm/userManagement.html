@@ -35,9 +35,9 @@
     <br>
     <table ng-table="tableParams" class="table table-condensed table-hover">
         <tr ng-repeat="user in orderedData | filter:search">
-            <td data-title="'Uid'" sortable="'uid'">{{users[$index]}}</td>
-            <td data-title="'Display-name'" sortable="'display-name'">{{users[$index]}}</td>
-            <td data-title="'View'" sortable="user" style="text-align:center"><a href="#/detail/{{users[$index]}}"><i class="icon-eye-open" alt="view details of {{user.uid}}" title="view details of {{user.uid}}"></i></a></td>
+            <td data-title="'Uid'" sortable="'uid'">{{user.uid}}</td>
+            <!--td data-title="'Display-name'" sortable="'display_name'">{{user.display_name}}</td-->
+            <td data-title="'View'" sortable="user" style="text-align:center"><a href="#/detail/{{user.uid}}"><i class="icon-eye-open" alt="view details of {{user.uid}}" title="view details of {{user.uid}}"></i></a></td>
         </tr>
     </table>
 </div>

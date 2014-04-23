@@ -10,7 +10,7 @@
     <div class="control-group">
         <label for="user.display_name" class="col-sm-2 control-label">display name : </label>
         <div class="controls">
-            <input type=text id="user.display_name"  ng-model="user['display-name']" required/>
+            <input type=text id="user.display_name"  ng-model="user.display_name" required/>
             &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>user name you want to be displayed</span></a>
         </div>
     </div>
@@ -21,7 +21,7 @@
 
         </div>
     </div>
- <!--   <div class="control-group">
+    <div class="control-group">
         <label class="col-sm-2 control-label">key-type : </label>
         <div class="controls">
             S3<input type="radio"  ng-model="user.key_type" value="S3" ng-init="user.key_type='S3'"/>&nbsp;
@@ -30,7 +30,7 @@
         </div>
 
 
-    </div>-->
+    </div>
     <div class="control-group">
         <label for="user.access_key" class="col-sm-2 control-label">access key : </label>
         <div class="controls">
@@ -52,13 +52,13 @@
             &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>Example: usage=read, write; users=read</span></a>
         </div>
     </div>
- <!--   <div class="control-group">
+    <div class="control-group">
         <label for="user.generate_key" class="col-sm-2 control-label">generate new key : </label>
         <div class="controls">
             <input type=checkbox id="user.generate_key"  ng-model="user.generate_key" value=false ng-init="user.generate_key=true"/>
             &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>Generate a new key pair and add to the existing keyring./Boolean Example:    True [True]</span></a>
         </div>
-    </div>-->
+    </div>
     <div class="control-group">
         <label for="user.max_buckets" class="col-sm-2 control-label">max-buckets : </label>
         <div class="controls">

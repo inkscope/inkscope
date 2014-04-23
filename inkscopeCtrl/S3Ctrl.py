@@ -1,7 +1,7 @@
 __author__ = 'alain.dechorgnat@orange.com'
 
 from flask import Flask, request, Response
-from S3.bucket import S3Bucket
+from S3.bucket import S3Bucket, S3Error
 from S3.user import  S3User
 from Log import Log
 
@@ -35,7 +35,7 @@ class S3Ctrl:
         return S3User.create(jsonform,self.getAdminConnection())
 
     def modifyUser(self, uid):
-        Log.debug( "get user with uid "+ uid)
+        Log.debug( "modify user with uid "+ uid)
         jsonform = request.form['json']
         return S3User.modify(uid,jsonform,self.getAdminConnection())
 

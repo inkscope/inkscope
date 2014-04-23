@@ -50,14 +50,14 @@ class S3User:
         self = S3User()
         userData = json.loads(jsonUserData)
         self.uid = userData.get('uid', None)
-        self.displayName = userData.get('display-name', None)
+        self.displayName = userData.get('display_name', None)
         self.email = userData.get('email',None)
-        self.keyType = userData.get('key-type', None)
-        self.access = userData.get('access-key', None)
-        self.secret = userData.get('secret-key', None)
-        self.caps = userData.get('user-caps', None)
-        self.generate = userData.get('generate-key', None)
-        self.maxBuckets = userData.get('max-buckets', None)
+        self.keyType = userData.get('key_type', None)
+        self.access = userData.get('access_key', None)
+        self.secret = userData.get('secret_key', None)
+        self.caps = userData.get('user_caps', None)
+        self.generate = userData.get('generate_key', None)
+        self.maxBuckets = userData.get('max_buckets', None)
         self.suspended = userData.get('suspended', None)
         myargs = []
         myargs.append(("uid",self.uid))
@@ -75,7 +75,7 @@ class S3User:
         if self.generate is not None :
             myargs.append(("generate-key",self.generate))
         if self.maxBuckets is not None :
-            myargs.append(("max-buckets",self.maxBuckets))
+            myargs.append(("max-buckets",self.maxBuckets.__str__()))
         if self.suspended is not None :
             myargs.append(("suspended",self.suspended))
 
@@ -103,14 +103,14 @@ class S3User:
         self = S3User()
         userData = json.loads(jsonUserData)
         self.uid = uid
-        self.displayName = userData.get('display-name', None)
+        self.displayName = userData.get('display_name', None)
         self.email = userData.get('email',None)
-        self.keyType = userData.get('key-type', None)
-        self.access = userData.get('access-key', None)
-        self.secret = userData.get('secret-key', None)
-        self.caps = userData.get('user-caps', None)
-        self.generate = userData.get('generate-key', None)
-        self.maxBuckets = userData.get('max-buckets', None)
+        self.keyType = userData.get('key_type', None)
+        self.access = userData.get('access_key', None)
+        self.secret = userData.get('secret_key', None)
+        self.caps = userData.get('user_caps', None)
+        self.generate = userData.get('generate_key', None)
+        self.maxBuckets = userData.get('max_buckets', None)
         self.suspended = userData.get('suspended', None)
         myargs = []
         myargs.append(("uid",self.uid))
@@ -119,18 +119,21 @@ class S3User:
             myargs.append(("email",self.email))
         if self.keyType is not None :
             myargs.append(("key-type",self.keyType))
-        if self.access is not None :
-            myargs.append(("access-key",self.access))
-        if self.secret is not None :
-            myargs.append(("secret-key",self.secret))
+        # if self.access is not None :
+        #     myargs.append(("access-key",self.access))
+        # if self.secret is not None :
+        #     myargs.append(("secret-key",self.secret))
         if self.caps is not None :
             myargs.append(("user-caps",self.caps))
         if self.generate is not None :
             myargs.append(("generate-key",self.generate))
         if self.maxBuckets is not None :
-            myargs.append(("max-buckets",self.maxBuckets))
+            myargs.append(("max-buckets",self.maxBuckets.__str__()))
         if self.suspended is not None :
-            myargs.append(("suspended",self.suspended))
+            if self.suspended == 0:
+                myargs.append(("suspended","False"))
+            else:
+                myargs.append(("suspended","True"))
 
         Log.debug(myargs.__str__())
 
@@ -157,11 +160,15 @@ class S3User:
         return userInfo
 
     @staticmethod
-    def list( conn):
+    def list( conn ):
         request= conn.request(method="GET", key="metadata/user")
         res = conn.send(request)
-        userList = res.read()
-        return userList
+        data = json.loads(res.read())
+        userList = []
+        for userId in data:
+            userList.append({"uid": userId , "display_name": userId})
+        print userList.__str__()
+        return json.dumps(userList)
 
     @staticmethod
     def getBuckets (uid , jsonData, conn):

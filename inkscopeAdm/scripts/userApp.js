@@ -55,45 +55,37 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $route, $dialogs) {
     var uri = inkscopeCtrlURL + "S3/user/"+$routeParams.uid;
     $http({method: "get", url: uri }).
         success(function (data, status) {
+            $rootScope.detailedUser = data;
             $rootScope.status = status;
-           // $rootScope.detailedUser = data;
-       /*     for (var key in data){
-                if (key != "keys"){
-                    $rootScope.detailedUser.push({key:data[key]});
-                }
-                if (key == "keys"){
-                    $rootScope.detailedUser.push({"access_key":data.keys[0].access_key,
-                        "secret_key":data.keys[0].secret_key, "user capabilities":data.caps})
-                }
 
-            }*/
-            $rootScope.detailedUser =
+            /*     for (var key in data){
+                     if (key != "keys"){
+                         $rootScope.detailedUser.push({key:data[key]});
+                     }
+                     if (key == "keys"){
+                         $rootScope.detailedUser.push({"access_key":data.keys[0].access_key,
+                             "secret_key":data.keys[0].secret_key, "user capabilities":data.caps})
+                     }
+
+                 }*/
+           /* $rootScope.detailedUser =
                 {
                     "user_id":data.user_id,
                     "display_name":data.display_name,
                     "email":data.email,
                     "suspended":data.suspended,
                     "max_buckets":data.max_buckets,
+                    "keys": data.keys,
                     "access_key":data.keys[0].access_key,
                     "secret_key":data.keys[0].secret_key,
                     "user capabilities":data.caps
                 }
+        */
          /*   }
             else {
                 $rootScope.pimpedUser['user capabilities']=data.caps[0].perm;
             }
             $rootScope.detailedUser = $rootScope.pimpedUser;*/
-
-    /*        $scope.hasSnap=false;
-            for (var key in $rootScope.detailedPool){
-                if ( key == "pool_snaps"){
-                    var value = ($rootScope.detailedPool[key])["pool_snap_info"];
-                    $rootScope.detailedPool[key] = "nr: "+value["snapid"]+", date: "+value["stamp"]+", name: "+value["name"];
-                    $scope.hasSnap=true;
-                    $scope.snap_name = value["name"];
-                    break;
-                }
-            }*/
 
         }).
         error(function (data, status, headers) {
@@ -215,13 +207,13 @@ function ModifyCtrl($rootScope, $scope, $routeParams, $location, $http, $dialogs
                 $scope.data = data;
                 $dialogs.notify("User modification","User <strong>"+$scope.user.uid+"</strong> was modified");
                 refreshUsers($http, $scope);
-                $location.path('/detail/'+$scope.user.uid);
+                $location.path('/detail/'+$scope.user.user_id);
             }).
             error(function (data, status) {
                 $scope.data = data || "Request failed";
                 $scope.status = status;
 
-                $dialogs.error("<h3>Can't modify user <strong>"+$scope.user.uid+"</strong> !</h3> <br>"+$scope.data);
+                $dialogs.error("<h3>Can't modify user <strong>"+$scope.user.user_id+"</strong> !</h3> <br>"+$scope.data);
 
             });
     };
