@@ -55,7 +55,7 @@
     <div class="control-group">
         <label for="user.generate_key" class="col-sm-2 control-label">generate new key : </label>
         <div class="controls">
-            <input type=checkbox id="user.generate_key"  ng-model="user.generate_key" value=false ng-init="user.generate_key=true"/>
+            <input type=checkbox id="user.generate_key"  ng-model="user.generate_key" ng-init="user.generate_key='True'"  ng-true-value="True" ng-false-value="False"/>
             &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>Generate a new key pair and add to the existing keyring./Boolean Example:    True [True]</span></a>
         </div>
     </div>
@@ -66,13 +66,13 @@
             &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>Specify the maximum number of buckets the user can own</span></a>
         </div>
     </div>
-<!--    <div class="control-group">
+    <div class="control-group">
         <label for="suspended" class="col-sm-2 control-label">Suspended : </label>
         <div class="controls">
-            <input type=checkbox id="suspended"  ng-model="user.suspended" ng-init="user.suspended=false" />
+            <input type=checkbox id="suspended"  ng-model="user.suspended" ng-init="user.suspended=false" ng-true-value="True" ng-false-value="False"/>
             &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>Specify whether the user should be suspended Example: False [False]</span></a>
         </div>
-    </div>-->
+    </div>
    
     <br />
 
