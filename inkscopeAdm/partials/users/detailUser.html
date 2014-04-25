@@ -5,29 +5,34 @@
     <tbody>
     <tr><td width="100px">User id</td> <td> {{ detailedUser.user_id }} </td></tr>
     <tr><td>Display Name</td> <td> {{ detailedUser.display_name }} </td></tr>
-    <tr><td>Suspended</td> <td> <input type="checkbox" ng-model="detailedUser.suspended" ng-true-value="1" ng-false-value="0" disabled> </td></tr>
+    <tr><td>Suspended</td> <td> <input type="checkbox" ng-model="detailedUser.suspended" ng-true-value="True" ng-false-value="False" disabled> </td></tr>
     <tr><td>Email</td> <td> <a href="mailto: {{ detailedUser.email }}">{{ detailedUser.email }}</a> </td></tr>
     <tr><td>Max buckets</td> <td> {{ detailedUser.max_buckets }} </td></tr>
     <tr>
-        <td>Keys</td>
+        <td>S3 keys <a href="#/createKey/{{detailedUser.user_id}}"><i class="icon-plus-sign closeButton" alt="add key" title="add key"></i></a></td>
         <td>
             <div ng-hide="detailedUser.keys">none</div>
             <table  class="table table-condensed ">
                 <tr ng-repeat="key in detailedUser.keys">
                     <td>{{key.user}}</td>
                     <td>{{key.access_key}}<br>{{key.secret_key}}</td>
+                    <td width="20"><a ng-click="removeKey(key.access_key)"><i class="icon-remove closeButton" alt="remove key" title="remove key"></i></a></td>
                 </tr>
             </table>
         </td>
     </tr>
     <tr>
-        <td>Sub users</td>
+        <td>Sub users <a href="#/createSubuser/{{detailedUser.user_id}}"><i class="icon-plus-sign closeButton" alt="add subuser" title="add subuser"></i></a></td>
         <td>
             <div ng-hide="detailedUser.subusers">none</div>
             <table  class="table table-condensed ">
                 <tr ng-repeat="subuser in detailedUser.subusers">
                     <td>{{subuser.id}}</td>
                     <td>{{subuser.permissions}}</td>
+                    <td width="40">
+                        <a ng-click="removeSubuser(subuser.id)"><i class="icon-remove closeButton" alt="remove subuser" title="remove subuser"></i></a>
+                        <a ng-click="addSwiftKey(subuser.id)"><i class="icon-bookmark closeButton" alt="add swift key" title="add swift key"></i></a>
+                    </td>
                 </tr>
             </table>
         </td>
@@ -40,18 +45,20 @@
                 <tr ng-repeat="key in detailedUser.swift_keys">
                     <td>{{key.user}}</td>
                     <td>{{key.secret_key}}</td>
+                    <td width="20"><a ng-click="removeSwiftKey(key.user,key.secret_key)"><i class="icon-remove closeButton" alt="remove key" title="remove key"></i></a></td>
                 </tr>
             </table>
         </td>
     </tr>
     <tr>
-        <td>Caps</td>
+        <td>Caps <a href="#/createSubuser/{{detailedUser.user_id}}"><i class="icon-plus-sign closeButton" alt="add cap" title="add cap"></i></a></td>
         <td>
             <div ng-hide="detailedUser.caps">none</div>
             <table  class="table table-condensed ">
                 <tr ng-repeat="cap in detailedUser.caps">
                     <td>{{cap.type}}</td>
                     <td>{{cap.perm}}</td>
+                    <td width="20"><a href="#/createSubuser/{{detailedUser.user_id}}"><i class="icon-remove closeButton" alt="remove cap" title="remove cap"></i></a></td>
                 </tr>
             </table>
         </td>

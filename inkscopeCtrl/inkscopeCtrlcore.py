@@ -97,6 +97,26 @@ def removeUser(uid):
         Log.err(e.__str__())
         return Response(e.reason, status=e.code)
 
+
+@app.route('/S3/user/<string:uid>/key/<string:key>', methods=['DELETE'])
+def removeUserKey(uid,key):
+    try :
+        return Response(S3Ctrl(conf).removeUserKey(uid,key),mimetype='application/json')
+    except S3Error , e:
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
+
+@app.route('/S3/user/<string:uid>/subuser', methods=['PUT'])
+def createSubuser(uid):
+    try :
+        return Response(S3Ctrl(conf).createSubuser(uid),mimetype='application/json')
+    except S3Error , e:
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
+
+
+
+
 @app.route('/S3/user/<string:uid>/buckets', methods=['GET'])
 def getUserBuckets(uid,bucket=None):
     try :

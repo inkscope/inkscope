@@ -11,7 +11,9 @@ angular.module('userApp', ['ngRoute','ngTable','ui.bootstrap','dialogs'])
             when('/modify/:uid', {controller: ModifyCtrl, templateUrl: 'partials/users/modifyUser.html'}).
             when('/delete/:userNum/:userName', {controller: DeleteCtrl, templateUrl: 'partials/users/deleteUser.html'}).
             when('/delete/:uid', {controller: DeleteCtrl, templateUrl: 'partials/users/deleteUser.html'}).
-            //when('/snapshot/:poolNum/:poolName', {controller: SnapshotCtrl, templateUrl: 'partials/users/snapshot.html'}).
+            when('/createKey/:uid', {controller: CreateKeyCtrl, templateUrl: 'partials/users/createKey.html'}).
+            when('/createSwiftKey/:uid', {controller: CreateSwiftKeyCtrl, templateUrl: 'partials/users/createSwiftKey.html'}).
+            when('/createSubuser/:uid', {controller: CreateSubuserCtrl, templateUrl: 'partials/users/createSubuser.html'}).
             otherwise({redirectTo: '/'})
 
     });
@@ -56,43 +58,87 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $route, $dialogs) {
     $http({method: "get", url: uri }).
         success(function (data, status) {
             $rootScope.detailedUser = data;
+            if ($rootScope.detailedUser.suspended == 0)
+                $rootScope.detailedUser.suspended = 'False';
+            else
+                $rootScope.detailedUser.suspended = 'True';
+
             $rootScope.status = status;
-
-            /*     for (var key in data){
-                     if (key != "keys"){
-                         $rootScope.detailedUser.push({key:data[key]});
-                     }
-                     if (key == "keys"){
-                         $rootScope.detailedUser.push({"access_key":data.keys[0].access_key,
-                             "secret_key":data.keys[0].secret_key, "user capabilities":data.caps})
-                     }
-
-                 }*/
-           /* $rootScope.detailedUser =
-                {
-                    "user_id":data.user_id,
-                    "display_name":data.display_name,
-                    "email":data.email,
-                    "suspended":data.suspended,
-                    "max_buckets":data.max_buckets,
-                    "keys": data.keys,
-                    "access_key":data.keys[0].access_key,
-                    "secret_key":data.keys[0].secret_key,
-                    "user capabilities":data.caps
-                }
-        */
-         /*   }
-            else {
-                $rootScope.pimpedUser['user capabilities']=data.caps[0].perm;
-            }
-            $rootScope.detailedUser = $rootScope.pimpedUser;*/
-
         }).
         error(function (data, status, headers) {
             $rootScope.status = status;
             $rootScope.users =  data || "Request failed";
             $dialogs.error("<h3>Can't display user with num "+$routeParams.uid+"</h3><br>"+$scope.data);
         });
+
+    $scope.removeKey = function(key){
+        $scope.uri = inkscopeCtrlURL+"S3/user/"+$rootScope.detailedUser.user_id+"/key/"+key;
+
+        dlg = $dialogs.confirm('Please Confirm','Do you really want to delete key '+key+' for user '+$rootScope.detailedUser.user_id+'?');
+        dlg.result.then(function(btn){
+            $http({method: "delete", url: $scope.uri }).
+                success(function (data, status) {
+                    $scope.status = status;
+                    $scope.data = data;
+                    $dialogs.notify("Key deletion","key <strong>"+key +"</strong>  for user <strong>"+$rootScope.detailedUser.user_id+"</strong> has been deleted");
+                    refreshUsers($http, $scope);
+                    $route.reload();
+                }).
+                error(function (data, status) {
+                    $scope.data = data || "Request failed";
+                    $scope.status = status;
+                    $dialogs.error("<h3>Cant' delete key for user <strong>"+$rootScope.detailedUser.user_id+"</strong> !</h3> <br>"+$scope.data);
+                });
+        },function(btn){
+            //nope
+        });
+    }
+
+    $scope.removeSwiftKey = function(subuser, key){
+        $scope.uri = inkscopeCtrlURL+"S3/user/"+$rootScope.detailedUser.user_id+"/subuser/"+subuser+"/key/"+key;
+
+        dlg = $dialogs.confirm('Please Confirm','Do you really want to delete key '+key+' for user '+$rootScope.detailedUser.user_id+'?');
+        dlg.result.then(function(btn){
+            $http({method: "delete", url: $scope.uri }).
+                success(function (data, status) {
+                    $scope.status = status;
+                    $scope.data = data;
+                    $dialogs.notify("Key deletion","key <strong>"+key +"</strong>  for subuser <strong>"+subuser+"</strong> has been deleted");
+                    refreshUsers($http, $scope);
+                    $route.reload();
+                }).
+                error(function (data, status) {
+                    $scope.data = data || "Request failed";
+                    $scope.status = status;
+                    $dialogs.error("<h3>Cant' delete key for subuser <strong>"+subuser+"</strong> !</h3> <br>"+$scope.data);
+                });
+        },function(btn){
+            //nope
+        });
+    }
+
+    $scope.removeSubuser = function(subuser){
+        $scope.uri = inkscopeCtrlURL+"S3/user/"+$rootScope.detailedUser.user_id+"/subuser/"+subuser;
+
+        dlg = $dialogs.confirm('Please Confirm','Do you really want to delete subuser '+subuser+' for user '+$rootScope.detailedUser.user_id+'?');
+        dlg.result.then(function(btn){
+            $http({method: "delete", url: $scope.uri }).
+                success(function (data, status) {
+                    $scope.status = status;
+                    $scope.data = data;
+                    $dialogs.notify("subuser deletion","subuser <strong>"+subuser +"</strong>  for user <strong>"+$rootScope.detailedUser.user_id+"</strong> has been deleted");
+                    refreshUsers($http, $scope);
+                    $route.reload();
+                }).
+                error(function (data, status) {
+                    $scope.data = data || "Request failed";
+                    $scope.status = status;
+                    $dialogs.error("<h3>Cant' delete subuser for user <strong>"+$rootScope.detailedUser.user_id+"</strong> !</h3> <br>"+$scope.data);
+                });
+        },function(btn){
+            //nope
+        });
+    }
 
 
 }
@@ -109,6 +155,7 @@ function DeleteCtrl($scope, $http, $templateCache, $routeParams, $location, $dia
             success(function (data, status) {
                 $scope.status = status;
                 $scope.data = data;
+                $dialogs.notify("User deletion","User <strong>"+$scope.uid+"</strong> was deleted !");
                 refreshUsers($http, $scope);
                 $location.url('/');
             }).
@@ -120,7 +167,7 @@ function DeleteCtrl($scope, $http, $templateCache, $routeParams, $location, $dia
     }
 }
 
-function CreateCtrl($rootScope, $scope, $location, $http, $dialogs) {
+function CreateCtrl($rootScope, $scope, $location, $http, $dialogs, $route) {
     $scope.operation = "creation";
     // functions declaration
     $scope.update = function (user) {
@@ -150,9 +197,10 @@ function CreateCtrl($rootScope, $scope, $location, $http, $dialogs) {
             success(function (data, status) {
                 $scope.status = status;
                 $scope.data = data;
-                $dialogs.notify("User creation","User <strong>"+$scope.user.uid+"</strong> was created");
+                //$dialogs.notify("User creation","User <strong>"+$scope.user.uid+"</strong> was created");
                 refreshUsers($http, $scope);
-                $location.path('/');
+                //$route.reload();
+                $location.path('/detail/'+$scope.user.uid);
             }).
             error(function (data, status) {
                 $scope.data = data || "Request failed";
@@ -177,9 +225,133 @@ function CreateCtrl($rootScope, $scope, $location, $http, $dialogs) {
     $scope.reset();
 
 }
-function ModifyCtrl($rootScope, $scope, $routeParams, $location, $http, $dialogs) {
-    $scope.operation = "modification";
 
+function CreateSubuserCtrl($rootScope, $scope, $location, $http, $dialogs, $route, $routeParams) {
+
+    // functions declaration
+    $scope.update = function (user) {
+        $scope.master = angular.copy(user);
+    };
+
+    $scope.reset = function () {
+        $scope.subuser = angular.copy($scope.master);
+    };
+
+    $scope.isUnchanged = function (user) {
+        return angular.equals(user, $scope.master);
+    };
+
+    $scope.cancel = function () {
+        $location.path("/detail/"+$scope.subuser.uid);
+    }
+
+
+    $scope.submit = function () {
+        $scope.code = "";
+        $scope.response = "";
+
+        $scope.uri = inkscopeCtrlURL+"S3/user/"+$scope.subuser.uid+"/subuser";
+
+        $http({method: "put", url: $scope.uri, data: "json="+JSON.stringify($scope.subuser), headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
+            success(function (data, status) {
+                $scope.status = status;
+                $scope.data = data;
+                //$dialogs.notify("User creation","User <strong>"+$scope.user.uid+"</strong> was created");
+                refreshUsers($http, $scope);
+                $location.path('/detail/'+$scope.subuser.uid);
+            }).
+            error(function (data, status) {
+                $scope.data = data || "Request failed";
+                $scope.status = status;
+                $dialogs.error("<h3>Can't create user <strong>"+$scope.subuser.uid+"</strong> !</h3> <br>"+$scope.data);
+
+            });
+    };
+
+    // init
+
+    // default values
+    $scope.permissionValues = ["read", "write", "readwrite", "full"];
+
+    $scope.subuser={};
+    $scope.master = {};
+    $scope.master.uid = $routeParams.uid;
+    $scope.master.access = "read";
+    $scope.reset(); //copy master to subuser
+
+    $scope.code = "";
+    $scope.response = "";
+
+}
+
+function CreateKeyCtrl($rootScope, $scope, $location, $http, $dialogs, $route, $routeParams) {
+
+    // functions declaration
+    $scope.isValid = function () {
+        return ( $scope.key.generate_key == 'False') && ( !$scope.key.access_key || !$scope.key.secret_key)
+    };
+
+    $scope.update = function (user) {
+        $scope.master = angular.copy(user);
+    };
+
+    $scope.reset = function () {
+        $scope.key = angular.copy($scope.master);
+    };
+
+    $scope.isUnchanged = function (user) {
+        return angular.equals(user, $scope.master);
+    };
+
+    $scope.cancel = function () {
+        $location.path("/detail/"+$scope.uid);
+    }
+
+
+    $scope.submit = function () {
+        $scope.code = "";
+        $scope.response = "";
+
+        $scope.uri = inkscopeCtrlURL+"S3/user/"+$scope.uid;
+
+        var data = "";
+        if ($scope.key.generate_key == 'True') {
+            data = 'json={"generate_key":"True"}';
+        }
+        else {
+            data = 'json={"access_key":"'+$scope.key.access_key+'", "secret_key":"'+$scope.key.secret_key+'"}';
+        }
+
+        $http({method: "put", url: $scope.uri, data: data, headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
+            success(function (data, status) {
+                $scope.status = status;
+                $scope.data = data;
+                refreshUsers($http, $scope);
+                $location.path('/detail/'+$scope.uid);
+            }).
+            error(function (data, status) {
+                $scope.data = data || "Request failed";
+                $scope.status = status;
+                $dialogs.error("<h3>Can't create key for user <strong>"+$scope.uid+"</strong> !</h3> <br>"+$scope.data);
+
+            });
+    };
+
+    // default values
+    $scope.key={};
+    $scope.master = {};
+    $scope.uid = $routeParams.uid;
+    $scope.reset(); //copy master to key
+
+    $scope.code = "";
+    $scope.response = "";
+
+}
+
+function CreateSwiftKeyCtrl($rootScope, $scope, $location, $http, $dialogs, $route, $routeParams) {
+}
+
+function ModifyCtrl($rootScope, $scope, $routeParams, $location, $http, $dialogs) {
     // functions declaration
     $scope.update = function (user) {
         $scope.master = angular.copy(user);
@@ -205,7 +377,7 @@ function ModifyCtrl($rootScope, $scope, $routeParams, $location, $http, $dialogs
             success(function (data, status) {
                 $scope.status = status;
                 $scope.data = data;
-                $dialogs.notify("User modification","User <strong>"+$scope.user.uid+"</strong> was modified");
+                $dialogs.notify("User modification","User <strong>"+$scope.user.user_id+"</strong> was modified");
                 refreshUsers($http, $scope);
                 $location.path('/detail/'+$scope.user.user_id);
             }).
@@ -223,6 +395,11 @@ function ModifyCtrl($rootScope, $scope, $routeParams, $location, $http, $dialogs
 
     $http({method: "get", url: $scope.uri }).
         success(function (data, status) {
+            if (data.suspended == 0)
+                data.suspended = 'False';
+            else
+                data.suspended = 'True';
+
             $rootScope.status = status;
             $scope.master =   {
                 "user_id":data.user_id,
@@ -230,8 +407,6 @@ function ModifyCtrl($rootScope, $scope, $routeParams, $location, $http, $dialogs
                 "email":data.email,
                 "suspended":data.suspended,
                 "max_buckets":data.max_buckets,
-                "access_key":data.keys[0].access_key,
-                "secret_key":data.keys[0].secret_key,
                 "caps":data.caps
             };
             $scope.reset();

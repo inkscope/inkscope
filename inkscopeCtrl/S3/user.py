@@ -105,39 +105,42 @@ class S3User:
         self.uid = uid
         self.displayName = userData.get('display_name', None)
         self.email = userData.get('email',None)
-        self.keyType = userData.get('key_type', None)
-        self.access = userData.get('access_key', None)
-        self.secret = userData.get('secret_key', None)
-        self.caps = userData.get('user_caps', None)
-        self.generate = userData.get('generate_key', None)
         self.maxBuckets = userData.get('max_buckets', None)
         self.suspended = userData.get('suspended', None)
+        # self.keyType = userData.get('key_type', None)
+        self.access = userData.get('access_key', None)
+        self.secret = userData.get('secret_key', None)
+        # self.caps = userData.get('user_caps', None)
+        self.generate = userData.get('generate_key', None)
         myargs = []
         myargs.append(("uid",self.uid))
-        myargs.append(("display-name",self.displayName))
+        if self.displayName is not None :
+            myargs.append(("display-name",self.displayName))
         if self.email is not None :
             myargs.append(("email",self.email))
-        if self.keyType is not None :
-            myargs.append(("key-type",self.keyType))
+        # if self.keyType is not None :
+        #     myargs.append(("key-type",self.keyType))
         # if self.access is not None :
         #     myargs.append(("access-key",self.access))
         # if self.secret is not None :
         #     myargs.append(("secret-key",self.secret))
-        if self.caps is not None :
-            myargs.append(("user-caps",self.caps))
+        # if self.caps is not None :
+        #     myargs.append(("user-caps",self.caps))
         if self.generate is not None :
             myargs.append(("generate-key",self.generate))
+        else:
+            if self.access is not None and self.secret is not None :
+                myargs.append(("access-key",self.access))
+                myargs.append(("secret-key",self.secret))
+
         if self.maxBuckets is not None :
             myargs.append(("max-buckets",self.maxBuckets.__str__()))
         if self.suspended is not None :
-            if self.suspended == 0:
-                myargs.append(("suspended","False"))
-            else:
-                myargs.append(("suspended","True"))
+            myargs.append(("suspended",self.suspended))
 
         Log.debug(myargs.__str__())
 
-        request= conn.request(method="PUT", key="user", args= myargs)
+        request= conn.request(method="POST", key="user", args= myargs)
         res = conn.send(request)
         user = res.read()
         Log.debug(user)
@@ -160,6 +163,14 @@ class S3User:
         return userInfo
 
     @staticmethod
+    def removeKey(key , conn):
+        request= conn.request(method="DELETE", key="user", args=[("key",""),("access-key",key)])
+        res = conn.send(request)
+        userInfo =  res.read()
+        print userInfo.__str__()
+        return userInfo.__str__()
+
+    @staticmethod
     def list( conn ):
         request= conn.request(method="GET", key="metadata/user")
         res = conn.send(request)
@@ -169,6 +180,34 @@ class S3User:
             userList.append({"uid": userId , "display_name": userId})
         print userList.__str__()
         return json.dumps(userList)
+
+
+    @staticmethod
+    def createSubuser(uid, jsonSubuserData , conn):
+        self = S3User()
+        subuserData = json.loads(jsonSubuserData)
+        self.uid = uid
+        self.subuser = subuserData.get('subuser', None)
+        self.secret_key = subuserData.get('secret_key', None)
+        self.access = subuserData.get('access',None)
+
+        myargs = []
+        myargs.append(("gen-subuser",""))
+        myargs.append(("uid",self.uid))
+        myargs.append(("access",self.access))
+        if self.subuser is not None :
+            myargs.append(("subuser",self.subuser))
+        if self.secret_key is not None :
+            myargs.append(("secret_key",self.secret_key))
+        Log.debug(myargs.__str__())
+        request= conn.request(method="PUT", key="user", args= myargs)
+        res = conn.send(request)
+        subusers = res.read()
+        Log.debug(subusers.__str__())
+        return subusers.__str__()
+
+
+
 
     @staticmethod
     def getBuckets (uid , jsonData, conn):

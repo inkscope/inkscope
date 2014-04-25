@@ -19,6 +19,13 @@ input, textarea {
     vertical-align: top;
 }
 
+.button, .closeButton {
+    float: right;
+    cursor: pointer;
+}
+.closeButton {
+    opacity: 0.3;
+}
 .clickable{
     cursor: pointer;
 }

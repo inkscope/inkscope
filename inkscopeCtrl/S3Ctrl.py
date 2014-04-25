@@ -47,6 +47,15 @@ class S3Ctrl:
         Log.debug( "remove user with uid "+ uid)
         return S3User.remove(uid,self.getAdminConnection())
 
+    def removeUserKey(self, uid, key):
+        Log.debug( "remove key for user with uid "+ uid)
+        return S3User.removeKey(key,self.getAdminConnection())
+
+    def createSubuser(self, uid):
+        Log.debug( "create subuser for user with uid "+ uid)
+        jsonform = request.form['json']
+        return S3User.createSubuser(uid,jsonform,self.getAdminConnection())
+
     def getUserBuckets(self, uid):
         Log.debug( "getBuckets for uid " + uid)
         jsonform = None
