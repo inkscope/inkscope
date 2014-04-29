@@ -114,8 +114,52 @@ def createSubuser(uid):
         Log.err(e.__str__())
         return Response(e.reason, status=e.code)
 
+@app.route('/S3/user/<string:uid>/subuser/<string:subuser>', methods=['DELETE'])
+def deleteSubuser(uid, subuser):
+    try :
+        return Response(S3Ctrl(conf).deleteSubuser(uid, subuser),mimetype='application/json')
+    except S3Error , e:
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
 
 
+@app.route('/S3/user/<string:uid>/subuser/<string:subuser>/key', methods=['PUT'])
+def createSubuserKey(uid, subuser):
+    Log.debug("createSubuserKey")
+    try :
+        return Response(S3Ctrl(conf).createSubuserKey(uid, subuser),mimetype='application/json')
+    except S3Error , e:
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
+
+@app.route('/S3/user/<string:uid>/subuser/<string:subuser>/key/<string:key>', methods=['DELETE'])
+def deleteSubuserKey(uid, subuser, key):
+    Log.debug("deleteSubuserKey")
+    try :
+        return Response(S3Ctrl(conf).deleteSubuserKey(uid, subuser,key),mimetype='application/json')
+    except S3Error , e:
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
+
+@app.route('/S3/user/<string:uid>/caps', methods=['PUT', 'POST'])
+def saveCapability(uid):
+    Log.debug("saveCapability")
+    try :
+        return Response(S3Ctrl(conf).saveCapability(uid),mimetype='application/json')
+    except S3Error , e:
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
+
+@app.route('/S3/user/<string:uid>/caps', methods=['DELETE'])
+def deleteCapability(uid):
+    Log.debug("deleteCapability")
+    try :
+        return Response(S3Ctrl(conf).deleteCapability(uid),mimetype='application/json')
+    except S3Error , e:
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
+
+# bucket management
 
 @app.route('/S3/user/<string:uid>/buckets', methods=['GET'])
 def getUserBuckets(uid,bucket=None):
@@ -125,14 +169,40 @@ def getUserBuckets(uid,bucket=None):
         Log.err(e.__str__())
         return Response(e.reason, status=e.code)
 
-# bucket management
 
-@app.route('/S3/bucket/<string:bucket>', methods=['GET'])
-def getBucketInfo(bucket):
+@app.route('/S3/bucket', methods=['GET'])
+def getBuckets():
     try :
-        return Response(S3Ctrl(conf).getCephBucket(bucket),mimetype='application/json')
+        return Response(S3Ctrl(conf).getBucketInfo(None), mimetype='application/json')
     except S3Error , e:
         Log.err(e.__str__())
         return Response(e.reason, status=e.code)
 
+@app.route('/S3/bucket/<string:bucket>', methods=['GET'])
+def getBucketInfo(bucket=None):
+    try :
+        return Response(S3Ctrl(conf).getBucketInfo(bucket), mimetype='application/json')
+    except S3Error , e:
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
+
+@app.route('/S3/bucket/<string:bucket>', methods=['DELETE'])
+def deleteBucket(bucket):
+    try :
+        return Response(S3Ctrl(conf).deleteBucket(bucket), mimetype='application/json')
+    except S3Error , e:
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
+
+@app.route('/S3/bucket/<string:bucket>/link', methods=['DELETE','PUT'])
+def linkBucket(bucket):
+    try :
+        uid = request.form['uid']
+        if request.method =='PUT':
+            return Response(S3Ctrl(conf).linkBucket(uid, bucket), mimetype='application/json')
+        else:
+            return Response(S3Ctrl(conf).unlinkBucket(uid, bucket), mimetype='application/json')
+    except S3Error , e:
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
 

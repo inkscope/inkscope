@@ -56,20 +56,77 @@ class S3Ctrl:
         jsonform = request.form['json']
         return S3User.createSubuser(uid,jsonform,self.getAdminConnection())
 
+    def saveCapability(self, uid):
+        capType = request.form['type']
+        capPerm = request.form['perm']
+        Log.debug( "saveCapability "+capType+"="+capPerm+" for user with uid "+ uid)
+        return S3User.saveCapability(uid, capType, capPerm, self.getAdminConnection())
+
+    def deleteCapability(self, uid):
+        capType = request.form['type']
+        capPerm = request.form['perm']
+        Log.debug( "deleteCapability "+capType+"="+capPerm+" for user with uid "+ uid)
+        return S3User.deleteCapability(uid, capType, capPerm, self.getAdminConnection())
+
+    def deleteSubuser(self, uid, subuser):
+        Log.debug( "delete subuser "+subuser+" for user with uid "+ uid)
+        return S3User.deleteSubuser(uid, subuser, self.getAdminConnection())
+
+    def createSubuserKey(self, uid, subuser):
+        Log.debug( "create key for subuser "+subuser+" for user with uid "+ uid)
+        generate_key = request.form['generate_key']
+        secret_key = request.form['secret_key']
+        return S3User.createSubuserKey(uid, subuser, generate_key, secret_key, self.getAdminConnection())
+
+    def deleteSubuserKey(self, uid, subuser, key):
+        Log.debug( "delete key "+key+" for subuser "+subuser+" for user with uid "+ uid)
+        return S3User.deleteSubuserKey(uid, subuser, key, self.getAdminConnection())
+
     def getUserBuckets(self, uid):
         Log.debug( "getBuckets for uid " + uid)
         jsonform = None
         return S3User.getBuckets(uid,jsonform,self.getAdminConnection())
 
-    def getCephBucket(self, bucket):
-        Log.debug( "getCephBucket for bucket " + bucket)
-        jsonform = None
-        return self.getBucketInfo(bucket,jsonform,self.getAdminConnection())
 
+# bucket management
 
-    def getBucketInfo (self,bucket, jsonform, conn):
-        myargs = [("bucket",bucket),("stats","True")]
-        request= conn.request(method="GET", key="bucket", args= myargs)
+    def getBucketInfo (self, bucket):
+        myargs = []
+        stats = request.form.get('stats', None)
+        if stats is not None:
+            myargs.append(("stats",stats))
+        if bucket is not None:
+            myargs.append(("bucket",bucket))
+
+        conn = self.getAdminConnection()
+        request2= conn.request(method="GET", key="bucket", args= myargs)
+        res = conn.send(request2)
+        info = res.read()
+        print info
+        return info
+
+    def linkBucket (self,uid, bucket):
+        conn = self.getAdminConnection()
+        myargs = [("bucket",bucket),("uid",uid)]
+        request= conn.request(method="PUT", key="bucket", args= myargs)
+        res = conn.send(request)
+        info = res.read()
+        print info
+        return info
+
+    def unlinkBucket (self,uid, bucket):
+        conn = self.getAdminConnection()
+        myargs = [("bucket",bucket),("uid",uid)]
+        request= conn.request(method="POST", key="bucket", args= myargs)
+        res = conn.send(request)
+        info = res.read()
+        print info
+        return info
+
+    def deleteBucket (self,bucket):
+        conn = self.getAdminConnection()
+        myargs = [("bucket",bucket),("purge-objects","True")]
+        request= conn.request(method="DELETE", key="bucket", args= myargs)
         res = conn.send(request)
         info = res.read()
         print info
