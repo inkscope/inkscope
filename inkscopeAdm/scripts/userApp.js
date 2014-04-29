@@ -2,7 +2,7 @@
  * Created by arid6405 on 11/21/13.
  */
 
-angular.module('userApp', ['ngRoute','ngTable','ui.bootstrap','dialogs'])
+angular.module('userApp', ['ngRoute','ngTable','ui.bootstrap','dialogs','ngSanitize'])
     .config(function ($routeProvider) {
         $routeProvider.
             when('/', {controller: ListCtrl, templateUrl: 'partials/users/aboutUsers.html'}).
@@ -12,8 +12,9 @@ angular.module('userApp', ['ngRoute','ngTable','ui.bootstrap','dialogs'])
             when('/delete/:userNum/:userName', {controller: DeleteCtrl, templateUrl: 'partials/users/deleteUser.html'}).
             when('/delete/:uid', {controller: DeleteCtrl, templateUrl: 'partials/users/deleteUser.html'}).
             when('/createKey/:uid', {controller: CreateKeyCtrl, templateUrl: 'partials/users/createKey.html'}).
-            when('/createSwiftKey/:uid', {controller: CreateSwiftKeyCtrl, templateUrl: 'partials/users/createSwiftKey.html'}).
+            when('/createSwiftKey/:uid/:subuser', {controller: CreateSwiftKeyCtrl, templateUrl: 'partials/users/createSwiftKey.html'}).
             when('/createSubuser/:uid', {controller: CreateSubuserCtrl, templateUrl: 'partials/users/createSubuser.html'}).
+            when('/capabilities/:uid', {controller: CapabilitiesCtrl, templateUrl: 'partials/users/capabilities.html'}).
             otherwise({redirectTo: '/'})
 
     });
@@ -32,7 +33,7 @@ function refreshUsers($http, $rootScope, $templateCache) {
         });
 }
 
-function ListCtrl($rootScope, $http, $filter, ngTableParams) {
+function ListCtrl($rootScope, $scope, $http, $filter, ngTableParams, $location) {
     $rootScope.tableParams = new ngTableParams({
         page: 1,            // show first page
         count: 20,          // count per page
@@ -51,6 +52,10 @@ function ListCtrl($rootScope, $http, $filter, ngTableParams) {
         }
     });
     refreshUsers($http, $rootScope);
+
+    $scope.showDetail = function (uid) {
+        $location.path('/detail/'+uid);
+    }
 }
 
 function DetailCtrl($rootScope,$scope, $http, $routeParams, $route, $dialogs) {
@@ -72,9 +77,9 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $route, $dialogs) {
         });
 
     $scope.removeKey = function(key){
-        $scope.uri = inkscopeCtrlURL+"S3/user/"+$rootScope.detailedUser.user_id+"/key/"+key;
+        $scope.uri = inkscopeCtrlURL+"S3/user/"+encodeURIComponent($rootScope.detailedUser.user_id)+"/key/"+encodeURIComponent(key);
 
-        dlg = $dialogs.confirm('Please Confirm','Do you really want to delete key '+key+' for user '+$rootScope.detailedUser.user_id+'?');
+        dlg = $dialogs.confirm('Please Confirm','Do you really want to delete key <strong>'+key+'</strong> for user <strong>'+$rootScope.detailedUser.user_id+'</strong> ?');
         dlg.result.then(function(btn){
             $http({method: "delete", url: $scope.uri }).
                 success(function (data, status) {
@@ -95,9 +100,9 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $route, $dialogs) {
     }
 
     $scope.removeSwiftKey = function(subuser, key){
-        $scope.uri = inkscopeCtrlURL+"S3/user/"+$rootScope.detailedUser.user_id+"/subuser/"+subuser+"/key/"+key;
+        $scope.uri = inkscopeCtrlURL+"S3/user/"+$rootScope.detailedUser.user_id+"/subuser/"+encodeURIComponent(subuser)+"/key/"+key;
 
-        dlg = $dialogs.confirm('Please Confirm','Do you really want to delete key '+key+' for user '+$rootScope.detailedUser.user_id+'?');
+        dlg = $dialogs.confirm('Please Confirm','Do you really want to delete key <strong>'+key+'</strong> for user <strong>'+$rootScope.detailedUser.user_id+'</strong> ?');
         dlg.result.then(function(btn){
             $http({method: "delete", url: $scope.uri }).
                 success(function (data, status) {
@@ -118,7 +123,7 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $route, $dialogs) {
     }
 
     $scope.removeSubuser = function(subuser){
-        $scope.uri = inkscopeCtrlURL+"S3/user/"+$rootScope.detailedUser.user_id+"/subuser/"+subuser;
+        $scope.uri = inkscopeCtrlURL+"S3/user/"+$rootScope.detailedUser.user_id+"/subuser/"+encodeURIComponent(subuser);
 
         dlg = $dialogs.confirm('Please Confirm','Do you really want to delete subuser '+subuser+' for user '+$rootScope.detailedUser.user_id+'?');
         dlg.result.then(function(btn){
@@ -169,6 +174,8 @@ function DeleteCtrl($scope, $http, $templateCache, $routeParams, $location, $dia
 
 function CreateCtrl($rootScope, $scope, $location, $http, $dialogs, $route) {
     $scope.operation = "creation";
+    $scope.permissionValues = ["full", "read", "write", "readwrite"];
+
     // functions declaration
     $scope.update = function (user) {
         $scope.master = angular.copy(user);
@@ -219,7 +226,8 @@ function CreateCtrl($rootScope, $scope, $location, $http, $dialogs, $route) {
     // default values
     $scope.master = {};
     $scope.user = {};
-    //$scope.master.key_type = 's3';
+    $scope.master.generate_key = 'True';
+    $scope.master.subuser_access = 'full';
 
 
     $scope.reset();
@@ -349,6 +357,64 @@ function CreateKeyCtrl($rootScope, $scope, $location, $http, $dialogs, $route, $
 }
 
 function CreateSwiftKeyCtrl($rootScope, $scope, $location, $http, $dialogs, $route, $routeParams) {
+    // functions declaration
+    $scope.isValid = function () {
+        return ( $scope.key.generate_key == 'False') && ( !$scope.key.access_key || !$scope.key.secret_key)
+    };
+
+    $scope.update = function (user) {
+        $scope.master = angular.copy(user);
+    };
+
+    $scope.reset = function () {
+        $scope.key = angular.copy($scope.master);
+    };
+
+    $scope.isUnchanged = function (user) {
+        return angular.equals(user, $scope.master);
+    };
+
+    $scope.cancel = function () {
+        $location.path("/detail/"+$scope.uid);
+    }
+
+
+    $scope.submit = function () {
+        $scope.code = "";
+        $scope.response = "";
+        $scope.uri = inkscopeCtrlURL+"S3/user/"+$scope.master.uid+"/subuser/"+$scope.master.subuser+"/key";
+
+        var data = "";
+        if ($scope.key.generate_key == 'True') {
+            data = 'generate_key=True&secret_key=';
+        }
+        else {
+            data = 'generate_key=False&secret_key='+$scope.key.secret_key;
+        }
+
+        $http({method: "put", url: $scope.uri, data: data, headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
+            success(function (data, status) {
+                $scope.status = status;
+                $scope.data = data;
+                refreshUsers($http, $scope);
+                $location.path('/detail/'+$scope.master.uid);
+            }).
+            error(function (data, status) {
+                $scope.data = data || "Request failed";
+                $scope.status = status;
+                $dialogs.error("<h3>Can't create key for user <strong>"+$scope.master.uid+"</strong> !</h3> <br>"+$scope.data);
+
+            });
+    };
+
+    // default values
+    $scope.key={};
+    $scope.master={};
+    $scope.master.uid = $routeParams.uid;
+    $scope.master.subuser = $routeParams.subuser;
+    $scope.master.generate_key='True';
+
+    $scope.reset();
 }
 
 function ModifyCtrl($rootScope, $scope, $routeParams, $location, $http, $dialogs) {
@@ -418,5 +484,81 @@ function ModifyCtrl($rootScope, $scope, $routeParams, $location, $http, $dialogs
         });
     $scope.code = "";
     $scope.response = "";
+
+}
+
+function CapabilitiesCtrl($rootScope,$scope, $http, $routeParams, $route, $dialogs, $location) {
+    var uri = inkscopeCtrlURL + "S3/user/"+$routeParams.uid;
+    $scope.user_id = $routeParams.uid;
+
+    $scope.capabilities = ["bilog", "buckets", "datalog", "mdlog" , "metadata", "opstate", "usage", "users"];
+
+    $scope.permissionValues = ["read", "write", "*"];
+
+    $http({method: "get", url: uri }).
+        success(function (data, status) {
+            $rootScope.detailedUser = data;
+            $rootScope.status = status;
+
+            $scope.existingCapabilities = [];
+            for (var i = 0; i < data.caps.length; i++){
+                $scope.existingCapabilities.push(data.caps[i].type);
+            }
+            $scope.availableCapabilities = [];
+            for (var i = 0; i < $scope.capabilities.length; i++){
+                var cap = $scope.capabilities[i];
+                if ($scope.existingCapabilities.indexOf(cap) == -1){
+                    $scope.availableCapabilities.push(cap);
+                }
+            }
+
+        }).
+        error(function (data, status, headers) {
+            $rootScope.status = status;
+            $rootScope.users =  data || "Request failed";
+            $dialogs.error("<h3>Can't display user with num "+$routeParams.uid+"</h3><br>"+$scope.data);
+        });
+
+    $scope.close = function () {
+        $location.path("/detail/"+$scope.user_id);
+    }
+
+    $scope.addCapability = function () {
+        $scope.adding = true;
+        $scope.newCap.type = "";
+        $scope.newCap.perm = "";
+    }
+
+    $scope.cancelCapability = function () {
+        $scope.adding = false;
+    }
+
+    $scope.saveCapability = function (type, perm) {
+        if ( (typeof type=="undefined")||(typeof perm=="undefined")) return;
+        $scope.uri = inkscopeCtrlURL + "S3/user/"+$routeParams.uid+"/caps" ;
+        $http({method: "post", url: $scope.uri , data: "type="+type+"&perm="+perm, headers: {'Content-Type': 'application/x-www-form-urlencoded'} }).
+            success(function (data, status) {
+                $rootScope.status = status;
+                $route.reload();
+            }).
+            error(function (data, status, headers) {
+                $rootScope.status = status;
+                $dialogs.error("<h3>Can't save capability</h3>"+data);
+            });
+    }
+
+    $scope.deleteCapability = function (type, perm) {
+        if ( (type=="")||(perm=="")) return;
+        $scope.uri = inkscopeCtrlURL + "S3/user/"+$routeParams.uid+"/caps" ;
+        $http({method: "delete", url: $scope.uri , data: "type="+type+"&perm="+perm, headers: {'Content-Type': 'application/x-www-form-urlencoded'} }).
+            success(function (data, status) {
+                $rootScope.status = status;
+                $route.reload();
+            }).
+            error(function (data, status, headers) {
+                $rootScope.status = status;
+                $dialogs.error("<h3>Can't delete capability</h3>"+data);
+            });
+    }
 
 }

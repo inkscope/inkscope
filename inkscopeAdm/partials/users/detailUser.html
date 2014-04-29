@@ -31,7 +31,7 @@
                     <td>{{subuser.permissions}}</td>
                     <td width="40">
                         <a ng-click="removeSubuser(subuser.id)"><i class="icon-remove closeButton" alt="remove subuser" title="remove subuser"></i></a>
-                        <a ng-click="addSwiftKey(subuser.id)"><i class="icon-bookmark closeButton" alt="add swift key" title="add swift key"></i></a>
+                        <a href="#/createSwiftKey/{{detailedUser.user_id}}/{{subuser.id}}"><i class="icon-bookmark closeButton" alt="add swift key" title="add swift key"></i></a>
                     </td>
                 </tr>
             </table>
@@ -51,14 +51,13 @@
         </td>
     </tr>
     <tr>
-        <td>Caps <a href="#/createSubuser/{{detailedUser.user_id}}"><i class="icon-plus-sign closeButton" alt="add cap" title="add cap"></i></a></td>
+        <td>Caps <a href="#/capabilities/{{detailedUser.user_id}}"><i class="icon-edit closeButton" alt="edit capabilities" title="edit capabilities"></i></a></td>
         <td>
             <div ng-hide="detailedUser.caps">none</div>
             <table  class="table table-condensed ">
                 <tr ng-repeat="cap in detailedUser.caps">
                     <td>{{cap.type}}</td>
                     <td>{{cap.perm}}</td>
-                    <td width="20"><a href="#/createSubuser/{{detailedUser.user_id}}"><i class="icon-remove closeButton" alt="remove cap" title="remove cap"></i></a></td>
                 </tr>
             </table>
         </td>

@@ -18,6 +18,25 @@
         </div>
     </div>
 
+     <div class="control-group">
+            <label for="subuser.generate_key" class="col-sm-2 control-label">generate swift key : </label>
+
+            <div class="controls">
+                <input type=checkbox id="subuser.generate_key" ng-model="subuser.generate_key" ng-init="subuser.generate_key='True'"
+                       ng-true-value="True" ng-false-value="False"/>
+                &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>Generate a new Swift key and add to the existing keyring.</span></a>
+            </div>
+        </div>
+        <div ng-show="subuser.generate_key=='False'">
+            <div class="control-group">
+                <label for="subuser.secret_key" class="col-sm-2 control-label">swift key : </label>
+
+                <div class="controls">
+                    <input type=text id="subuser.secret_key" ng-model="subuser.secret_key" ng-required="subuser.generate_key=='False'"/>
+                    &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>subuser swift key</span></a>
+                </div>
+            </div>
+        </div>
     <br/>
 
     <div class="button-bar">

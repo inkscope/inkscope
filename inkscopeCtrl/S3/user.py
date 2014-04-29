@@ -48,6 +48,7 @@ class S3User:
         # max-buckets / Specify the maximum number of buckets the user can own. / Integer / not required
         # suspended / Specify whether the user should be suspended / Boolean Example:	False [False] / not required
         self = S3User()
+        Log.debug("User creation input parameters : json="+jsonUserData)
         userData = json.loads(jsonUserData)
         self.uid = userData.get('uid', None)
         self.displayName = userData.get('display_name', None)
@@ -85,6 +86,30 @@ class S3User:
         res = conn.send(request)
         user = res.read()
         Log.debug(user)
+        Log.debug("Created User : "+user)
+        # if needed, create swift subuser
+        create_swift_subuser=userData.get('create_swift_subuser', 'False')
+        Log.debug("create_swift_subuser = "+create_swift_subuser)
+        if create_swift_subuser == 'True':
+            subuser=userData.get('subuser', None)
+            subuser_access=userData.get('subuser_access', "full")
+            subuser_generate_key=userData.get('subuser_generate_key', 'True')
+            subuser_secret_key = None;
+            if subuser_generate_key=='False':
+                subuser_secret_key=userData.get('subuser_secret_key', None)
+            myargs = []
+            myargs.append(("gen-subuser",""))
+            myargs.append(("uid",self.uid))
+            myargs.append(("access",subuser_access))
+            if subuser is not None :
+                myargs.append(("subuser",subuser))
+            if subuser_secret_key is not None :
+                myargs.append(("secret-key",subuser_secret_key))
+            Log.debug(myargs.__str__())
+            request= conn.request(method="PUT", key="user", args= myargs)
+            res = conn.send(request)
+            subusers = res.read()
+            Log.debug(subusers.__str__())
         return user
 
     @staticmethod
@@ -100,6 +125,7 @@ class S3User:
         # generate-key / Generate a new key pair and add to the existing keyring./Boolean Example:	True [True]/ not required
         # max-buckets / Specify the maximum number of buckets the user can own. / Integer / not required
         # suspended / Specify whether the user should be suspended / Boolean Example:	False [False] / not required
+
         self = S3User()
         userData = json.loads(jsonUserData)
         self.uid = uid
@@ -138,12 +164,12 @@ class S3User:
         if self.suspended is not None :
             myargs.append(("suspended",self.suspended))
 
-        Log.debug(myargs.__str__())
+        Log.debug("Create user : "+myargs.__str__())
 
         request= conn.request(method="POST", key="user", args= myargs)
         res = conn.send(request)
         user = res.read()
-        Log.debug(user)
+
         return user
 
     @staticmethod
@@ -178,7 +204,7 @@ class S3User:
         userList = []
         for userId in data:
             userList.append({"uid": userId , "display_name": userId})
-        print userList.__str__()
+        print "User list : "+userList.__str__()
         return json.dumps(userList)
 
 
@@ -198,7 +224,9 @@ class S3User:
         if self.subuser is not None :
             myargs.append(("subuser",self.subuser))
         if self.secret_key is not None :
-            myargs.append(("secret_key",self.secret_key))
+            myargs.append(("secret-key",self.secret_key))
+        else:
+            myargs.append(("generate-secret","True"))
         Log.debug(myargs.__str__())
         request= conn.request(method="PUT", key="user", args= myargs)
         res = conn.send(request)
@@ -206,8 +234,70 @@ class S3User:
         Log.debug(subusers.__str__())
         return subusers.__str__()
 
+    @staticmethod
+    def saveCapability(uid, type, perm , conn):
+        myargs = []
+        myargs.append(("caps",""))
+        myargs.append(("uid",uid))
+        myargs.append(("user-caps",type+"="+perm))
+        Log.debug(myargs.__str__())
+        request= conn.request(method="PUT", key="user", args= myargs)
+        res = conn.send(request)
+        caps = res.read()
+        Log.debug(caps.__str__())
+        return caps.__str__()
 
+    @staticmethod
+    def deleteCapability(uid, type, perm , conn):
+        myargs = []
+        myargs.append(("caps",""))
+        myargs.append(("uid",uid))
+        myargs.append(("user-caps",type+"="+perm))
+        Log.debug(myargs.__str__())
+        request= conn.request(method="DELETE", key="user", args= myargs)
+        res = conn.send(request)
+        caps = res.read()
+        Log.debug(caps.__str__())
+        return caps.__str__()
 
+    @staticmethod
+    def deleteSubuser(uid, subuser , conn):
+        myargs = []
+        myargs.append(("subuser",subuser))
+        myargs.append(("uid", uid))
+        Log.debug(myargs.__str__())
+        request= conn.request(method="DELETE", key="user", args= myargs)
+        res = conn.send(request)
+        return "";
+
+    @staticmethod
+    def createSubuserKey(uid, subuser , generate_key, secret_key, conn):
+        myargs = []
+        myargs.append(("key",""))
+        myargs.append(("uid", uid))
+        myargs.append(("subuser",subuser))
+        myargs.append(("key-type", "swift"))
+        if (generate_key=='True'):
+            myargs.append(("generate-key", 'True'))
+        else:
+            myargs.append(("secret-key", secret_key))
+        Log.debug(myargs.__str__())
+        request= conn.request(method="PUT", key="user", args= myargs)
+        Log.debug(request.__str__())
+        res = conn.send(request)
+        return "";
+
+    @staticmethod
+    def deleteSubuserKey(uid, subuser , key, conn):
+        myargs = []
+        myargs.append(("subuser",subuser))
+        myargs.append(("uid", uid))
+        myargs.append(("key-type", "swift"))
+        myargs.append(("secret-key", key))
+        Log.debug(myargs.__str__())
+        request= conn.request(method="DELETE", key="user", args= myargs)
+        res = conn.send(request)
+        return "";
 
     @staticmethod
     def getBuckets (uid , jsonData, conn):

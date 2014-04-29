@@ -46,7 +46,7 @@
     </div>
 
     <div class="control-group">
-        <label for="user.generate_key" class="col-sm-2 control-label">generate new key : </label>
+        <label for="user.generate_key" class="col-sm-2 control-label">generate s3 key : </label>
 
         <div class="controls">
             <input type=checkbox id="user.generate_key" ng-model="user.generate_key" ng-init="user.generate_key='True'"
@@ -59,7 +59,7 @@
         <label for="user.access_key" class="col-sm-2 control-label">access key : </label>
 
         <div class="controls">
-            <input type=text id="user.access_key" ng-model="user.access_key"/>
+            <input type=text id="user.access_key" ng-model="user.access_key" ng-required="user.generate_key=='False'"/>
             &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>user access key</span></a>
         </div>
     </div>
@@ -67,13 +67,58 @@
         <label for="user.secret_key" class="col-sm-2 control-label">secret key : </label>
 
         <div class="controls">
-            <input type=text id="user.secret_key" ng-model="user.secret_key"/>
+            <input type=text id="user.secret_key" ng-model="user.secret_key" ng-required="user.generate_key=='False'"/>
             &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>user secret key</span></a>
         </div>
     </div>
     </div>
-    <br>
 
+    <div class="control-group">
+        <label for="user.create_swift_subuser" class="col-sm-2 control-label">create swift subuser: </label>
+
+        <div class="controls">
+            <input type=checkbox id="user.create_swift_subuser" ng-model="user.create_swift_subuser" ng-init="user.create_swift_subuser='False'"
+                   ng-true-value="True" ng-false-value="False"/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>Generate a subuser to be used with Swift API.</span></a>
+        </div>
+    </div>
+    <div ng-show="user.create_swift_subuser=='True'">
+        <div class="control-group">
+            <label for="user.subuser" class="col-sm-2 control-label">subuser id : </label>
+            <div class="controls">
+                <input type=text id="user.subuser" ng-model="user.subuser" ng-required="user.create_swift_subuser=='True'"/>
+                &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>subuser id</span></a>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="user.subuser_access" class="col-sm-2 control-label">subuser permissions : </label>
+            <div class="controls">
+                <select id="user.subuser_access" ng-model="user.subuser_access" ng-options="value for value in permissionValues"></select>
+                &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>set access permission for subuser</span></a>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="user.subuser_generate_key" class="col-sm-2 control-label">generate swift key : </label>
+
+            <div class="controls">
+                <input type=checkbox id="user.subuser_generate_key" ng-model="user.subuser_generate_key" ng-init="user.subuser_generate_key='True'"
+                       ng-true-value="True" ng-false-value="False"/>
+                &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>Generate a new Swift key and add to the existing keyring.</span></a>
+            </div>
+        </div>
+        <div ng-show="user.subuser_generate_key=='False'">
+            <div class="control-group">
+                <label for="user.subuser_secret_key" class="col-sm-2 control-label">swift key : </label>
+
+                <div class="controls">
+                    <input type=text id="user.subuser_secret_key" ng-model="user.subuser_secret_key" ng-required="user.create_swift_subuser=='True' && user.subuser_generate_key=='False'"/>
+                    &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>subuser swift key</span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br>
 
     <div class="button-bar">
         <button ng-click="submit()" ng-disabled="form.$invalid || isUnchanged(user)" class="btn btn-success">Create</button>
