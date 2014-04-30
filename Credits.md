@@ -9,6 +9,7 @@
 
 [Angular ngTable 0.3.2](https://github.com/esvit/ng-table) ([Custom license](https://raw.githubusercontent.com/esvit/ng-table/master/LICENSE))
 
+[Angular dialog service v2](https://github.com/m-e-conroy/angular-dialog-service) (MIT license)
 
 [D3js V3](http://d3js.org/) ([Custom license](https://raw.githubusercontent.com/mbostock/d3/master/LICENSE))
 
