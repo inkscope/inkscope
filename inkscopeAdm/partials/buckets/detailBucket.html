@@ -3,8 +3,30 @@
 
 <table  class="table table-condensed table-nohead">
     <tbody>
-    <tr ng-repeat="(key, value) in detailedBucket">
-        <td width="150px"> {{key.replace('_',' ', 'gi')}} </td> <td> {{ value }} </td>
+    <tr><td width="100px">Name</td> <td> {{ detailedBucket.bucket }} </td></tr>
+    <tr><td>Id</td> <td> {{ detailedBucket.id }} </td></tr>
+    <tr><td>Owner</td> <td> {{ detailedBucket.owner }} </td></tr>
+    <tr><td>Pool</td> <td> {{ detailedBucket.pool }} </td></tr>
+    <tr><td>Version</td> <td> {{ detailedBucket.ver }} </td></tr>
+    <tr><td>Master version</td> <td> {{ detailedBucket.master_ver }} </td></tr>
+    <tr><td>Marker</td> <td> {{ detailedBucket.marker }} </td></tr>
+    <tr><td>Max marker</td> <td> {{ detailedBucket.max_marker }} </td></tr>
+    <tr><td>Modification time</td> <td> {{ detailedBucket.mtime *1000 | date:'medium' }} </td></tr>
+    <tr><td>Index pool</td> <td> {{ detailedBucket.index_pool }} </td></tr>
+    <tr><td>Usage</td>
+        <td>
+            <table  class="table table-condensed table-nohead">
+                <tr ng-repeat="(key, value) in detailedBucket.usage">
+                    <td width="150px"> {{key.replace('_',' ', 'gi')}} </td>
+                    <td> <table  class="table table-condensed table-nohead">
+                        <tr ng-repeat="(key, value) in value">
+                            <td width="150px"> {{key.replace('_',' ', 'gi')}} </td>
+                            <td> {{ value }} </td>
+                        </tr>
+                    </table> </td>
+                </tr>
+            </table>
+        </td>
     </tr>
     </tbody>
 </table>
