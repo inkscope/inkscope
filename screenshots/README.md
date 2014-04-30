@@ -7,3 +7,6 @@ Some screenshots
 ![pools usage](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-Pools.png)
 ![pg links to osd](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-Pg.png)
 ![osd status](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-OsdStatus.png)
+![pool management](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-PoolManagement.png)
+![Object storage user management](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-S3userManagement.png)
+![Object storage bucket management](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-S3bucketManagement.png)
