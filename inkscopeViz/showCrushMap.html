@@ -70,6 +70,7 @@
                     <th>ruleset</th>
                     <th>min_size</th>
                     <th>max_size</th>
+                    <th>steps</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -80,6 +81,13 @@
                     <td>{{rule.ruleset}}</td>
                     <td>{{rule.min_size}}</td>
                     <td>{{rule.max_size}}</td>
+                    <td>
+                        <table class="table table-condensed table-nohead" style="width:100%">
+                            <tr ng-repeat="step in rule.steps">
+                                <td>{{ step }}</td>
+                            </tr>
+                        </table>
+                    </td>
                 </tr>
                 </tbody>
             </table>

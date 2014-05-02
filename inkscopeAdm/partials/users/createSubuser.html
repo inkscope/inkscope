@@ -1,0 +1,47 @@
+<h3>Subuser creation for {{subuser.uid}}</h3>
+<br/>
+<form name="form" novalidate class="form-horizontal">
+
+    <div class="control-group">
+        <label for="subuser.subuser" class="col-sm-2 control-label">subuser id : </label>
+        <div class="controls">
+            <input type=text id="subuser.subuser" ng-model="subuser.subuser" required/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>subuser id</span></a>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="subuser.access" class="col-sm-2 control-label">permission : </label>
+        <div class="controls">
+            <select id="subuser.access" ng-model="subuser.access" ng-options="value for value in permissionValues"></select>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>set access permission for subuser</span></a>
+        </div>
+    </div>
+
+     <div class="control-group">
+            <label for="subuser.generate_key" class="col-sm-2 control-label">generate swift key : </label>
+
+            <div class="controls">
+                <input type=checkbox id="subuser.generate_key" ng-model="subuser.generate_key" ng-init="subuser.generate_key='True'"
+                       ng-true-value="True" ng-false-value="False"/>
+                &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>Generate a new Swift key and add to the existing keyring.</span></a>
+            </div>
+        </div>
+        <div ng-show="subuser.generate_key=='False'">
+            <div class="control-group">
+                <label for="subuser.secret_key" class="col-sm-2 control-label">swift key : </label>
+
+                <div class="controls">
+                    <input type=text id="subuser.secret_key" ng-model="subuser.secret_key" ng-required="subuser.generate_key=='False'"/>
+                    &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>subuser swift key</span></a>
+                </div>
+            </div>
+        </div>
+    <br/>
+
+    <div class="button-bar">
+        <button ng-click="submit()" ng-disabled="form.$invalid" class="btn btn-success">Create</button>
+        <button ng-click="reset()" ng-disabled="isUnchanged(subuser)" class="btn btn-default">Reset</button>
+        <button ng-click="cancel()" class="btn btn-default">Cancel</button>
+    </div>
+</form>

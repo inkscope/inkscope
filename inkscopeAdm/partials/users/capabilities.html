@@ -1,0 +1,50 @@
+<h3>Capabilities for {{user_id}}</h3>
+<br/>
+<table class="table table-condensed table-nohead">
+    <tr ng-show="availableCapabilities.length > 0">
+        <td colspan="1" width="200" align="left"><strong>add capability </strong><a
+                ng-click="addCapability()">
+            <i class="icon-plus-sign" alt="add capability" title="add capability"></i></a></td>
+        <td colspan="3">&nbsp;</td>
+    </tr>
+    <tr ng-show="adding">
+        <td>
+            <select id="newCap.type" ng-model="newCap.type" ng-options="value for value in availableCapabilities"></select>
+        </td>
+        <td>
+            <select id="newCap.perm" ng-model="newCap.perm" ng-options="value for value in permissionValues"></select>
+        </td>
+        <td width="30">
+            <a ng-click="saveCapability(newCap.type, newCap.perm)"><i class="icon-ok " alt="save capability"
+                                                               title="save capability"></i></a>
+        </td>
+        <td width="30">
+            <a ng-click="cancelCapability()"><i class="icon-remove closeButton" alt="cancel"
+                                                               title="cancel"></i></a>
+        </td>
+    </tr>
+    <tr ng-show="!adding">
+        <td colspan="4">&nbsp;</td>
+    </tr>
+    <tr ng-repeat="cap in detailedUser.caps">
+        <td>{{cap.type}}</td>
+        <td>{{cap.perm}}</td>
+        <td width="30">
+            &nbsp;
+            <!-- edit
+            <a ng-click="editCapability(cap.type,cap.perm)"><i class="icon-edit closeButton" alt="edit capability"
+                                                               title="edit capability"></i></a>
+            -->
+        </td>
+        <td width="30">
+            <a ng-click="deleteCapability(cap.type,cap.perm)"><i class="icon-remove closeButton" alt="remove capability"
+                                                        title="remove capability"></i></a>
+        </td>
+    </tr>
+
+</table>
+
+<div class="button-bar">
+    <button ng-click="close()" class="btn btn-default">Return to user detail</button>
+</div>
+</form>

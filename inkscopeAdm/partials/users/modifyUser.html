@@ -1,0 +1,50 @@
+<h3>User modification</h3>
+<br/>
+<form name="form" novalidate class="form-horizontal">
+    <div class="control-group">
+        <label for="user.uid" class="col-sm-2 control-label">user ID :</label>
+
+        <div class="controls">
+            <input type=text id="user.uid" ng-model="user.user_id" placeholder="uid" disabled/>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="user.display_name" class="col-sm-2 control-label">display name : </label>
+
+        <div class="controls">
+            <input type=text id="user.display_name" ng-model="user.display_name" required/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>user name you want to be displayed</span></a>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="user.email" class="col-sm-2 control-label">email : </label>
+
+        <div class="controls">
+            <input type=text id="user.email" ng-model="user.email"/>
+
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="user.suspended" class="col-sm-2 control-label">Suspended : </label>
+
+        <div class="controls">
+            <input type=checkbox id="user.suspended" ng-model="user.suspended" ng-true-value="True" ng-false-value="False"/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>Specify whether the user should be suspended Example: False [False]</span></a>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="user.max_buckets" class="col-sm-2 control-label">max-buckets : </label>
+
+        <div class="controls">
+            <input type=number id="user.max_buckets" ng-model="user.max_buckets"/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>Specify the maximum number of buckets the user can own</span></a>
+        </div>
+    </div>
+    <br/>
+
+    <div class="button-bar">
+        <button ng-click="submit()" ng-disabled="form.$invalid || isUnchanged(user)" class="btn btn-success">Modify</button>
+        <button ng-click="reset()" ng-disabled="isUnchanged(user)" class="btn btn-default">Reset</button>
+        <button ng-click="cancel()" class="btn btn-default">Cancel</button>
+    </div>
+</form>

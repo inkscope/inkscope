@@ -34,6 +34,11 @@ showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $sc
         return "N/A";
     }
 
+    $scope.showStep = function (step) {
+        return prettyPrint(step);
+    }
+
+
     function computeBucketsTree(rawbuckets) {
         var bucketsTab = [];
         var osdTab = [];

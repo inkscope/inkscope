@@ -1,0 +1,27 @@
+<h3>About pools...</h3>
+<br />
+
+<p><a href="http://ceph.com/docs/master/rados/operations/pools" target="_blank"><i class="icon-book"> </i> Ceph documentation on pools</a></p>
+<p>When you first deploy a cluster without creating a pool, Ceph uses the default
+    pools for storing data. A pool differs from CRUSH’s location-based buckets in
+    that a pool doesn’t have a single physical location, and a pool provides you
+    with some additional functionality, including:</p>
+<ul class="simple">
+    <li><strong>Replicas</strong>: You can set the desired number of copies/replicas of an object.
+        A typical configuration stores an object and one additional copy
+        (i.e., <tt class="docutils literal"><span class="pre">size</span> <span class="pre">=</span> <span class="pre">2</span></tt>), but you can determine the number of copies/replicas.</li>
+    <li><strong>Placement Groups</strong>: You can set the number of placement groups for the pool.
+        A typical configuration uses approximately 100 placement groups per OSD to
+        provide optimal balancing without using up too many computing resources. When
+        setting up multiple pools, be careful to ensure you set a reasonable number of
+        placement groups for both the pool and the cluster as a whole.</li>
+    <li><strong>CRUSH Rules</strong>: When you store data in a pool, a CRUSH ruleset mapped to the
+        pool enables CRUSH to identify a rule for the placement of the primary object
+        and object replicas in your cluster. You can create a custom CRUSH rule for your
+        pool.</li>
+    <li><strong>Snapshots</strong>: When you create snapshots with <tt class="docutils literal"><span class="pre">ceph</span> <span class="pre">osd</span> <span class="pre">pool</span> <span class="pre">mksnap</span></tt>,
+        you effectively take a snapshot of a particular pool.</li>
+    <li><strong>Set Ownership</strong>: You can set a user ID as the owner of a pool.</li>
+</ul>
+<p>To organize data into pools, you can list, create, and remove pools.
+    You can also view the utilization statistics for each pool.</p>
