@@ -1,0 +1,23 @@
+<h3>Bucket creation</h3>
+<br />
+<form name="form" novalidate class="form-horizontal">
+    <div class="control-group">
+        <label for="bucket.name" class="col-sm-2 control-label">Bucket name :</label>
+        <div class="controls">
+            <input type=text id="bucket.name"  ng-model="bucket.name" placeholder="Bucket name" required/>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="bucket.owner" class="col-sm-2 control-label">Owner : </label>
+        <div class="controls">
+            <select id="bucket.owner" ng-model="bucket.owner" ng-options="value.uid for value in users| orderBy:'uid'"></select>
+        </div>
+    </div>
+    <br/>
+    <br />
+    <div class="button-bar">
+        <button ng-click="create()" ng-disabled="form.$invalid || isUnchanged(bucket)" class="btn btn-success">Create</button>
+        <button ng-click="reset()" ng-disabled="isUnchanged(bucket)" class="btn btn-default">Reset</button>
+        <button ng-click="cancel()" class="btn btn-default">Cancel</button>
+    </div>
+</form>

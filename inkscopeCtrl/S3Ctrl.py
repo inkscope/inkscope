@@ -12,11 +12,11 @@ class S3Ctrl:
         self.admin = conf.get("radosgw_admin", "admin")
         self.key = conf.get("radosgw_key", "")
         self.secret = conf.get("radosgw_secret", "")
-        self.url = conf.get("radosgw_url", "127.0.0.1")
+        self.radosgw_url = conf.get("radosgw_url", "127.0.0.1")
 
-        if not self.url.endswith('/'):
-            self.url += '/'
-        self.url += self.admin
+        if not self.radosgw_url.endswith('/'):
+            self.radosgw_url += '/'
+        self.url = self.radosgw_url + self.admin
         print "config url: "+self.url
         print "config admin: "+self.admin
         print "config key: "+self.key
@@ -89,6 +89,17 @@ class S3Ctrl:
 
 
 # bucket management
+
+    def createBucket(self):
+        bucket = request.form['bucket']
+        owner = request.form['owner']
+        Log.debug( "createBucket "+bucket+" for user "+owner)
+        # creation under admin account
+        mybucket = S3Bucket( bucket,  access_key=self.key, secret_key=self.secret , base_url= self.radosgw_url+bucket)
+        mybucket.put_bucket()
+        # change new bucket's owner
+        return self.linkBucket(owner,bucket)
+
 
     def getBucketInfo (self, bucket):
         myargs = []

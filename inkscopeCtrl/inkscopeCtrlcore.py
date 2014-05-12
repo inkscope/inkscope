@@ -170,6 +170,15 @@ def getUserBuckets(uid,bucket=None):
         return Response(e.reason, status=e.code)
 
 
+@app.route('/S3/bucket', methods=['PUT'])
+def createBucket():
+    try :
+        return Response(S3Ctrl(conf).createBucket(), mimetype='application/json')
+    except S3Error , e:
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
+
+
 @app.route('/S3/bucket', methods=['GET'])
 def getBuckets():
     try :
