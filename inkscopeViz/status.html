@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" media="screen" href="css/testAdmin.css"/>
     <link rel="stylesheet" type="text/css" media="screen" href="css/nv.d3.css"/>
     <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/rickshaw.min.css"/>
     <link rel="stylesheet" href="css/tooltip.css"/>
     <link rel="stylesheet" href="css/animation.css">
     <script src="scripts/angular/angular.min.js"></script>
@@ -14,9 +15,10 @@
     <script src="scripts/angular-misc/D3Directives.js"></script>
     <script src="scripts/angular-misc/angular-commons.js"></script>
     <script src="scripts/statusApp.js"></script>
+    <script type="text/javascript" src="scripts/d3/d3.v3.min.js" charset="utf-8"></script>
     <script src="scripts/d3/common.js"></script>
     <script src="scripts/d3/colorbrewer.js"></script>
-    <script type="text/javascript" src="scripts/d3/d3.v3.min.js" charset="utf-8"></script>
+    <script src="scripts/d3/rickshaw.min.js"></script>
     <script type="text/javascript" src="scripts/d3/nv.d3.js" charset="utf-8"></script>
     <!--[if IE]>
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -50,6 +52,25 @@
         margin: 10px;
         z-index: 0;
     }
+    #chart_container {
+        position: relative;
+        width: 350px;
+            height: 50px;
+            font-family: Arial, Helvetica, sans-serif;
+            float:right;
+        text-align: right;
+        }
+    #iopschart {
+            position: relative;
+            left: 40px;
+        }
+    #y_axis {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 40px;
+        }
+
     </style>
 </head>
 
@@ -70,8 +91,12 @@
 <h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> Ceph status</h1>
 
 <div id="general_status">
+    <div id="chart_container">
+        <div id="y_axis"></div>
+        <div id="iopschart"></div>
+        Read : {{ read | bytes:kB }}/s , Write : {{ write | bytes:kB }}/s
+    </div>
     <h2>Cluster health at {{date | date:'HH:mm:ss'}}</h2>
-
     <div class="health_summary health_status_{{health.severity}}">{{health.summary}}</div>
     <div id="journal">
         <div ng-repeat="key in journal">{{key.date | date:'yyyy-MM-dd HH:mm:ss'}} : {{key.summary}}</div>

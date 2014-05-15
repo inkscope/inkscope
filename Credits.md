@@ -15,4 +15,6 @@
 
 [nvD3 1.1.15b](http://nvd3.org/) (Apache V2 License)
 
+[Rickshaw 1.4.5](https://github.com/shutterstock/rickshaw) ([Custom licence](https://raw.githubusercontent.com/shutterstock/rickshaw/master/LICENSE))
+
 [mongoDB 2.4](http://www.mongodb.org/) (GNU AGPL v3.0 License)
