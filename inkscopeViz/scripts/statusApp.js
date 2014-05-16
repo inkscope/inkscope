@@ -41,9 +41,11 @@ StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
             timeBase: new Date().getTime() / 1000
         })
     } );
-    //var hoverDetail = new Rickshaw.Graph.HoverDetail( {
-    //    graph: graph
-    //} );
+    var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+        graph: graph,
+        xFormatter: function(x) { return  ""; },
+        yFormatter: function(y) { return  funcBytes(y)+ "/s" ;}
+    } );
     var yAxis = new Rickshaw.Graph.Axis.Y({
         graph: graph,
         height: 30,
