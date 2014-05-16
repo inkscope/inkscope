@@ -1,10 +1,9 @@
 #author Philippe Raipin
 #licence : apache v2
 
-from flask import Flask, request, Response
-app = Flask(__name__)
-
-from pymongo import MongoClient
+from flask import Flask, request,Response
+from pymongo import MongoClient, MongoReplicaSetClient
+from pymongo.read_preferences import ReadPreference
 import json
 from bson.dbref import DBRef 
 from bson.json_util import dumps
@@ -12,26 +11,19 @@ from bson import ObjectId
 import time
 
 
-configfile = "/opt/inkscope/etc/inkscopeCtrl.conf"
-#load the conf (from json into file)
-def load_conf():
-    datasource = open(configfile, "r")
-    data = json.load(datasource)
-    datasource.close()
-    return data
+def getClient(conf):
+    mongodb_host = conf.get("mongodb_host", "127.0.0.1")
+    mongodb_port = conf.get("mongodb_port", "27017")
+    mongodb_URL = "mongodb://"+mongodb_host+":"+mongodb_port
+    is_mongo_replicat = conf.get("is_mongo_replicat", 0)
+    mongodb_set = "'"+conf.get("mongodb_set","")+"'"
+    mongodb_replicaSet =conf.get("mongodb_replicaSet",None)
+    mongodb_read_preference = conf.get("mongodb_read_preference",None)
 
-
-import  sys
-sys.path.append('.')
-
-conf = load_conf()
-
-mongodb_host = conf.get("mongodb_host", "127.0.0.1")
-mongodb_port = conf.get("mongodb_port", "27017")
-mongodb_URL = "mongodb://"+mongodb_host+":"+mongodb_port
-
-
-client = MongoClient(mongodb_URL)
+    if is_mongo_replicat ==  1:
+        return MongoReplicaSetClient(eval(mongodb_set), replicaSet=mongodb_replicaSet, read_preference=eval(mongodb_read_preference))
+    else:
+        return MongoClient(mongodb_URL)
 
 def getObject(db, collection, objectId, depth, branch):
     """
@@ -250,23 +242,24 @@ def build(db, obj):
     return res
 
 
-@app.route('/<db>/<collection>', methods=['GET', 'POST'])
-def find(db, collection):
+#@app.route('/<db>/<collection>', methods=['GET', 'POST'])
+def find(conf, db, collection):
     depth = int(request.args.get('depth', '0'))
     if request.method == 'POST':
         body_json = request.get_json(force=True)
-        db = client[db]
+        db = getClient(conf)[db]
         response_body = dumps(listObjects(db, body_json, collection, depth))
         return Response(response_body, headers = {"timestamp" :  int(round(time.time() * 1000))}, mimetype='application/json')
     else:
-        db = client[db]
+        db = getClient(conf)[db]
         response_body = dumps(listObjects(db, None, collection, depth))
         return Response(response_body, headers = {"timestamp" :  int(round(time.time() * 1000))}, mimetype='application/json')
 
-@app.route('/<db>', methods=['POST'])
-def full(db):
+# @app.route('/<db>', methods=['POST'])
+def full(conf, db):
     if request.method == 'POST':
         body_json = request.get_json(force=True)
-        db = client[db]
+        db = getClient(conf)[db]
         response_body = dumps(build(db, body_json))
         return Response(response_body, headers = {"timestamp" :  int(round(time.time() * 1000))}, mimetype='application/json')
+
