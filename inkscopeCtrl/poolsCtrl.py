@@ -220,7 +220,7 @@ def pool_manage(id):
 
         data = requests.get(cephRestApiUrl+'osd/dump.json')
         if data.status_code != 200:
-            return 'Error '+str(r.status_code)+' on the request getting pools'
+            return 'Error '+str(data.status_code)+' on the request getting pools'
         else:
             #r = data.json()
             r = data.content
