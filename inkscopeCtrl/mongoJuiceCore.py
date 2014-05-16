@@ -2,9 +2,11 @@
 #licence : apache v2
 
 from flask import Flask, request,Response
-from pymongo import MongoClient
+from pymongo import MongoClient, MongoReplicaSetClient
+from pymongo.read_preferences import ReadPreference
+
 import json
-from bson.dbref import DBRef 
+from bson.dbref import DBRef
 from bson.json_util import dumps
 from bson import ObjectId
 import time
@@ -14,7 +16,16 @@ def getClient(conf):
     mongodb_host = conf.get("mongodb_host", "127.0.0.1")
     mongodb_port = conf.get("mongodb_port", "27017")
     mongodb_URL = "mongodb://"+mongodb_host+":"+mongodb_port
-    return MongoClient(mongodb_URL)
+    #mongodb replication
+    is_mongo_replicat = conf.get("is_mongo_replicat", 0)
+    mongodb_set = "'"+conf.get("mongodb_set","")+"'"
+    mongodb_replicaSet =conf.get("mongodb_replicaSet",None)
+    mongodb_read_preference = conf.get("mongodb_read_preference",None)
+    if is_mongo_replicat ==  1:
+        return MongoReplicaSetClient(eval(mongodb_set), replicaSet=mongodb_replicaSet, read_preference=eval(mongodb_read_preference))
+    else:
+        #if not replicated
+        return MongoClient(mongodb_URL)
 
 def getObject(db, collection, objectId, depth, branch):
     """
