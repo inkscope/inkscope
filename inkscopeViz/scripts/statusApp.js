@@ -29,6 +29,32 @@ StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
         return value;
     }
 
+    // instantiate our graph!
+    var graph = new Rickshaw.Graph( {
+        element: document.getElementById("iopschart"),
+        width: 300,
+        height: 30,
+        renderer: 'line',
+        series: new Rickshaw.Series.FixedDuration([{ name: 'read' },{ name: 'write' }], undefined, {
+            timeInterval: 3000,
+            maxDataPoints: 100,
+            timeBase: new Date().getTime() / 1000
+        })
+    } );
+    //var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+    //    graph: graph
+    //} );
+    var yAxis = new Rickshaw.Graph.Axis.Y({
+        graph: graph,
+        height: 30,
+        orientation: 'left',
+        tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+        element: document.getElementById('y_axis')
+    });
+    yAxis.render();
+    graph.render();
+
+
     refreshData();
     refreshPGData();
     refreshOSDData();
@@ -114,6 +140,14 @@ StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
                 $scope.mdsmap = data.output.mdsmap;
                 $scope.percentUsed = $scope.pgmap.bytes_used / $scope.pgmap.bytes_total;
                 $scope.pgsByState = $scope.pgmap.pgs_by_state;
+
+                $scope.read = (data.output.pgmap.read_bytes_sec ? data.output.pgmap.read_bytes_sec : 0);
+                $scope.write = (data.output.pgmap.write_bytes_sec ? data.output.pgmap.write_bytes_sec : 0);
+
+                var iopsdata = { read: $scope.read , write : $scope.write };
+                graph.series.addData(iopsdata);
+                yAxis.render();
+                graph.render();
 
                 $scope.health = {};
                 $scope.health.severity = data.output.health.overall_status;

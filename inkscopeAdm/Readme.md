@@ -1,3 +1,14 @@
-Interact with ceph-rest-api  to push put command to ceph cluster. 
-Interact with mongdb collection to show  informations about ceph cluster and  hosts.
+#inkscopeAdm
 
+Early stage of an admin interface.
+
+
+Available:
+
+* pool management
+
+
+Wip
+
+* rados gateway S3 user management
+* rados gateway bucket management

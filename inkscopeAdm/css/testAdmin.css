@@ -19,6 +19,13 @@ input, textarea {
     vertical-align: top;
 }
 
+.button, .closeButton {
+    float: right;
+    cursor: pointer;
+}
+.closeButton {
+    opacity: 0.3;
+}
 .clickable{
     cursor: pointer;
 }
@@ -31,6 +38,9 @@ input, textarea {
     color:red;
 }
 
+.table-nohead tr:first-child td {
+    border:0;
+}
 #sujet {
     width: 250px;
 }

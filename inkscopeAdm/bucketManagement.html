@@ -1,5 +1,5 @@
 <!doctype html>
-<html ng-app="poolApp" xmlns="http://www.w3.org/1999/html">
+<html ng-app="bucketApp" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset=utf-8 />
     <script src="scripts/angular/angular.min.js"></script>
@@ -9,18 +9,18 @@
     <script src="scripts/angular-misc/angular-commons.js"></script>
     <script src="scripts/angular-misc/ui-bootstrap-tpls-0.10.0.min.js"></script>
     <script src="scripts/angular-misc/dialogs.v2.min.js" type="text/javascript"></script>
-    <script src="scripts/poolApp.js"></script>
+    <script src="scripts/bucketApp.js"></script>
     <link rel="stylesheet" href="css/testAdmin.css" />
     <link rel="stylesheet" href="css/tooltip.css" />
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="scripts/angular-misc/ng-table.min.css">
-    <title>Ceph pools admin</title>
+    <title>Ceph buckets admin</title>
 </head>
 <body>
 
 <div ng-include src='menu.html'></div>
 
-<h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> Pool management</h1>
+<h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> S3 and Swift bucket management</h1>
 
 <div ng-controller="ListCtrl">
 <!--div id="status"  >{{status}}</div-->
@@ -29,15 +29,14 @@
         <tr>
             <th><input type="text" ng-model="search" class="search-query" placeholder="Search"></th>
             <th>&nbsp; &nbsp; </th>
-            <th><a href="#/new"><i class="icon-plus-sign" alt="add a new pool" title="add a new pool"></i></a></th>
+            <th><a href="#/new"><i class="icon-plus-sign" alt="add a new bucket" title="add a new bucket"></i></a></th>
         </tr>
     </table>
     <br>
     <table ng-table="tableParams" class="table table-condensed table-hover">
-        <tr ng-repeat="pool in orderedData | filter:search">
-            <td data-title="'Id'" sortable="'poolnum'">{{pool.poolnum}}</td>
-            <td data-title="'Pool'" sortable="'poolname'">{{pool.poolname}}</td>
-            <td data-title="'View'" sortable="pool" style="text-align:center"><a href="#/detail/{{pool.poolnum}}"><i class="icon-eye-open" alt="view details of {{pool.poolname}}" title="view details of {{pool.poolname}}"></i></a></td>
+        <tr ng-repeat="bucket in orderedData | filter:search" ng-click="showDetail(bucket)">
+            <td data-title="'Bucket'" sortable="''">{{bucket}}</td>
+            <td data-title="'View'" sortable="pool" style="text-align:center"><a href="#/detail/{{bucket}}"><i class="icon-eye-open" alt="view details of {{ bucket }}" title="view details of {{ bucket }}"></i></a></td>
         </tr>
     </table>
 </div>

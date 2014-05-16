@@ -6,4 +6,4 @@ logging.basicConfig(stream=sys.stderr)
 
 sys.path.insert(0, '/var/www/inkscope/inkscopeCtrl')
 
-from mongoJuiceCore import app as application
+from inkscopeCtrlcore import app as application

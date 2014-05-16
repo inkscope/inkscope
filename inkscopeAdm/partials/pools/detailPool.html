@@ -1,10 +1,10 @@
 <h3>Pool details for {{detailedPool.pool_name}}</h3>
 <br />
 
-<table  class="table table-condensed ">
+<table  class="table table-condensed table-nohead">
     <tbody>
     <tr ng-repeat="(key, value) in detailedPool">
-        <td> {{key}} </td> <td> {{ value }} </td>
+        <td width="150px"> {{key.replace('_',' ', 'gi')}} </td> <td> {{ value }} </td>
     </tr>
     </tbody>
 </table>
@@ -15,6 +15,6 @@
     <button ng-click="removeSnapshot()" class="btn btn-danger" ng-show="hasSnap"><i class="icon-white icon-camera"></i> remove snapshot </button>
     <div style="width:35px;display: inline-block"></div>
     <a href="#/modify/{{detailedPool.pool}}" class="btn btn-success">Modify</a>
-    <a href="#/delete/{{detailedPool.pool}}" class="btn btn-danger">Delete</a>
+    <a href="#/delete/{{detailedPool.pool}}/{{detailedPool.pool_name}}" class="btn btn-danger">Delete</a>
     <a href="#/" class="btn btn-default">Close</a>
 </div>

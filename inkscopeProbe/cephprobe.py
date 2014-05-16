@@ -148,8 +148,10 @@ def worstHealth(h1, h2) :
 def processStatus(restapi, db):
     print str(datetime.datetime.now()), "-- Process Status"  
     sys.stdout.flush()
+    restapi.connect()
     restapi.request("GET", "/api/v0.1/status.json")
     r1=restapi.getresponse()
+    restapi.close()
     if (r1.status == 200) :
         data1 = r1.read()
         io = StringIO(data1)
@@ -231,8 +233,10 @@ def processStatus(restapi, db):
 def processOsdDump(restapi, db):   
     print str(datetime.datetime.now()), "-- Process OSDDump"  
     sys.stdout.flush()
+    restapi.connect()
     restapi.request("GET", "/api/v0.1/osd/dump.json")
     r1=restapi.getresponse()
+    restapi.close()
     if (r1.status == 200) :
         data1 = r1.read()
         io = StringIO(data1)
@@ -310,8 +314,10 @@ def processOsdDump(restapi, db):
 def processPgDump(restapi, db):
     print str(datetime.datetime.now()), "-- Process PGDump"  
     sys.stdout.flush()
+    restapi.connect()
     restapi.request("GET", "/api/v0.1/pg/dump.json")
     r1=restapi.getresponse()
+    restapi.close()
     if (r1.status == 200) :
         data1 = r1.read()
         io = StringIO(data1)
@@ -335,8 +341,10 @@ def processPgDump(restapi, db):
 def processCrushmap(restapi, db):
     print str(datetime.datetime.now()), "-- Process Crushmap"  
     sys.stdout.flush()
+    restapi.connect()
     restapi.request("GET", "/api/v0.1/osd/crush/dump.json")
     r1=restapi.getresponse()
+    restapi.close()
     if (r1.status == 200) :
         data1 = r1.read()
         io = StringIO(data1)
@@ -409,8 +417,10 @@ def processCrushmap(restapi, db):
 def processDf(restapi, db): 
     print str(datetime.datetime.now()), "-- Process DF"  
     sys.stdout.flush()
+    restapi.connect()
     restapi.request("GET", "/api/v0.1/df.json")
     r1=restapi.getresponse()
+    restapi.close()
     if (r1.status == 200) :
         data1 = r1.read()
         io = StringIO(data1)
@@ -460,8 +470,13 @@ class Repeater(Thread):
         self.args = args
     def run(self):
         while not self.stopped.wait(self.period):
-            # call a function
-            self.function(*self.args)
+            try:
+                # call a function
+                self.function(*self.args)
+            except:
+                # retry later
+                print str(datetime.datetime.now()), "-- WARNING : "+self.function.__name__ +" did not worked"
+                pass
 
 
 
@@ -554,16 +569,16 @@ class SysProbeDaemon(Daemon):
         
 	 # take care with mongo set and authentication
         if is_mongo_replicat ==  1:
-         print  "replicat set connexion"
-         client=MongoReplicaSetClient(eval(mongodb_set), replicaSet=mongodb_replicaSet, read_preference=eval(mongodb_read_preference))
+            print  "replicat set connexion"
+            client=MongoReplicaSetClient(eval(mongodb_set), replicaSet=mongodb_replicaSet, read_preference=eval(mongodb_read_preference))
         else:
-         print  "no replicat set"
-         client = MongoClient(mongodb_host, mongodb_port)
+            print  "no replicat set"
+            client = MongoClient(mongodb_host, mongodb_port)
         if is_mongo_authenticate == 1:
-         print "authentication  to database"
-         client.ceph.authenticate(mongodb_user,mongodb_passwd)
+            print "authentication  to database"
+            client.ceph.authenticate(mongodb_user,mongodb_passwd)
         else:
-         print "no authentication"
+            print "no authentication"
 
         db = client[clusterName]
         

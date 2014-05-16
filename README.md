@@ -5,20 +5,21 @@ inkScope
 
 The main folders are:
 
-**documentation** contains diagram of inkScope architecture, datamodel and screenshots
+**documentation** contains diagram of inkScope architecture, datamodel...
+
+**inkscopeViz** : GUI to visualize Ceph cluster status (dashboard) and and relations between Ceph cluster objects
 
 **inkscopeAdm** : GUI for management  of a ceph cluster
 
 **inkscopeCtrl** : server part for inkscopeAdm and inkscopeViz
 
-**inkscopeProbe** : for collect information about the cluster (Ceph and system info)
+**inkscopeProbe** : probes to collect information about the cluster (Ceph and system info)
 
-**inkscopeViz** : to visualize Ceph cluster status and and relations between Ceph cluster objects
-
-**inkscopeMonitor** : for supervision of Ceph
+**inkscopeMonitor** : for supervision of Ceph 
 
 Manual installation is described in the [inkScope wiki](https://github.com/inkscope/inkscope/wiki)
 
-Here is the dashboard screenshot. Other screenshots can be found [there](https://github.com/inkscope/inkscope/tree/master/screenshots)
+Here is the dashboard screenshot and an object storage user management screenshot. Other screenshots can be found [there](https://github.com/inkscope/inkscope/tree/master/screenshots)
 
 ![dashboard](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-Status.png)
+![Object storage user management](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-S3userManagement.png)
