@@ -232,11 +232,11 @@ StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
     function historise() {
         if ($scope.last_health_summary + "" == "undefined") {
             $scope.last_health_summary = $scope.health.summary;
-            $scope.journal.push({"date": new Date(), "summary": $scope.health.summary});
+            $scope.journal.unshift({"date": new Date(), "summary": $scope.health.summary});
             return;
         }
         if ($scope.last_health_summary != $scope.health.summary) {
-            $scope.journal.push({"date": new Date(), "summary": $scope.health.summary});
+            $scope.journal.unshift({"date": new Date(), "summary": $scope.health.summary});
             $scope.last_health_summary = $scope.health.summary;
         }
     }
