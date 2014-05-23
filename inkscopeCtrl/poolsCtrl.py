@@ -168,7 +168,7 @@ def pool_manage(id):
         poolcreated = Pools()
         poolcreated.savedpool_attribute(nbpool-1, jsondata)
 
-        # set poool parameter
+        # set pool parameter
 
         var_name= ['size', 'min_size', 'crash_replay_interval','crush_ruleset']
         param_to_set_list = [newpool.size, newpool.min_size, newpool.crash_replay_interval, newpool.crush_ruleset]
@@ -234,11 +234,11 @@ def pool_manage(id):
             if str(newpool.name) != str(savedpool.name):
                 r = requests.put(cephRestApiUrl+'osd/pool/rename?srcpool='+str(savedpool.name)+'&destpool='+str(newpool.name))
 
-            # set poool parameter
+            # set pool parameter
 
-            var_name= ['size', 'min_size', 'crash_replay_interval','crush_ruleset']
-            param_to_set_list = [newpool.size, newpool.min_size, newpool.crash_replay_interval, newpool.crush_ruleset]
-            default_param_list = [savedpool.size, savedpool.min_size, savedpool.crash_replay_interval, savedpool.crush_ruleset]
+            var_name= ['size', 'min_size', 'crash_replay_interval','pg_num','pgp_num','crush_ruleset']
+            param_to_set_list = [newpool.size, newpool.min_size, newpool.crash_replay_interval, newpool.pg_num, newpool.pgp_num, newpool.crush_ruleset]
+            default_param_list = [savedpool.size, savedpool.min_size, savedpool.crash_replay_interval, savedpool.pg_num, savedpool.pgp_num, savedpool.crush_ruleset]
 
             for i in range(len(default_param_list)):
                 if param_to_set_list[i] != default_param_list[i]:
