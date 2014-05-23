@@ -375,7 +375,7 @@ function CreateSwiftKeyCtrl($rootScope, $scope, $location, $http, $dialogs, $rou
     };
 
     $scope.cancel = function () {
-        $location.path("/detail/"+$scope.uid);
+        $location.path("/detail/"+$scope.master.uid);
     }
 
 

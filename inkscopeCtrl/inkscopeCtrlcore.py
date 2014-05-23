@@ -13,6 +13,7 @@ from bson.json_util import dumps
 import time
 import mongoJuiceCore
 import poolsCtrl
+import osdsCtrl
 from S3Ctrl import S3Ctrl, S3Error
 from Log import Log
 
@@ -51,6 +52,17 @@ def makesnapshot(id):
 @app.route('/pools/<int:id>/snapshot/<namesnapshot>', methods=['DELETE'])
 def removesnapshot(id, namesnapshot):
     return poolsCtrl.removesnapshot(id, namesnapshot)
+
+
+#
+# Osds management
+#
+
+@app.route('/osds', methods=['PUT'])
+def osds_manage(id=None):
+    return osdsCtrl.osds_manage(id)
+
+
 
 #
 # Object storage management
@@ -165,6 +177,15 @@ def deleteCapability(uid):
 def getUserBuckets(uid,bucket=None):
     try :
         return Response(S3Ctrl(conf).getUserBuckets(uid),mimetype='application/json')
+    except S3Error , e:
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
+
+
+@app.route('/S3/bucket', methods=['PUT'])
+def createBucket():
+    try :
+        return Response(S3Ctrl(conf).createBucket(), mimetype='application/json')
     except S3Error , e:
         Log.err(e.__str__())
         return Response(e.reason, status=e.code)

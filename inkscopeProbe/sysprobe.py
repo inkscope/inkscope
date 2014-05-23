@@ -536,6 +536,7 @@ class Repeater(Thread):
                 self.function(*self.args)
             except:
                 # try later
+                print str(datetime.datetime.now()), "-- WARNING : "+self.function.__name__ +" did not worked"
                 pass
 
 

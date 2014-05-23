@@ -6,6 +6,7 @@ angular.module('bucketApp', ['ngRoute','ngTable','ui.bootstrap','dialogs'])
     .config(function ($routeProvider) {
         $routeProvider.
             when('/', {controller: ListCtrl, templateUrl: 'partials/buckets/aboutBuckets.html'}).
+            when('/new', {controller: CreateCtrl, templateUrl: 'partials/buckets/createBucket.html'}).
             when('/detail/:bucketName', {controller: DetailCtrl, templateUrl: 'partials/buckets/detailBucket.html'}).
             when('/changeOwner/:bucketName/:actualOwner', {controller: ChangeOwnerCtrl, templateUrl: 'partials/buckets/changeOwner.html'}).
             when('/delete/:bucketName', {controller: DeleteCtrl, templateUrl: 'partials/buckets/deleteBucket.html'}).
@@ -142,6 +143,46 @@ function ChangeOwnerCtrl($rootScope, $scope, $routeParams, $location, $http, $di
             $rootScope.status = status;
             $dialogs.error("<h3>Can't find user list</h3><br>"+$scope.data);
         });
+    $scope.code = "";
+    $scope.response = "";
+}
+
+function CreateCtrl($rootScope, $scope, $routeParams, $location, $http, $dialogs) {
+
+    $scope.cancel = function(){
+        $location.path("/");
+    }
+
+    $scope.create = function () {
+        $scope.code = "";
+        $scope.response = "";
+        $scope.uri = inkscopeCtrlURL + "S3/bucket";
+        data ="bucket="+$scope.bucket.name+"&owner="+$scope.bucket.owner.uid
+
+        $http({method: "PUT", url: $scope.uri, data: data, headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
+            success(function (data, status) {
+                refreshBuckets($http, $scope);
+                $location.path("/");
+            }).
+            error(function (data, status) {
+                $scope.data = data || "Request failed";
+                $scope.status = status;
+                $dialogs.error("<h3>Can't create bucket <strong>"+$scope.bucket.name+"</strong> !</h3> <br>"+$scope.data);
+            });
+    };
+
+    // init
+    uri = inkscopeCtrlURL + "S3/user";
+    $http({method: "get", url: uri }).
+        success(function (data, status) {
+            $rootScope.status = status;
+            $scope.users =  data;
+        }).
+        error(function (data, status, headers) {
+            $rootScope.status = status;
+            $dialogs.error("<h3>Can't find user list</h3><br>"+$scope.data);
+        });
+    $scope.bucket = {};
     $scope.code = "";
     $scope.response = "";
 }

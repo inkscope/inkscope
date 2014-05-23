@@ -1,12 +1,12 @@
 /**
  * Created by Alain Dechorgnat on 24/02/14.
  */
-var osdMapApp = angular.module('osdMapApp', [])
+var osdMapApp = angular.module('osdMapApp', ['dialogs'])
     .filter('duration', funcDurationFilter)
     .config(function($locationProvider) {$locationProvider.html5Mode(true);});
 
 
-osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http, $location , $window) {
+osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http, $location , $window, $dialogs) {
     $scope.osds = [];
     $scope.dispoModes = ["up/down", "in/out" , "free space (%)"];
     $scope.dispoMode = "up/down";
@@ -162,6 +162,20 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http, $location 
                 path.style("fill", color4ascPercent($scope.bucketsTab[bucketId].dispo));
             }
         }
+    }
+
+    $scope.reweightByUtilization = function (){
+        var uri = inkscopeCtrlURL + "osds" ;
+
+        $http({method: "PUT", url: uri, data : "action=reweight-by-utilisation", headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
+            success(function (data, status) {
+                $rootScope.status = status;
+                $dialogs.notify("Reweight by utilisation", data);
+            }).
+            error(function (data, status, headers) {
+                $scope.status = status;
+                $dialogs.error("Reweight by utilisation has failed", data);
+            });
     }
 
     $scope.home = function(){
