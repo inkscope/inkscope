@@ -1,0 +1,48 @@
+<!doctype html>
+<html ng-app="userApp" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset=utf-8 />
+    <script src="scripts/angular/angular.min.js"></script>
+    <script src="scripts/angular/angular-route.min.js"></script>
+    <script src="scripts/angular/angular-sanitize.min.js"></script>
+    <script src="scripts/angular-misc/ng-table.min.js"></script>
+    <script src="scripts/angular-misc/angular-commons.js"></script>
+    <script src="scripts/angular-misc/ui-bootstrap-tpls-0.10.0.min.js"></script>
+    <script src="scripts/angular-misc/dialogs.v2.min.js" type="text/javascript"></script>
+    <script src="scripts/userApp.js"></script>
+    <link rel="stylesheet" href="css/testAdmin.css" />
+    <link rel="stylesheet" href="css/tooltip.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="scripts/angular-misc/ng-table.min.css">
+    <title>Ceph S3 and Swift user management</title>
+</head>
+<body>
+
+<div ng-include src='menu.html'></div>
+
+<h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> S3 and Swift user management</h1>
+
+<div ng-controller="ListCtrl">
+<!--div id="status"  >{{status}}</div-->
+<div id="list">
+    <table>
+        <tr>
+            <th><input type="text" ng-model="search" class="search-query" placeholder="Search"></th>
+            <th>&nbsp; &nbsp; </th>
+            <th>new user <a href="#/new"><i class="icon-plus-sign" alt="add a new user" title="add a new user"></i></a></th>
+        </tr>
+    </table>
+    <br>
+    <table ng-table="tableParams" class="table table-condensed table-hover">
+        <tr ng-repeat="user in orderedData | filter:search" ng-click="showDetail(user.uid)">
+            <td data-title="'Uid'" sortable="'uid'">{{user.uid}}</td>
+            <!--td data-title="'Display-name'" sortable="'display_name'">{{user.display_name}}</td-->
+            <td data-title="'View'" sortable="user" style="text-align:center"><a href="#/detail/{{user.uid}}"><i class="icon-eye-open" alt="view details of {{user.uid}}" title="view details of {{user.uid}}"></i></a></td>
+        </tr>
+    </table>
+</div>
+</div>
+<div ng-view id="control" ></div>
+
+</body>
+</html>
