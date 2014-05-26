@@ -92,6 +92,13 @@ label {
     border-radius: 1em;
     padding: 1em;
 }
+#graphpool{
+    margin : 2em;
+    float:left;
+    width :300px;
+    min-height :200px;
+    padding: 1em;
+}
 
 #list{
      margin : 2em;
@@ -99,6 +106,12 @@ label {
      width :350px;
      padding: 1em;
  }
+#listpool{
+    margin : 2em;
+    float:left;
+    width :450px;
+    padding: 1em;
+}
 
 
 .health_status {

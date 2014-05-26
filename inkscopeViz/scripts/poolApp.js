@@ -2,7 +2,8 @@
  * Created by arid6405 on 11/21/13.
  */
 
-angular.module('poolApp', ['ngRoute','ngTable','ui.bootstrap','dialogs'])
+angular.module('poolApp', ['ngRoute','ngTable','D3Directives','ui.bootstrap','dialogs'])
+    .filter('bytes', funcBytesFilter)
     .config(function ($routeProvider) {
         $routeProvider.
             when('/', {controller: ListCtrl, templateUrl: 'partials/pools/aboutPools.html'}).
@@ -17,16 +18,22 @@ angular.module('poolApp', ['ngRoute','ngTable','ui.bootstrap','dialogs'])
     });
 
 function refreshPools($http, $rootScope, $templateCache) {
-    $http({method: "get", url: inkscopeCtrlURL + "pools/", cache: $templateCache}).
+    $http({method: "get", url: cephRestApiURL + "df.json", cache: $templateCache}).
         success(function (data, status) {
             $rootScope.status = status;
-            $rootScope.pools =  data.output;
+            $rootScope.pools =  data.output.pools;
+            $rootScope.stats = data.output.stats;
+            var totalUsed = data.output.stats.total_used;
+            var totalSpace = data.output.stats.total_space;
+            $rootScope.percentUsed = totalUsed / totalSpace;
             $rootScope.tableParams.reload();
         }).
         error(function (data, status, headers) {
             //alert("refresh pools failed with status "+status);
             $rootScope.status = status;
             $rootScope.pools =  data || "Request failed";
+            $rootScope.stats.total_used = "N/A";
+            $rootScope.stats.total_space = "N/A";
         });
 }
 
@@ -48,7 +55,12 @@ function ListCtrl($rootScope,$http, $filter, ngTableParams) {
             $defer.resolve($rootScope.orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
         }
     });
+
     refreshPools($http,$rootScope);
+    setInterval(function(){
+        refreshPools($http, $rootScope)
+    }, 10000);
+    var data;
 }
 
 function SnapshotCtrl($rootScope,$scope, $http, $routeParams, $location, $dialogs) {

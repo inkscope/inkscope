@@ -43,6 +43,9 @@
         vertical-align: middle;
         padding:5px;
         z-index: 10;
+
+
+
     }
 
     #controlPanelOpen {
@@ -70,6 +73,35 @@
             bottom: 0;
             width: 40px;
         }
+    #menu {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        }
+    #menu li {
+        display:inline;
+    }
+    #menu li a {
+        padding:10px ;
+        text-align: center ;
+        text-decoration: none ;
+        }
+    #menu li a:hover, #menu li a:focus, #menu li a:active {
+        text-decoration: underline ;
+        }
+
+
+    #controlmenu {
+        border: black solid 1px;
+        position: absolute;
+        top: 0px;
+        right: 20px;
+        margin: 10px;
+        border-radius: 5px;
+        vertical-align: middle;
+        line-height: 40px;
+        padding:5px;
+        }
 
     </style>
 </head>
@@ -88,8 +120,19 @@
     <input type="checkbox" ng-model="viewMdsModule" ng-change="showModule('viewMdsModule',viewMdsModule)"> MDSs
 </div>
 
-<h1 class="pageTitle"><a href="indexviz.html"><img src="img/inkscope_logo100.png" boredr="0"></a> Ceph status</h1>
-
+<h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> Ceph status</h1>
+<div id="controlmenu" >
+    <ul id="menu">
+        <li><a href="osds.html" title="all OSDs status with filters">OSDs Status</a> </li>
+        <li><a href="osdMap.html" title="OSDs hierarchical view">OSDs map</a></li>
+        <li><a href="poolUsage.html" title="some pools statistics">Pool usage</a></li>
+        <li><a href="poolspgsosds.html" title="shows relationship between pools and osds">Pools/Pgs/osds</a></li>
+        <li><a href="showCrushMap.html" title="a partial visualization of the Crush Map">Crush map</a></li>
+        <li><a href="probes.html" title="shows if probes are still active">Probe status</a></li>
+        <li><a href="objectLookup.html" title="shows on which OSD is or would be stored an object in a pool">Object lookup</a></li>
+        <li><a href="indexadm.html" title="">Admin</a></li>
+    </ul>
+</div>
 <div id="general_status">
     <div id="chart_container">
         <div id="y_axis"></div>
