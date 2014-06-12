@@ -9,24 +9,32 @@
     <script src="scripts/d3/d3.v3.min.js"></script><script src="scripts/showCrushMapApp.js"></script>
     <script src="scripts/jquery.min.js"></script>
     <script src="scripts/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/testAdmin.css" />
+    <link rel="stylesheet" href="css/tooltip.css" />
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/testAdmin.css"/>
+    <link rel="stylesheet" href="scripts/angular-misc/ng-table.min.css">
     <title>Ceph Crush map</title>
 </head>
-<body>
-<h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> Ceph crush map</h1>
-<div ng-include src="'menu.html'"></div>
-<br/>
+<body ng-controller="CrushMapCtrl">
 
-<div ng-controller="CrushMapCtrl" style="margin:0 20px">
+<header ng-include src="'partials/header.html'" ng-init="pageTitle='Ceph crush map'"></header>
+
+<div id="content" style="margin:0 20px">
     <tabs>
         <pane title="Topology">
+            <div style="position:absolute ;top: 10; left:10">
+            <div class="control-group">
+                <label for="base" class="col-sm-2 control-label">Root : </label>
+                <div class="controls">
+                    <select id="base" ng-model="base" ng-options="value.id as value.name for value in rootTab| orderBy:'name'" name="base" ng-change="buckets =computeBucketsTree(rawbuckets , base);"></select>
+                </div>
+            </div>
+            </div>
+            <!--div style="position:absolute ;top: 10; left:10">base: <input type="text" ng-model="base" name="base" ng-change="buckets =computeBucketsTree(rawbuckets , base);" size="4"></div-->
             <div id="tooltip"></div>
             <div id="put_the_graph_there" style="width:100%">
                 <my-topology values="buckets"></my-topology>
             </div>
-            <!--script src="scripts/crushMapTopology.js"></script>
-            <!--pre>{{buckets}}</pre-->
         </pane>
         <pane title="Types">
             <table class="table table-condensed table-hover" style="width:300px">
@@ -40,6 +48,65 @@
                 <tr ng-repeat="type in types | filter:search ">
                     <td>{{type.type_id}}</td>
                     <td>{{type.name}}</td>
+                </tr>
+                </tbody>
+            </table>
+
+        </pane>
+        <pane title="Roots">
+            Buckets with no parent<br>
+            <table class="table table-condensed table-hover" style="width:900px">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>name</th>
+                    <th>alg</th>
+                    <th>hash</th>
+                    <th>type</th>
+                    <th>weight</th>
+                    <th>children</th>
+                    <th>children name</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="bucket in rootTab | filter:search ">
+                    <td>{{bucket.id}}</td>
+                    <td>{{bucket.name}}</td>
+                    <td>{{bucket.alg}}</td>
+                    <td>{{bucket.hash}}</td>
+                    <td>{{bucket.type_name}}</td>
+                    <td>{{bucket.weight}}</td>
+                    <td>{{bucket.items.length}}</td>
+                    <td><span ng-repeat="name in bucket.childrenName">{{ ! $first?", ":"" }}{{ name }}</span></td>
+                </tr>
+                </tbody>
+            </table>
+
+        </pane>
+        <pane title="Buckets">
+            <table class="table table-condensed table-hover" style="width:900px">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>name</th>
+                    <th>alg</th>
+                    <th>hash</th>
+                    <th>type</th>
+                    <th>weight</th>
+                    <th>children</th>
+                    <th>children name</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="bucket in rawbuckets | filter:search ">
+                    <td>{{bucket.id}}</td>
+                    <td>{{bucket.name}}</td>
+                    <td>{{bucket.alg}}</td>
+                    <td>{{bucket.hash}}</td>
+                    <td>{{bucket.type_name}}</td>
+                    <td>{{bucket.weight}}</td>
+                    <td>{{bucket.items.length}}</td>
+                    <td><span ng-repeat="name in bucket.childrenName">{{ ! $first?", ":"" }}{{ name }}</span></td>
                 </tr>
                 </tbody>
             </table>
@@ -105,6 +172,9 @@
                 </tr>
                 </tbody>
             </table>
+        </pane>
+        <pane title="Raw crush map">
+            <pre>{{ raw }}</pre>
         </pane>
     </tabs>
 </div>

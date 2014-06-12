@@ -120,9 +120,8 @@
     <input type="checkbox" ng-model="viewMdsModule" ng-change="showModule('viewMdsModule',viewMdsModule)"> MDSs
 </div>
 
-<h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> Ceph status</h1>
+<header ng-include src="'partials/header.html'" ng-init="pageTitle='Ceph status'"></header>
 
-    <div ng-include src="'menu.html'"></div>
 
 <div id="general_status">
     <div id="chart_container">
@@ -224,7 +223,7 @@
     <h2>Avail. capacity :<br>{{pgmap.bytes_total - pgmap.bytes_used | bytes:MB}}</h2>
     <br><br>
 
-    <div onclick="document.location='poolUsage.html'" style="cursor:pointer">
+    <div onclick="document.location='poolManagement.html'" style="cursor:pointer">
         <ad-gauge value="percentUsed" colormode="desc" width="280"></ad-gauge>
         <div class="gaugeLegend">
             {{pgmap.bytes_used | bytes:kB}} used <br>on {{pgmap.bytes_total | bytes:kB}}

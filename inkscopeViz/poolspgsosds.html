@@ -66,8 +66,9 @@
     <![endif]-->
 </head>
 <body ng-controller="poolPgOsdCtrl">
-<h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> Pools / PGs / OSDs</h1>
-<div ng-include src="'menu.html'"></div>
+
+<header ng-include src="'partials/header.html'" ng-init="pageTitle='Pools / PGs / OSDs'"></header>
+
 <form ng-submit="changePeriod()">
     <div id="controlPanel">
         Refresh period

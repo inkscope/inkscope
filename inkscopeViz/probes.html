@@ -13,8 +13,9 @@
     <title>Probes status</title>
 </head>
 <body ng-controller="ProbesCtrl">
-<h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> Ceph Probes status</h1>
-<div ng-include src="'menu.html'"></div>
+
+<header ng-include src="'partials/header.html'" ng-init="pageTitle='Probes status'"></header>
+
 
 <div id="datePanel">Date : {{date | date:'HH:mm:ss'}}</div>
 <br>

@@ -33,9 +33,9 @@
 
 </head>
 <body ng-controller="OsdsCtrl">
-<h1 class="pageTitle"><a ng-click="home()" class="clickable"><img src="img/inkscope_logo100.png" boredr="0"></a> Ceph OSDs</h1>
 
-<div ng-include src="'menu.html'"></div>
+<header ng-include src="'partials/header.html'" ng-init="pageTitle='Ceph OSD status'"></header>
+
 <div id="controlPanel" ng-hide="count == 0">
     <div class="osd  {{osdClass(osd.stat.in,osd.stat.up)}}" style="float:right">
         {{osd.node._id}}

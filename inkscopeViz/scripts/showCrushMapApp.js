@@ -16,12 +16,18 @@ showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $sc
     var apiURL = '/ceph-rest-api/';
     $http({method: "get", url: apiURL + "osd/crush/dump.json", cache: $templateCache}).
         success(function (data, status) {
+            $rootScope.raw = JSON.stringify(data.output,null,"   ");
             $rootScope.status = status;
             $rootScope.rules = data.output.rules;
             $rootScope.types = data.output.types;
             $rootScope.devices = data.output.devices;
             $rootScope.tunables = data.output.tunables;
-            $rootScope.buckets = computeBucketsTree(data.output.buckets);
+            $rootScope.rawbuckets = data.output.buckets;
+
+            $scope.findRoots(data.output.buckets);
+
+            $scope.base = $scope.rootTab[0].id;
+            $rootScope.buckets = $scope.computeBucketsTree(data.output.buckets , $scope.base);
         }).
         error(function (data, status) {
             $rootScope.status = status;
@@ -39,7 +45,38 @@ showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $sc
     }
 
 
-    function computeBucketsTree(rawbuckets) {
+    $scope.findRoots = function (rawbuckets) {
+        var bucketsTab = [];
+        var osdTab = [];
+
+        for (var i = 0; i < rawbuckets.length; i++) {
+            rawbuckets[i].childrenName =[];
+            bucketsTab[rawbuckets[i].id] = rawbuckets[i];
+            bucketsTab[rawbuckets[i].id].hasParent = false;
+
+        }
+        for (var i = 0; i < $rootScope.devices.length; i++) {
+            osdTab[$rootScope.devices[i].id] = $rootScope.devices[i].name;
+        }
+        for (var i = 0; i < rawbuckets.length; i++) {
+            var bucket = rawbuckets[i];
+            for (var j= 0; j <bucket.items.length; j++){
+                if (bucket.items[j].id<0) {
+                    bucketsTab[bucket.items[j].id].hasParent = true;
+                    rawbuckets[i].childrenName.push(bucketsTab[bucket.items[j].id].name);
+                } else {
+                    rawbuckets[i].childrenName.push(osdTab[bucket.items[j].id]);
+                }
+            }
+            rawbuckets[i].childrenName.sort();
+        }
+        $scope.rootTab = [];
+        for (var i = 0; i < rawbuckets.length; i++) {
+            if ( ! bucketsTab[rawbuckets[i].id].hasParent) $scope.rootTab.push(bucketsTab[rawbuckets[i].id]);
+        }
+    }
+
+    $scope.computeBucketsTree = function (rawbuckets , base) {
         var bucketsTab = [];
         var osdTab = [];
 
@@ -49,8 +86,6 @@ showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $sc
         for (var i = 0; i < $rootScope.devices.length; i++) {
             osdTab[$rootScope.devices[i].id] = $rootScope.devices[i].name;
         }
-        var buckets = bucketsTab[-1];
-
         function addChildren(bucket) {
             bucket.dispo = -1.0;
             bucket.children = [];
@@ -69,6 +104,7 @@ showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $sc
             }
         }
 
+        var buckets = bucketsTab[base];
         addChildren(buckets);
 
 

@@ -5,12 +5,28 @@
     background-color: #78FA89;
 }
 
-h1.pageTitle {
-    font-size:25px;
 
+#page_header{
+    height: 110px;
+    margin:5px;
+    border: thin solid transparent;
 }
-h1.pageTitle img {
-    margin:5px 10px ;
+#page_logo  {
+    float:left;
+    margin: 0px 5px;
+}
+#page_title {
+    position:relative;
+    margin-top: 20px;
+    margin-left: 100px;
+    font-size:45px;
+    font-weight: bold;
+    font-family:  "Helvetica", Helvetica, Arial, sans-serif;
+}
+#page_menu  {
+    position:relative;
+    margin-top: 30px;
+    margin-left: 100px;
 }
 
 input, textarea {
@@ -94,10 +110,10 @@ label {
     padding: 1em;
 }
 #graphpool{
-    margin : 2em;
+    margin : auto 2em;
     float:left;
-    width :300px;
-    min-height :200px;
+    width :400px;
+    min-height :300px;
     padding: 1em;
 }
 
@@ -272,9 +288,9 @@ text-align: center;
     overflow: auto;
 }
 
-
 #datePanel, #filters{
-    margin:10px;
+    margin:5px;
+    margin-left:10px;
     font-weight: bold;
     clear:both;
 }

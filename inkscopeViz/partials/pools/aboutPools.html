@@ -1,10 +1,11 @@
 <div id="graphpool" >
     <h3>Total space usage</h3>
-    <ad-gauge value="percentUsed" colormode="desc" width="300"></ad-gauge>
+    <ad-gauge value="percentUsed" colormode="desc" width="400"></ad-gauge>
     <div class="gaugeLegend">
         {{stats.total_used * 1024| bytes}} used <br>on {{stats.total_space *1024| bytes}}
     </div>
     <br />
-    <p><a href="http://ceph.com/docs/master/rados/operations/pools" title="Ceph documentation on pools">Ceph documentation on pools</a> </p>
-    <p><a href="poolspgsosds.html" title="shows relationship between pools and osds">Pools /pgs /osds </a> </p>
+    <p>View also:<br>
+    <a href="http://ceph.com/docs/master/rados/operations/pools" title="Ceph documentation on pools" target="_blank">- Ceph documentation on pools</a> <br>
+    <a href="poolspgsosds.html" title="shows relationship between pools and osds">- Pools /pgs /osds </a> </p>
 </div>

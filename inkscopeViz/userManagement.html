@@ -18,13 +18,12 @@
     <link rel="stylesheet" href="scripts/angular-misc/ng-table.min.css">
     <title>Ceph S3 and Swift user management</title>
 </head>
-<body>
+<body ng-controller="ListCtrl">
 
-<div ng-include src='menu.html'></div>
+<header ng-include src="'partials/header.html'" ng-init="pageTitle='S3 and Swift user management'"></header>
 
-<h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> S3 and Swift user management</h1>
-<div ng-include src="'menu.html'"></div>
-<div ng-controller="ListCtrl">
+
+<div>
 <!--div id="status"  >{{status}}</div-->
 <div id="list">
     <table>

@@ -2,7 +2,7 @@
 <html ng-app="osdMapApp">
 <head>
     <meta charset="utf-8"/>
-    <script src="scripts/angular/angular.min.js"></script>
+    <script src="scripts/angular/angular.js"></script>
     <script src="scripts/angular/angular-sanitize.min.js"></script>
     <script src="scripts/angular-misc/angular-commons.js"></script>
     <script src="scripts/angular-misc/ui-bootstrap-tpls-0.10.0.min.js"></script>
@@ -27,34 +27,54 @@
             border-radius: 5px;
             vertical-align: middle;
             line-height: 40px;
-            padding:5px;
+            padding: 5px;
         }
 
         #controlPanel input[type=number] {
-            width:40px;
+            width: 40px;
         }
 
     </style>
 </head>
 <body ng-controller="OsdMapCtrl">
-<h1 class="pageTitle"><a ng-click="home()" class="clickable"><img src="img/inkscope_logo100.png" boredr="0"></a> OSDs map</h1>
-<div ng-include src="'menu.html'"></div>
-<br/>
+<header ng-include src="'partials/header.html'" ng-init="pageTitle='OSD map'"></header>
+
 
 <form>
     <div id="controlPanel">
-        Display attribute:
-        <select ng-model="dispoMode" ng-options="dispoMode for dispoMode in dispoModes"></select>
-        <div ng-hide="warningMessage == ''"><p class="text-warning"> <i class="icon-warning-sign" ></i> {{warningMessage}}</p></div>
-        <br>
+        <table>
+            <tr>
+                <td>
+                    Root :
+                </td>
+                <td>
+                    <select id="base" ng-model="base"
+                            ng-options="value.id as value.name for value in rootTab| orderBy:'name'" name="base"
+                            ng-change="changeBase()"></select>
+                </td>
+            </tr>
+            <tr>
+                <td> Display attribute:</td>
+                <td>
+                    <select ng-model="dispoMode" ng-options="dispoMode for dispoMode in dispoModes"></select>
+                </td>
+            </tr>
+        </table>
+        <div ng-hide="warningMessage == ''"><p class="text-warning"><i class="icon-warning-sign"></i> {{warningMessage}}
+        </p></div>
         <a ng-click="reweightByUtilization()" class="btn btn-info" style="float: right">Reweight by utilization</a>
     </div>
 </form>
 
-<div id="datePanel">Date : {{date | date:'HH:mm:ss'}} <div ng-hide="osdControl<15 || count == 0"><p class="text-warning"> <i class="icon-warning-sign" ></i> osds not verified since {{osdControl|duration}}</p></div></div>
+<div id="datePanel">Date : {{date | date:'HH:mm:ss'}}
+    <div ng-hide="osdControl<15 || count == 0"><p class="text-warning"><i class="icon-warning-sign"></i> osds not
+        verified since {{osdControl|duration}}</p></div>
+</div>
 
 <div style="position: relative; width: 100%">
-    <div id="legend" style="position: absolute;top: 0;left: 0;min-width:50px;max-width:70px;margin-left:10px;padding:10px;border:gray thin solid;border-radius: 5px" >Legend<br></div>
+    <div id="legend"
+         style="position: absolute;top: 0;left: 0;min-width:50px;max-width:70px;margin-left:10px;padding:10px;border:gray thin solid;border-radius: 5px">
+        Legend<br></div>
     <div id="put_the_graph_there" style="position:absolute;top: 150;left: 50;width:100%;z-index: 5">
         <my-topology></my-topology>
     </div>

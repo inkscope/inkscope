@@ -25,41 +25,45 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http, $location 
             $scope.status = status;
             $scope.types = data.output.types;
             $scope.devices = data.output.devices;
-            $scope.buckets = computeBucketsTree(data.output.buckets);
+            $scope.rawbuckets = data.output.buckets;
+            $scope.findRoots(data.output.buckets);
+            $scope.base =  $scope.rootTab[0].id;;
+            $scope.buckets = $scope.computeBucketsTree(data.output.buckets , $scope.base);
         }).
         error(function (data, status) {
             $scope.status = status;
         });
 
-    function computeBucketsTree(rawbuckets) {
-        $scope.bucketsTab = [];
+    $scope.computeBucketsTree = function (rawbuckets , base) {
+        var bucketsTab = [];
         var osdTab = [];
 
         // make array of buckets with bucket id as index
         for (var i = 0; i < rawbuckets.length; i++) {
-            $scope.bucketsTab[rawbuckets[i].id] = rawbuckets[i];
+            bucketsTab[rawbuckets[i].id] = rawbuckets[i];
         }
         // device's name for OSD (id >=0)
         for (var i = 0; i < $scope.devices.length; i++) {
             osdTab[$scope.devices[i].id] = $scope.devices[i].name;
         }
         // init tab with  bucket with id -1 as root
-        var buckets = $scope.bucketsTab[-1];
+        var buckets = bucketsTab[base];
 
         //recursively make the tree of buckets for the D3 sunburst viz
         addChildren(buckets);
         //console.error(JSON.stringify(buckets));
+        $scope.bucketsTab = bucketsTab;
         return buckets;
 
         function addChildren(bucket) {
-            bucket.dispo = 1.0;
+            bucket.dispo = -1.0;
             bucket.children = [];
             for (var j = 0; j < bucket.items.length; j++) {
                 var item = bucket.items[j];
                 if (item.id < 0) {
                     //item is not an OSD
-                    bucket.children.push($scope.bucketsTab[item.id]);
-                    addChildren($scope.bucketsTab[item.id]);
+                    bucket.children.push(bucketsTab[item.id]);
+                    addChildren(bucketsTab[item.id]);
                 }
                 else {
                     //item is an OSD
@@ -145,6 +149,36 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http, $location 
         return {"value":value,"total":total};
     }
 
+    $scope.findRoots = function (rawbuckets) {
+        var bucketsTab = [];
+        var osdTab = [];
+        // make array of buckets with bucket id as index
+        for (var i = 0; i < rawbuckets.length; i++) {
+            rawbuckets[i].childrenName =[];
+            bucketsTab[rawbuckets[i].id] = rawbuckets[i];
+            bucketsTab[rawbuckets[i].id].hasParent = false;
+        }
+        // device's name for OSD (id >=0)
+        for (var i = 0; i < $scope.devices.length; i++) {
+            osdTab[$scope.devices[i].id] = $scope.devices[i].name;
+        }
+        for (var i = 0; i < rawbuckets.length; i++) {
+            var bucket = rawbuckets[i];
+            for (var j= 0; j <bucket.items.length; j++){
+                if (bucket.items[j].id<0) {
+                    bucketsTab[bucket.items[j].id].hasParent = true;
+                    rawbuckets[i].childrenName.push(bucketsTab[bucket.items[j].id].name);
+                } else {
+                    rawbuckets[i].childrenName.push(osdTab[bucket.items[j].id]);
+                }
+            }
+            rawbuckets[i].childrenName.sort();
+        }
+        $scope.rootTab = [];
+        for (var i = 0; i < rawbuckets.length; i++) {
+            if ( ! bucketsTab[rawbuckets[i].id].hasParent) $scope.rootTab.push(bucketsTab[rawbuckets[i].id]);
+        }
+    }
 
 
     $scope.refreshStatusDisplay = function () {
@@ -155,13 +189,26 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http, $location 
                 var path = d3.select("#osd" + $scope.osds[i].id);
                 path.style("fill", color4ascPercent($scope.dispo($scope.osds[i])));
             }
-            $scope.dispoOtherNode(-1);
+            $scope.dispoOtherNode($scope.base);
             for (var bucketId in $scope.bucketsTab) {
                 //immediate update of sectors
                 var path = d3.select("#osd" + $scope.bucketsTab[bucketId].id);
-                path.style("fill", color4ascPercent($scope.bucketsTab[bucketId].dispo));
+                if (""+path == "undefined"){
+                    console.error("no path for bucketId "+bucketId +" : "+$scope.bucketsTab[bucketId].name);
+                    continue;
+                }
+                if (""+$scope.bucketsTab[bucketId].dispo != "undefined")
+                    path.style("fill", color4ascPercent($scope.bucketsTab[bucketId].dispo));
+                //else
+                    //console.error("no dispo for bucketId "+bucketId +" : "+$scope.bucketsTab[bucketId].name);
             }
         }
+    }
+
+    $scope.changeBase = function (){
+        $scope.buckets = $scope.computeBucketsTree($scope.rawbuckets , $scope.base);
+        $scope.dispoOtherNode($scope.base);
+        $scope.refreshStatusDisplay();
     }
 
     $scope.reweightByUtilization = function (){
@@ -169,7 +216,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http, $location 
 
         $http({method: "PUT", url: uri, data : "action=reweight-by-utilisation", headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
             success(function (data, status) {
-                $rootScope.status = status;
+                $scope.status = status;
                 $dialogs.notify("Reweight by utilisation", data);
             }).
             error(function (data, status, headers) {
@@ -450,10 +497,11 @@ osdMapApp.directive('myTopology', function () {
                 }
              }
 
-            scope.$watch('buckets', function (topology, oldTopology) {
-                // if 'topology' is undefined, exit
-                if (typeof topology !== 'undefined') {
-                    makeGraph(topology);
+            scope.$watch('base', function (base, oldBase) {
+                // if 'base' is undefined, exit
+                if (typeof base !== 'undefined') {
+                    makeGraph(scope.buckets);
+                    //makeGraph(topology);
                 }
             }, true);
 
