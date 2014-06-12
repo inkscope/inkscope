@@ -33,6 +33,7 @@ function funcDurationFilter(){
         if (days==0) return sign+str;
         return sign+days+"d "+str;
     }
+}
 function getMenu(){
     var navList = angular.module('navList', []);
 
@@ -42,5 +43,5 @@ function getMenu(){
             return page === currentRoute ? 'active' : '';
         };
     }]);
-    }
 }
+

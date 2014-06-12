@@ -2,7 +2,7 @@
 <html ng-app="osdMapApp">
 <head>
     <meta charset="utf-8"/>
-    <script src="scripts/angular/angular.js"></script>
+    <script src="scripts/angular/angular.min.js"></script>
     <script src="scripts/angular/angular-sanitize.min.js"></script>
     <script src="scripts/angular-misc/angular-commons.js"></script>
     <script src="scripts/angular-misc/ui-bootstrap-tpls-0.10.0.min.js"></script>
@@ -11,6 +11,8 @@
     <script src="scripts/d3/colorbrewer.js" charset="utf-8"></script>
     <script src="scripts/d3/d3.v3.min.js"></script>
     <script src="scripts/osdMapApp.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/testAdmin.css"/>
     <title>OSDs map</title>
@@ -36,6 +38,7 @@
 </head>
 <body ng-controller="OsdMapCtrl">
 <h1 class="pageTitle"><a ng-click="home()" class="clickable"><img src="img/inkscope_logo100.png" boredr="0"></a> OSDs map</h1>
+<div ng-include src="'menu.html'"></div>
 <br/>
 
 <form>

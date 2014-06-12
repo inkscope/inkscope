@@ -10,6 +10,8 @@
     <script src="scripts/angular-misc/ui-bootstrap-tpls-0.10.0.min.js"></script>
     <script src="scripts/angular-misc/dialogs.v2.min.js" type="text/javascript"></script>
     <script src="scripts/poolApp.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
     <script src="scripts/angular-misc/D3Directives.js"></script>
     <script src="scripts/d3/d3.v3.min.js"></script>
     <script src="scripts/d3/common.js"></script>
@@ -25,7 +27,7 @@
 <div ng-include src='menu.html'></div>
 
 <h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> Pool management</h1>
-
+<div ng-include src="'menu.html'"></div>
 <div ng-controller="ListCtrl">
 <!--div id="status"  >{{status}}</div-->
 <div id="listpool">
