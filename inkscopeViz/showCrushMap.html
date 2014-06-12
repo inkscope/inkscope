@@ -7,12 +7,15 @@
     <script src="scripts/d3/common.js" charset="utf-8"></script>
     <script src="scripts/d3/colorbrewer.js" charset="utf-8"></script>
     <script src="scripts/d3/d3.v3.min.js"></script><script src="scripts/showCrushMapApp.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/testAdmin.css"/>
     <title>Ceph Crush map</title>
 </head>
 <body>
 <h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> Ceph crush map</h1>
+<div ng-include src="'menu.html'"></div>
 <br/>
 
 <div ng-controller="CrushMapCtrl" style="margin:0 20px">

@@ -12,6 +12,8 @@
     <script src="scripts/d3/d3.v3.min.js"></script>
     <script src="scripts/d3/sankey.js"></script>
     <script src="scripts/d3/common.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
     <style>
         .node rect {
             cursor: move;
@@ -65,7 +67,7 @@
 </head>
 <body ng-controller="poolPgOsdCtrl">
 <h1 class="pageTitle"><a href="index.html"><img src="img/inkscope_logo100.png" boredr="0"></a> Pools / PGs / OSDs</h1>
-
+<div ng-include src="'menu.html'"></div>
 <form ng-submit="changePeriod()">
     <div id="controlPanel">
         Refresh period
