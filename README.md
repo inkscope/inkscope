@@ -7,9 +7,7 @@ The main folders are:
 
 **documentation** contains diagram of inkScope architecture, datamodel...
 
-**inkscopeViz** : GUI to visualize Ceph cluster status (dashboard) and and relations between Ceph cluster objects
-
-**inkscopeAdm** : GUI for management  of a ceph cluster
+**inkscopeViz** : GUI to visualize Ceph cluster status (dashboard) and and relations between Ceph cluster objects and manage of a ceph cluster
 
 **inkscopeCtrl** : server part for inkscopeAdm and inkscopeViz
 
