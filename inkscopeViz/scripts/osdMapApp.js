@@ -2,9 +2,7 @@
  * Created by Alain Dechorgnat on 24/02/14.
  */
 var osdMapApp = angular.module('osdMapApp', ['dialogs'])
-    .filter('duration', funcDurationFilter)
-    .config(function($locationProvider) {$locationProvider.html5Mode(true);});
-
+    .filter('duration', funcDurationFilter);
 
 osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http, $location , $window, $dialogs) {
     $scope.osds = [];
@@ -12,8 +10,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http, $location 
     $scope.dispoMode = "up/down";
     $scope.osdControl = 0;
     $scope.warningMessage = "";
-    var dispoModeFilter = ($location.search()).dispoMode;
-    if ((typeof dispoModeFilter !=="undefined")&&(dispoModeFilter.indexOf("space") > -1)) $scope.dispoMode = "free space (%)";
+    if ($location.absUrl().indexOf("dispoMode=space") > -1) $scope.dispoMode = "free space (%)";
     // get OSD info and refresh every 10s
     getOsds();
     setInterval(function () {getOsds()},10*1000);

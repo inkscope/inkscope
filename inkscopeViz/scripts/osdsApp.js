@@ -5,8 +5,8 @@
 // create module for custom directives
 var OsdsApp = angular.module('OsdsApp', ['D3Directives'])
     .filter('bytes', funcBytesFilter)
-    .filter('duration', funcDurationFilter)
-    .config(function($locationProvider) {$locationProvider.html5Mode(true);});
+    .filter('duration', funcDurationFilter);
+
 
 OsdsApp.controller("OsdsCtrl", function ($rootScope, $http, $location ,$window) {
 
@@ -18,11 +18,14 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $http, $location ,$window) 
 
     function getOsds() {
         $rootScope.date = new Date();
-        var stateFilter = ($location.search()).state;
-        $rootScope.inFilter = (stateFilter+""!="undefined")? stateFilter.indexOf("in") > -1 : false;;
-        $rootScope.outFilter = (stateFilter+""!="undefined")? stateFilter.indexOf("out") > -1 : false;;
-        $rootScope.upFilter = (stateFilter+""!="undefined")? stateFilter.indexOf("up") > -1 : false;;
-        $rootScope.downFilter = (stateFilter+""!="undefined")? stateFilter.indexOf("down") > -1 : false;;
+        var stateFilter = "";
+        var i = $location.absUrl().indexOf("state");
+        if ($location.absUrl().indexOf("state") > -1)
+            stateFilter = $location.absUrl().substring($location.absUrl().indexOf("state")+5);
+        $rootScope.inFilter = (stateFilter!="")? stateFilter.indexOf("in") > -1 : false;;
+        $rootScope.outFilter = (stateFilter!="")? stateFilter.indexOf("out") > -1 : false;;
+        $rootScope.upFilter = (stateFilter!="")? stateFilter.indexOf("up") > -1 : false;;
+        $rootScope.downFilter = (stateFilter!="")? stateFilter.indexOf("down") > -1 : false;;
 
         $http({method: "get", url: inkscopeCtrlURL + "ceph/osd?depth=2"}).
 
