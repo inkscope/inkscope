@@ -22,13 +22,13 @@
 <div id="content" style="margin:0 20px">
     <tabs>
         <pane title="Topology">
-            <div style="position:absolute ;top: 10; left:10">
-            <div class="control-group">
-                <label for="base" class="col-sm-2 control-label">Root : </label>
-                <div class="controls">
-                    <select id="base" ng-model="base" ng-options="value.id as value.name for value in rootTab| orderBy:'name'" name="base" ng-change="buckets =computeBucketsTree(rawbuckets , base);"></select>
-                </div>
-            </div>
+            <div style="position:absolute ;top: 10; left:10 ">
+                <table>
+                    <tr>
+                        <td valign="center">Root : </td>
+                        <td valign="center"><select id="base" ng-model="base" ng-options="value.id as value.name for value in rootTab| orderBy:'name'" name="base" ng-change="buckets =computeBucketsTree(rawbuckets , base);"></select></td>
+                    </tr>
+                </table>
             </div>
             <!--div style="position:absolute ;top: 10; left:10">base: <input type="text" ng-model="base" name="base" ng-change="buckets =computeBucketsTree(rawbuckets , base);" size="4"></div-->
             <div id="tooltip"></div>
