@@ -163,9 +163,12 @@ showCrushMapApp.directive('myTopology', function () {
 
             scope.$watch('values', function (root, oldRoot) {
 
+                // values is $scope.buckets
+
                 // clear the elements inside of the directive
                 svg.selectAll('*').remove();
-                // if 'percentUsed' is undefined, exit
+
+                // if 'root' is undefined, exit
                 if (!root) {
                     return;
                 }
