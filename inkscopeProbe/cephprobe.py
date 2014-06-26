@@ -334,6 +334,19 @@ def processPgDump(restapi, db):
             actings = pg['acting']
             pg['acting'] = [DBRef('osd', i_osd) for i_osd in actings]
             
+            #Rename keys cantaining '.' in stat_cat_sum 
+            # replcae '.' by '_'
+            
+            scs = pg['stat_cat_sum']
+            for key in scs :
+                try :
+                    idx = key.index('.')
+                    value = scs[key]
+                    del scs[key]
+                    scs[key.replace('.', '_')]= value
+                except : 
+                    pass
+            
             db.pg.update({'_id' : pg["_id"]}, pg, upsert= True)
 
 
