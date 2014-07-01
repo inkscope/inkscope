@@ -111,6 +111,20 @@ showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $sc
         return buckets;
     }
 
+    $scope.prettifyStep = function(step){
+        if (step.op == "take")
+            return "take "+ $scope.getBucketForId(step.item).name;
+        if (step.op == "emit")
+            return "emit";
+        return step.op.replace("_"," ") +" "+ step.num +" "+ step.type;
+
+    }
+
+    $scope.getBucketForId= function(id){
+        for (var i = 0; i < $scope.rawbuckets.length; i++) {
+            if ( $scope.rawbuckets[i].id == id) return $scope.rawbuckets[i];
+        }
+    }
 });
 
 
