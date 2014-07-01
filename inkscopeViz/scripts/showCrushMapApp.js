@@ -116,7 +116,7 @@ showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $sc
             return "take "+ $scope.getBucketForId(step.item).name;
         if (step.op == "emit")
             return "emit";
-        return step.op.replace("_"," ") +" "+ step.num +" "+ step.type;
+        return step.op.replace("_"," ") +" "+ step.num +" type "+ step.type;
 
     }
 
