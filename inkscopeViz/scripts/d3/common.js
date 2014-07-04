@@ -67,3 +67,8 @@ function color4statesTab(statesTab){
     }
     return colors;
 }
+
+String.prototype.beginsWith = function (string) {
+    return(this.substring(0,string.length) === string);
+};
+

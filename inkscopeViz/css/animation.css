@@ -1,5 +1,5 @@
 .animate-show {
-    -webkit-transition:all linear 0.5s;
+    -webkit-transition:all linear 0.7s;
     transition:all linear 0.7s;
     line-height:20px;
     opacity:1;
