@@ -24,6 +24,11 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $location) {
     if (i > -1)
         $scope.selectedPool = $location.absUrl().substring(i+5) ;
 
+    i = $location.absUrl().indexOf("osd=");
+    $scope.selectedOsd="";
+    if (i > -1)
+        $scope.selectedOsd = $location.absUrl().substring(i+4) ;
+
     refreshData();
 
 
@@ -54,14 +59,9 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $location) {
                 $http({method: "get", url: apiURL + "osd/dump.json"})
                     .success(function (data, status) {
 
-//                         var network = {};
-//                         network.nodes = [];
-//                         network.links = [];
-
-
-                        var network2 = {};
-                        network2.nodes = [];
-                        network2.links = [];
+                        var network = {};
+                        network.nodes = [];
+                        network.links = [];
 
                         //fetching pool list and osd status
                         var pools = data.output.pools;
@@ -76,15 +76,11 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $location) {
                             poolTab[pool.pool].nbpg = 0;
                             if ($scope.selectedPool != null) $scope.selectedPoolId =  pool.pool;
 
-//                            network.nodes[nodeUid] = {};
-//                            network.nodes[nodeUid].name = pool.pool_name;
-//                            network.nodes[nodeUid].type = "pool";
-
-                            network2.nodes[nodeUid] = {};
-                            network2.nodes[nodeUid].id = pool.pool;
-                            network2.nodes[nodeUid].name = pool.pool_name;
-                            network2.nodes[nodeUid].type = "pool";
-                            network2.nodes[nodeUid].nbpg = 0;
+                            network.nodes[nodeUid] = {};
+                            network.nodes[nodeUid].id = pool.pool;
+                            network.nodes[nodeUid].name = pool.pool_name;
+                            network.nodes[nodeUid].type = "pool";
+                            network.nodes[nodeUid].nbpg = 0;
                             nodeUid++;
                         }
                         var osds = data.output.osds;
@@ -95,16 +91,13 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $location) {
                             osdTab[osd.osd].osd = osd;
                             osdTab[osd.osd].index = nodeUid;
 
-//                            network.nodes[nodeUid] = {};
-//                            network.nodes[nodeUid].name = "osd." + osd.osd;
-//                            network.nodes[nodeUid].states = osd.state;
-//                            network.nodes[nodeUid].type = "osd";
-
-                            network2.nodes[nodeUid] = {};
-                            network2.nodes[nodeUid].name = "osd." + osd.osd;
-                            network2.nodes[nodeUid].states = osd.state;
-                            network2.nodes[nodeUid].type = "osd";
-                            network2.nodes[nodeUid].in = osd.in + 1;//non zero value
+                            if ( ($scope.selectedOsd != "") && ( $scope.selectedOsd != "osd."+osd.osd ) )
+                                continue;
+                            network.nodes[nodeUid] = {};
+                            network.nodes[nodeUid].name = "osd." + osd.osd;
+                            network.nodes[nodeUid].states = osd.state;
+                            network.nodes[nodeUid].type = "osd";
+                            network.nodes[nodeUid].in = osd.in + 1;//non zero value
                             nodeUid++;
                         }
 
@@ -112,38 +105,19 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $location) {
                             var pg = pg_stats[i];
                             var currentNodeUid = nodeUid;
                             nodeUid++;
-//                            network.nodes[currentNodeUid] = {};
-//                             network.nodes[currentNodeUid].name = "pg " + pg.pgid;
-//                             network.nodes[currentNodeUid].states = pg.state.split('+');
-//                             network.nodes[currentNodeUid].type = "pg";
-
 
                             var elem = pg.pgid.split('.');
                             var poolId = elem[0];
 
                             if ( (typeof  $scope.selectedPoolId !=="undefined") && ( $scope.selectedPoolId != poolId))
                                 continue;
-                            network2.nodes[poolTab[poolId].index].nbpg++;
-
-                            /* link from pool to pg*/
-//                             var link = {};
-//                             link.source = poolTab[poolId].index;
-//                             link.target = currentNodeUid;
-//                             link.value = 1.0;
-//                             link.states = ["clean"];
-//                             network.links.push(link);
-
+                            network.nodes[poolTab[poolId].index].nbpg++;
 
                             for (var j = 0; j < pg.acting.length; j++) {
                                 var osd = pg.acting[j];
-                                // links from pg to acting osds
-                                // var link = {};
-//                                link.source = currentNodeUid;
-//                                link.target = osdTab[osd].index;
-//                                link.value = 1.0;
-//                                link.states = pg.state.split('+');
-//                                network.links.push(link);
 
+                                if ( ($scope.selectedOsd != "") && ( $scope.selectedOsd != "osd."+osd ) )
+                                    continue;
                                 // direct link from pool to osd
                                 var link = {};
                                 link.source = poolTab[poolId].index;
@@ -151,12 +125,11 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $location) {
                                 link.value = 1.0;
                                 link.states = pg.state.split('+');
                                 link.pg = pg.pgid;
-                                network2.links.push(link);
+                                network.links.push(link);
                             }
 
                         }
-//                        trace(network,"#chart1");
-                        trace(network2, "#chart2");
+                        trace(network, "#chart");
 
                     });
             });
@@ -211,12 +184,9 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $location) {
             .sort(function (a, b) {
                 return b.dy - a.dy;
             })
-            .attr("id", function(d){return d.pg;})
-            .attr("pg", function(d){return d.pg;})
-//            .on("mouseover",function(d){
-//                console.log("mouseover "+ d.pg);
-//            })
-            ;
+                .attr("id", function(d){return d.pg;})
+                .attr("osd", function(d){return d.target.name;})
+                .attr("pg", function(d){return d.pg;});
 
         link.append("title")
             .text(function (d) {
@@ -232,38 +202,31 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $location) {
             })
 
             .on("mouseover",function(d){
-                console.log("mouseover "+ d.name+ " , "+ d.id);
-                var id = d.id;
+                console.log("mouseover "+ d.name+ " , "+ d.id+ " , "+ d.type);
                 if (d.type == "pool") {
+                    var id = d.id;
                     svg.selectAll(".link ")
                         .style("stroke",function (d){
                             if (d.pg.beginsWith(id+".")) return "#F00"; else return "#0a0";
                         })
+                    return;
+                };
+                if (d.type == "osd") {
+                    var osdName = d.name;
+                    svg.selectAll(".link ")
+                        .style("stroke",function (d){
+                            if (d.target.name == osdName) return "#F00"; else return "#0a0";
+                        })
+                    return;
                 };
             })
             .on("mouseout",function(d){
-                console.log("mouseout  "+ d.name);
-                if (d.type == "pool") {
-                    svg.selectAll(".link ")
-                        .style("stroke",function (d){
-                            if (d.pg.beginsWith(id+".")) return "#F00"; else return "#0a0";
-                        })
-                };
+                    svg.selectAll(".link ").style("stroke","#0a0");
             })
             .on("click",function(d){
-                var poolname = d.name;
-                console.log(baseurl+"?pool="+ poolname);
-                window.location = baseurl+"?pool="+ poolname ;
-            })
-            .call(
-                d3.behavior.drag()
-                .origin(function (d) {
-                    return d;
-                })
-                .on("dragstart", function () {
-                    this.parentNode.appendChild(this);
-                })
-                .on("drag", dragmove));
+                console.log(baseurl+"?"+ d.type+"="+ d.name);
+                window.location = baseurl+"?"+ d.type+"="+ d.name;
+            });
 
 
         node.append("rect")

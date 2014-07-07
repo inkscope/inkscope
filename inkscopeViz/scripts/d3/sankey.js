@@ -140,7 +140,7 @@ d3.sankey = function() {
 
     function moveSinksRight(x) {
         nodes.forEach(function(node) {
-            if (!node.sourceLinks.length) {
+            if (!node.sourceLinks.length && node.type!="pool") {
                 node.x = x - 1;
             }
         });
