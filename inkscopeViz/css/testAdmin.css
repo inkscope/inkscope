@@ -216,18 +216,7 @@ label {
 }
 
 
-#pg_status_graph {
-    width:320px;
-    height: 340px;
-    margin-right: 10px;
-    background-color: white;
-    float : left;
-}
-#capacity_details {
-    float:left;
-    font-size :16px;
-    font-weight: bold;
-}
+
 #general_status, #mon_status, #pg_status, #osd_status, #pool_status, #mds_status,.general_status, #capacity_details {
     border:solid 1px gray;
     border-radius: 10px;
@@ -235,13 +224,30 @@ label {
     padding: 1em;
     float:left;
 }
+#general_status, #mon_status{
+    width:1200px;
+}
+#capacity_details {
+    font-size :16px;
+    font-weight: bold;
+    width:360px;
+    height: 355px;
+}
 #pg_status {
     clear:both;
-    width:340px;
-    height: 370px;
+    width:360px;
+    height: 360px;
+}
+#pg_status_graph {
+    width:320px;
+    height: 335px;
+    margin-right: 10px;
+    background-color: white;
+    float : left;
 }
 #osd_status{
-    width:150px;
+    width:180px;
+    height: 360px;
 }
 #osd_status_details {
     margin-top:10px;
@@ -255,10 +261,10 @@ text-align: center;
     text-align: center;
 }
 #pool_status{
-    width:150px;
+    width:180px;
+    height:110px;
 }
 #pool_status_details {
-    margin-top:10px;
     font-size :16px;
     font-weight: bold;
 }
@@ -266,7 +272,8 @@ text-align: center;
     text-align: center;
 }
 #mds_status{
-    width:150px;
+    width:180px;
+    height: 210px;
 }
 #mds_status_details {
     margin-top:10px;
@@ -283,7 +290,7 @@ text-align: center;
     margin: 5px;
     padding: 3px;
     float:right;
-    width:750px;
+    width:1100px;
     height: 35px;
     overflow: auto;
 }

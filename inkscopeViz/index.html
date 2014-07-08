@@ -26,6 +26,9 @@
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
     <style>
+        #container{
+            max-width: 1250px;
+        }
         .button, .closeButton {
             float: right;
             cursor: pointer;
@@ -122,7 +125,7 @@
 
 <header ng-include src="'partials/header.html'" ng-init="pageTitle='Ceph status'"></header>
 
-
+<div id="container">
 <div id="general_status">
     <div id="chart_container">
         <div id="y_axis"></div>
@@ -224,7 +227,7 @@
     <br><br>
 
     <div onclick="document.location='poolManagement.html'" style="cursor:pointer">
-        <ad-gauge value="percentUsed" colormode="desc" width="280"></ad-gauge>
+        <ad-gauge value="percentUsed" colormode="desc" width="350"></ad-gauge>
         <div class="gaugeLegend">
             {{pgmap.bytes_used | bytes:kB}} used <br>on {{pgmap.bytes_total | bytes:kB}}
         </div>
@@ -354,6 +357,6 @@
 
 </div>
 
-
+</div>
 </body>
 </html>
