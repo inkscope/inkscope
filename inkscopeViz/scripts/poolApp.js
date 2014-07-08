@@ -87,19 +87,43 @@ function SnapshotCtrl($rootScope,$scope, $http, $routeParams, $location, $dialog
 
 function DetailCtrl($rootScope,$scope, $http, $routeParams, $route, $dialogs) {
     var uri = inkscopeCtrlURL + "pools/"+$routeParams.poolNum ;
+    var v;
+    var v2 = '';
+    $http({method: "get", url: cephRestApiURL + "tell/osd.0/version.json"}).
+        success(function(data,status){
+            $rootScope.status = status;
+            v = data.output.version;
+            for (var i=13; i<17; i++){
+                v2 = v2 + v[i];
+            }
+            $rootScope.version = parseFloat(v2);
+        }).
+        error(function (data, status, headers) {
+            $rootScope.status = status;
+            $rootScope.versionosd =  data || "Request failed";
+        }
+    );
+
     $http({method: "get", url: uri }).
         success(function (data, status) {
             $rootScope.status = status;
             $rootScope.detailedPool =  data.output;
             $scope.hasSnap=false;
+
             for (var key in $rootScope.detailedPool){
-                if ( key == "pool_snaps"){
-                    var value = ($rootScope.detailedPool[key])["pool_snap_info"];
-                    $rootScope.detailedPool[key] = "nr: "+value["snapid"]+", date: "+value["stamp"]+", name: "+value["name"];
-                    $scope.hasSnap=true;
-                    $scope.snap_name = value["name"];
-                    break;
-                }
+
+                    if ( key == "pool_snaps"){
+                        if ($rootScope.version < 0.80){
+                            var value = ($rootScope.detailedPool[key])["pool_snap_info"];
+                        }
+                        else{
+                            var value = ($rootScope.detailedPool[key])[$rootScope.detailedPool[key].length-1];
+                        }
+                        $rootScope.detailedPool[key] = "nr: "+value["snapid"]+", date: "+value["stamp"]+", name: "+value["name"];
+                        $scope.hasSnap=true;
+                        $scope.snap_name = value["name"];
+                        break;
+                    }
             }
 
         }).
@@ -108,6 +132,7 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $route, $dialogs) {
             $rootScope.pools =  data || "Request failed";
             $dialogs.error("<h3>Can't display pools with num "+$routeParams.poolNum+"</h3><br>"+$scope.data);
         });
+
 
     $scope.removeSnapshot = function () {
         var uri = inkscopeCtrlURL + "pools/"+$scope.detailedPool.pool+"/snapshot/"+$scope.snap_name ;
