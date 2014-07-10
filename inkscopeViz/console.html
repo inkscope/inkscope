@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html ng-app="">
+<head>
+    <meta charset=utf-8/>
+    <script src="scripts/angular/angular.min.js"></script>
+    <script src="scripts/angular-misc/angular-commons.js"></script>
+    <script src="scripts/angular-misc/D3Directives.js"></script>
+    <script src="scripts/objectLookupApp.js"></script>
+    <script src="scripts/d3/d3.v3.min.js"></script>
+    <script src="scripts/d3/common.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/tooltip.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/testAdmin.css">
+    <title>Console</title>
+</head>
+<body>
+
+<header ng-include src="'partials/header.html'" ng-init="pageTitle='Console'"></header>
+
+<script>
+    var width = window.innerWidth - 20;
+    var height = window.innerHeight -130;
+    document.write("<iframe style='width:"+width+"px; height:"+height+"px;margin-left:10px;' scrolling='yes' src='/shell'></iframe>")
+</script>
+</body>
+</html>
+
