@@ -10,7 +10,6 @@ StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
     var apiURL = '/ceph-rest-api/';
     $scope.journal = [];
     $scope.osdControl =0;
-    //refresh data every x seconds
 
     $scope.viewControlPanel = false;
     $scope.viewMonitorModule = testAndSetCookie('viewMonitorModule',true);
@@ -57,24 +56,25 @@ StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
     graph.render();
 
 
+    //refresh data every x seconds
     refreshData();
     refreshPGData();
     refreshOSDData();
     setInterval(function () {
         refreshData()
-    }, 3 * 1000);
+    }, 5 * 1000);
     setInterval(function () {
         refreshPGData()
     }, 10 * 1000);
     setInterval(function () {
         refreshOSDData()
-    }, 3 * 1000);
+    }, 5 * 1000);
 
 
 
     function refreshPGData() {
         $scope.date = new Date();
-        $http({method: "get", url: apiURL + "pg/stat.json"})
+        $http({method: "get", url: apiURL + "pg/stat.json",timeout:8000})
             .success(function (data, status) {
                 var nodeUid = 0;
                 // fetching pg list and relation with osd
@@ -113,7 +113,7 @@ StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
             }
 
         }
-        $http({method: "post", url: inkscopeCtrlURL + "ceph/osd", params :{"depth":1} ,data:filter})
+        $http({method: "post", url: inkscopeCtrlURL + "ceph/osd", params :{"depth":1} ,data:filter,timeout:4000})
             .success(function (data, status) {
                 $scope.osdControl = ((+$scope.date)-data[0].stat.timestamp)/1000 ;
                 $scope.osdsInUp = 0;
@@ -136,7 +136,7 @@ StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
     function refreshData() {
         //console.log("refreshing data...");
         $scope.date = new Date();
-        $http({method: "get", url: apiURL + "status.json"})
+        $http({method: "get", url: apiURL + "status.json",timeout:4000})
             .success(function (data) {
                 $scope.pgmap = data.output.pgmap;
                 $scope.mdsmap = data.output.mdsmap;
