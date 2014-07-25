@@ -8,99 +8,101 @@ var OsdsApp = angular.module('OsdsApp', ['D3Directives'])
     .filter('duration', funcDurationFilter);
 
 
-OsdsApp.controller("OsdsCtrl", function ($rootScope, $http, $location ,$window) {
+OsdsApp.controller("OsdsCtrl", function ($scope, $http, $location ,$window) {
+    $scope.dispoModes = ["state" , "used space (%)"];
+    $scope.dispoMode = "used space (%)";
 
-    $rootScope.count = 0;
-    $rootScope.nbOsd = 0;
-    $rootScope.filtered = false;
+    $scope.count = 0;
+    $scope.nbOsd = 0;
+    $scope.filtered = false;
     getOsds();
-    setInterval(function () {getOsds()},10*1000);
+    setInterval(function () {getOsds()},15*1000);
 
     function getOsds() {
-        $rootScope.date = new Date();
+        $scope.date = new Date();
         var stateFilter = "";
         var i = $location.absUrl().indexOf("state");
         if ($location.absUrl().indexOf("state") > -1)
             stateFilter = $location.absUrl().substring($location.absUrl().indexOf("state")+5);
-        $rootScope.inFilter = (stateFilter!="")? stateFilter.indexOf("in") > -1 : false;;
-        $rootScope.outFilter = (stateFilter!="")? stateFilter.indexOf("out") > -1 : false;;
-        $rootScope.upFilter = (stateFilter!="")? stateFilter.indexOf("up") > -1 : false;;
-        $rootScope.downFilter = (stateFilter!="")? stateFilter.indexOf("down") > -1 : false;;
+        $scope.inFilter = (stateFilter!="")? stateFilter.indexOf("in") > -1 : false;;
+        $scope.outFilter = (stateFilter!="")? stateFilter.indexOf("out") > -1 : false;;
+        $scope.upFilter = (stateFilter!="")? stateFilter.indexOf("up") > -1 : false;;
+        $scope.downFilter = (stateFilter!="")? stateFilter.indexOf("down") > -1 : false;;
 
         $http({method: "get", url: inkscopeCtrlURL + "ceph/osd?depth=2"}).
 
             success(function (data, status) {
-                $rootScope.nbOsd = data.length;
-                $rootScope.filtered = $rootScope.inFilter || $rootScope.outFilter || $rootScope.upFilter || $rootScope.downFilter;
-                if ($rootScope.filtered){
+                $scope.nbOsd = data.length;
+                $scope.filtered = $scope.inFilter || $scope.outFilter || $scope.upFilter || $scope.downFilter;
+                if ($scope.filtered){
                     var filteredData = [];
                     for ( var i=0; i<data.length;i++){
-                        if ($rootScope.inFilter && !data[i].stat.in) continue;
-                        if ($rootScope.outFilter && data[i].stat.in) continue;
-                        if ($rootScope.upFilter && !data[i].stat.up) continue;
-                        if ($rootScope.downFilter && data[i].stat.up) continue;
+                        if ($scope.inFilter && !data[i].stat.in) continue;
+                        if ($scope.outFilter && data[i].stat.in) continue;
+                        if ($scope.upFilter && !data[i].stat.up) continue;
+                        if ($scope.downFilter && data[i].stat.up) continue;
                         filteredData.push(data[i]);
                     }
                     data = filteredData;
                 }
                 for ( var i=0; i<data.length;i++){
                     data[i].id = data[i].node._id;
-                    data[i].lastControl = ((+$rootScope.date)-data[0].stat.timestamp)/1000;
+                    data[i].lastControl = ((+$scope.date)-data[0].stat.timestamp)/1000;
                 }
 
                 // search for selected osd, first one if none
-                if ($rootScope.selectedOsd+"" == "undefined"){
-                    $rootScope.osd = data[0];
-                    $rootScope.selectedOsd = data[0].id;
+                if ($scope.selectedOsd+"" == "undefined"){
+                    $scope.osd = data[0];
+                    $scope.selectedOsd = data[0].id;
                 }
                 else{
                     for ( var i=0; i<data.length;i++){
-                        if (data[i].id == $rootScope.selectedOsd){
-                            $rootScope.osd = data[i];
+                        if (data[i].id == $scope.selectedOsd){
+                            $scope.osd = data[i];
                             break;
                         }
                     }
                 }
-                $rootScope.data = data;
-                $rootScope.count = data.length;
-                $rootScope.osdControl = data[0].lastControl;
+                $scope.data = data;
+                $scope.count = data.length;
+                $scope.osdControl = data[0].lastControl;
 
             }).
             error(function (data, status) {
-                $rootScope.status = status;
-                $rootScope.data = data || "Request failed";
+                $scope.status = status;
+                $scope.data = data || "Request failed";
             });
     }
 
-    $rootScope.osdClass = function (osdin,osdup){
+    $scope.osdClass = function (osdin,osdup){
         var osdclass = (osdin == true) ? "osd_in " : "osd_out ";
         osdclass += (osdup == true) ? "osd_up" : "osd_down";
         return osdclass;
 
     }
 
-    $rootScope.osdState = function (osdin,osdup){
+    $scope.osdState = function (osdin,osdup){
         var osdstate = (osdin == true) ? "in / " : "out / ";
         osdstate += (osdup == true) ? "up" : "down";
         return osdstate;
 
     }
 
-    $rootScope.prettyPrint = function( object){
+    $scope.prettyPrint = function( object){
         return object.toString();
     }
 
-    $rootScope.prettyPrintKey = function( key){
+    $scope.prettyPrintKey = function( key){
         return key.replace(new RegExp( "_", "g" )," ")
     }
 
 
-    $rootScope.osdSelect = function (osd) {
-        $rootScope.osd = osd;
-        $rootScope.selectedOsd = osd.node._id;
+    $scope.osdSelect = function (osd) {
+        $scope.osd = osd;
+        $scope.selectedOsd = osd.node._id;
     }
 
-    $rootScope.osdIn = function (osd) {
+    $scope.osdIn = function (osd) {
         $http({method: "put", url: cephRestApiURL + "osd/in?ids="+osd}).
 
             success(function (data, status) {
@@ -111,7 +113,7 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $http, $location ,$window) 
             });
     }
 
-    $rootScope.osdOut = function (osd) {
+    $scope.osdOut = function (osd) {
         $http({method: "put", url: cephRestApiURL + "osd/out?ids="+osd}).
 
             success(function (data, status) {
@@ -122,7 +124,7 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $http, $location ,$window) 
             });
     }
 
-    $rootScope.osdDown = function (osd) {
+    $scope.osdDown = function (osd) {
         $http({method: "put", url: cephRestApiURL + "osd/down?ids="+osd}).
 
             success(function (data, status) {
@@ -133,78 +135,78 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $http, $location ,$window) 
             });
     }
 
-    $rootScope.addFilter =function(filter){
+    $scope.addFilter =function(filter){
         if (filter == "in"){
-            $rootScope.outFilter=false;
-            $rootScope.inFilter=true;
-            $rootScope.applyFilters();
+            $scope.outFilter=false;
+            $scope.inFilter=true;
+            $scope.applyFilters();
             return;
         }
         if (filter == "out"){
-            $rootScope.inFilter=false;
-            $rootScope.outFilter=true;
-            $rootScope.applyFilters();
+            $scope.inFilter=false;
+            $scope.outFilter=true;
+            $scope.applyFilters();
             return;
         }
         if (filter == "up"){
-            $rootScope.upFilter=true;
-            $rootScope.downFilter=false;
-            $rootScope.applyFilters();
+            $scope.upFilter=true;
+            $scope.downFilter=false;
+            $scope.applyFilters();
             return;
         }
         if (filter == "down"){
-            $rootScope.upFilter=false;
-            $rootScope.downFilter=true;
-            $rootScope.applyFilters();
+            $scope.upFilter=false;
+            $scope.downFilter=true;
+            $scope.applyFilters();
             return;
         }
     }
 
-    $rootScope.removeFilter =function(filter){
+    $scope.removeFilter =function(filter){
         if (filter == "in"){
-            $rootScope.inFilter=false;
-            $rootScope.applyFilters();
+            $scope.inFilter=false;
+            $scope.applyFilters();
             return;
         }
         if (filter == "out"){
-            $rootScope.outFilter=false;
-            $rootScope.applyFilters();
+            $scope.outFilter=false;
+            $scope.applyFilters();
             return;
         }
         if (filter == "up"){
-            $rootScope.upFilter=false;
-            $rootScope.applyFilters();
+            $scope.upFilter=false;
+            $scope.applyFilters();
             return;
         }
         if (filter == "down"){
-            $rootScope.downFilter=false;
-            $rootScope.applyFilters();
+            $scope.downFilter=false;
+            $scope.applyFilters();
             return;
         }
     }
 
-    $rootScope.applyFilters =function(){
+    $scope.applyFilters =function(){
         var filterString="";
-        if ($rootScope.upFilter){
+        if ($scope.upFilter){
             if (filterString!="") filterString+= "+";
             filterString+= "up";
         }
-        if ($rootScope.downFilter){
+        if ($scope.downFilter){
             if (filterString!="") filterString+= "+";
             filterString+= "down";
         }
-        if ($rootScope.inFilter){
+        if ($scope.inFilter){
             if (filterString!="") filterString+= "+";
             filterString+= "in";
         }
-        if ($rootScope.outFilter){
+        if ($scope.outFilter){
             if (filterString!="") filterString+= "+";
             filterString+= "out";
         }
         $window.location.href = "osds.html?state="+filterString;
     }
 
-    $rootScope.home = function(){
+    $scope.home = function(){
         $window.location.href = "index.html";
     }
 

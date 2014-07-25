@@ -427,7 +427,7 @@ text-align: center;
     height: 1%;
 }
 
-#osds, #probes {
+#osds, #probes, #osdspaces {
     margin: 10px 200px 10px 50px ;
     clear:both;
 }
@@ -443,6 +443,21 @@ text-align: center;
     padding: 0px;
     border-radius: 26px;
     color: white;
+    vertical-align: middle;
+    text-align: center;
+    vertical-align: middle;
+    cursor:pointer;
+}
+
+
+.osdspace {
+    font-size: 14px;
+    font-weight: bold;
+    float: left;
+    min-width: 120px;
+    height: 80px;
+    margin: 5px;
+    color: black;
     vertical-align: middle;
     text-align: center;
     vertical-align: middle;

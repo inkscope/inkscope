@@ -15,7 +15,19 @@
     <link rel="stylesheet" href="css/testAdmin.css">
     <title>Osds</title>
     <style>
-        #controlPanel {
+        #controlPanel0 {
+            border: black solid 1px;
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            margin: 10px;
+            border-radius: 5px;
+            vertical-align: middle;
+            line-height: 40px;
+            padding: 5px;
+        }
+
+        #controlPanel1 {
             border: black solid 1px;
             position: absolute;
             top: 150px;
@@ -26,7 +38,8 @@
             padding: 5px;
         }
 
-        #controlPanel input[type=number] {
+        #controlPanel0 input[type=number],
+        #controlPanel1  input[type=number] {
             width: 40px;
         }
     </style>
@@ -36,7 +49,21 @@
 
 <header ng-include src="'partials/header.html'" ng-init="pageTitle='Ceph OSD status'"></header>
 
-<div id="controlPanel" ng-hide="count == 0">
+<form>
+    <div id="controlPanel0">
+        <table>
+            <tr>
+                <td> Display attribute:</td>
+                <td>
+                    <select ng-model="dispoMode" ng-options="dispoMode for dispoMode in dispoModes"></select>
+                </td>
+            </tr>
+        </table>
+        </p></div>
+    </div>
+</form>
+
+<div id="controlPanel1" ng-hide="count == 0">
     <div class="osd  {{osdClass(osd.stat.in,osd.stat.up)}}" style="float:right">
         {{osd.node._id}}
     </div>
@@ -73,7 +100,7 @@
 <div id="datePanel"><br>Date : {{date | date:'HH:mm:ss'}} - matching: {{count}} of {{nbOsd}} OSD <div ng-hide="osdControl<15 || count == 0"><p class="text-warning"> <i class="icon-warning-sign" ></i> osds not verified since {{osdControl|duration}}</p></div> </div>
 
 
-<div id="osds">
+<div id="osds" ng-show="dispoMode == 'state'">
     <div ng-repeat="osd in data|orderBy:'id'" class=" tooltips osd {{osdClass(osd.stat.in,osd.stat.up)}}">
         <div ng-click="osdSelect(osd);">
             {{osd.id}}
@@ -92,6 +119,25 @@
     </div>
 </div>
 
+<div id="osdspaces" ng-show="dispoMode == 'used space (%)'">
+    <div ng-repeat="osd in data|orderBy:'id'" class="tooltips osdspace" >
+        <div ng-click="osdSelect(osd);">
+            osd {{osd.id}}<br>
+            <ad-gauge value="osd.partition.stat.used/osd.partition.stat.total" colormode="desc" width="120" type="plain" animated="false"></ad-gauge>
+            <div> <!-- tooltip -->
+                <span>
+                    <strong>{{osd.node.name}}</strong> {{osdState(osd.stat.in,osd.stat.up)}}<br>
+                    last control : {{osd.lastControl|duration}}<br><br>
+                    {{osd.partition._id}}<br>
+                    {{osd.public_addr}}<br>
+                    free : {{osd.partition.stat.free|bytes}}<br>
+                    used : {{osd.partition.stat.used|bytes}}<br>
+                    total: {{osd.partition.stat.total|bytes}}<br>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

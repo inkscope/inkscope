@@ -12,6 +12,7 @@ angular.module('D3Directives', [])
                 value: '=',
                 colormode: '=',
                 width: "=",
+                animated: "=",
                 type: "="
             },
             link: function (scope, element, attrs) {
@@ -19,6 +20,8 @@ angular.module('D3Directives', [])
                 var type = attrs.type;
                 if (!type || ((type != "plain") && (type != "donut")))
                     type = "donut";
+
+                var animated = (attrs.animated != "false");
 
                 var width = attrs.width,
                     height = width / 2,
@@ -79,7 +82,7 @@ angular.module('D3Directives', [])
 
                 scope.$watch('value', function (percentValue, oldPercentValue) {
 
-                    console.log("percentValue : " + percentValue);
+                    //console.log("percentValue : " + percentValue);
 
                     if ("" + percentValue == "undefined") return;
 
@@ -100,13 +103,17 @@ angular.module('D3Directives', [])
                             if (d.name == "fond")return d.color; else return colorFunc(d.value);
                         });
                     path.enter().append("svg:path");
+                    var duration = 1500;
+                    if (!animated){
+                        duration = 0;
+                    }
                     path.transition()
-                        .ease("linear")
-                        .duration(1500)
-                        .attrTween("d", arcTween)
-                        .style("fill", function (d) {
-                            if (d.name == "fond")return d.color; else return colorFunc(d.value);
-                        });
+                            .ease("linear")
+                            .duration(duration)
+                            .attrTween("d", arcTween)
+                            .style("fill", function (d) {
+                                if (d.name == "fond")return d.color; else return colorFunc(d.value);
+                            });
 
                     svg.selectAll("text").remove();
                     var gaugeText = svg.selectAll("text")
@@ -118,8 +125,9 @@ angular.module('D3Directives', [])
                         })
                         .style("text-anchor", "middle")
                         .style("font-size", fontSize + "px")
-                        .style("font-family", "arial")
-                        .transition()
+                        .style("font-family", "arial");
+                    if (animated){
+                        gaugeText.transition()
                         .duration(1500)
                         .tween("text", function (d) {
                             var i = d3.interpolate(d.previous, d.value);
@@ -128,6 +136,7 @@ angular.module('D3Directives', [])
                                 else this.textContent = "invalid";
                             };
                         });
+                    }
 
                 });
 
@@ -164,12 +173,12 @@ angular.module('D3Directives', [])
                     // if 'newValue' is undefined, exit
                     if ("" + newValue == "undefined") return;
 
-                    var color = [ "limegreen", "darkorange", "red", "blue", "yellow", "pink", "chocolate", "yellowgreen"];
+                    //var color = [ "limegreen", "darkorange", "red", "blue", "yellow", "pink", "chocolate", "yellowgreen"];
                     var statestab =[];
                     for (var i =0; i< newValue.length; i++){
                         statestab.push(newValue[i].state_name)
                     }
-                    color = color4statesTab(statestab);
+                    var color = color4statesTab(statestab);
 
                     nv.addGraph(function () {
 
