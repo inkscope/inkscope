@@ -12,3 +12,4 @@ Some screenshots
 ![Object storage bucket management](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-S3bucketManagement.png)
 ![Crushmap buckets](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-crushmap-buckets.png)
 ![Crushmap rules](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-crushmap-rules.png)
+![Console](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-Console.png)
