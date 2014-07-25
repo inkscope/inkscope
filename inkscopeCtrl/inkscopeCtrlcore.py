@@ -13,6 +13,7 @@ from bson.json_util import dumps
 import time
 import mongoJuiceCore
 import poolsCtrl
+import poolsCtrlSalt
 import osdsCtrl
 from S3Ctrl import S3Ctrl, S3Error
 from Log import Log
@@ -23,7 +24,7 @@ configfile = "/opt/inkscope/etc/inkscopeCtrl.conf"
 datasource = open(configfile, "r")
 conf = json.load(datasource)
 datasource.close()
-
+minion = conf.get("minion")
 #
 # mongoDB query facility
 #
@@ -39,11 +40,12 @@ def full(db):
 #
 # Pools management
 #
+## Ceph Rest API
 
 @app.route('/pools/', methods=['GET','POST'])
 @app.route('/pools/<int:id>', methods=['GET','DELETE','PUT'])
 def pool_manage(id=None):
-    return poolsCtrl.pool_manage(id)
+    return poolsCtrl.pool_manage(id, minion)
 
 @app.route('/pools/<int:id>/snapshot', methods=['POST'])
 def makesnapshot(id):
@@ -53,6 +55,19 @@ def makesnapshot(id):
 def removesnapshot(id, namesnapshot):
     return poolsCtrl.removesnapshot(id, namesnapshot)
 
+## Rest API with Salt
+@app.route('/poolsalt/', methods=['GET','POST'])
+@app.route('/poolsalt/<int:id>', methods=['GET','DELETE','PUT'])
+def pool_manage_salt(id=None):
+    return poolsCtrlSalt.pool_manage_salt(id, minion)
+
+@app.route('/poolsalt/<int:id>/snapshot', methods=['POST'])
+def makesnapshot_salt(id):
+    return poolsCtrl.makesnapshot(id, minion)
+
+@app.route('/poolsalt/<int:id>/snapshot/<namesnapshot>', methods=['DELETE'])
+def removesnapshot_salt(id, namesnapshot):
+    return poolsCtrl.removesnapshot(id, namesnapshot, minion)
 
 #
 # Osds management
@@ -61,7 +76,6 @@ def removesnapshot(id, namesnapshot):
 @app.route('/osds', methods=['PUT'])
 def osds_manage(id=None):
     return osdsCtrl.osds_manage(id)
-
 
 
 #
