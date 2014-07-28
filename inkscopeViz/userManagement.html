@@ -34,11 +34,11 @@
         </tr>
     </table>
     <br>
-    <table ng-table="tableParams" class="table table-condensed table-hover">
+    <table ng-table="tableParams" class="table table-condensed table-hover clickable">
         <tr ng-repeat="user in orderedData | filter:search" ng-click="showDetail(user.uid)">
             <td data-title="'Uid'" sortable="'uid'">{{user.uid}}</td>
             <!--td data-title="'Display-name'" sortable="'display_name'">{{user.display_name}}</td-->
-            <td data-title="'View'" sortable="user" style="text-align:center"><a href="#/detail/{{user.uid}}"><i class="icon-eye-open" alt="view details of {{user.uid}}" title="view details of {{user.uid}}"></i></a></td>
+            <td data-title="'View'" sortable="user" style="text-align:center"><i class="icon-eye-open" alt="view details of {{user.uid}}" title="view details of {{user.uid}}"></i></td>
         </tr>
     </table>
 </div>

@@ -58,6 +58,7 @@ input, textarea {
 .table-nohead tr:first-child td {
     border:0;
 }
+
 #sujet {
     width: 250px;
 }
@@ -95,11 +96,14 @@ label {
 #control{
     margin : 2em;
     float:left;
-    width :500px;
+    width :520px;
     border: solid gray 1px ;
     border-radius: 1em;
     padding: 1em;
+    overflow-x :hidden ;
+    overflow-y :auto ;
 }
+
 #graph{
     margin : 2em;
     float:left;

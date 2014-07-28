@@ -21,10 +21,18 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="scripts/angular-misc/ng-table.min.css">
     <title>Ceph pools admin</title>
-</head>
+    <script>
+        function resize(){
+        var header = document.querySelector("#header");
+        var height = window.innerHeight-200;
+        var control = document.querySelector("#control");
+        control.style.maxHeight = height+"px";
+        }
+    </script></head>
 <body ng-controller="ListCtrl">
 
-<header ng-include src="'partials/header.html'" ng-init="pageTitle='Ceph pools management'"></header>
+
+<header id="header" ng-include src="'partials/header.html'" ng-init="pageTitle='Ceph pools management'"></header>
 
 <div>
 <!--div id="status"  >{{status}}</div-->
@@ -33,25 +41,28 @@
         <tr>
             <th><input type="text" ng-model="search" class="search-query" placeholder="Search"></th>
             <th>&nbsp; &nbsp; </th>
-            <th><a href="#/new"><i class="icon-plus-sign" alt="add a new pool" title="add a new pool"></i></a></th>
+            <th>new pool <a href="#/new"><i class="icon-plus-sign" alt="add a new pool" title="add a new pool"></i></a></th>
         </tr>
     </table>
     <br>
-    <table ng-table="tableParams" class="table table-condensed table-hover">
-        <tr ng-repeat="pool in orderedData | filter:search">
+    <table ng-table="tableParams" class="table table-condensed table-hover clickable">
+        <tr ng-repeat="pool in orderedData | filter:search" ng-click="showDetail(pool.id)">
             <td data-title="'Id'" sortable="'id'">{{pool.id}}</td>
             <td data-title="'Pool'" sortable="'name'">{{pool.name}}</td>
             <!--td data-title="'Ruleset'" sortable="'ruleset'">{{pool.ruleset}}</td-->
             <!--td data-title="'Size'" sortable="'size'">{{pool.size}}</td-->
             <td data-title="'Space used'" sortable="'stats.bytes_used'" style="text-align:right">{{pool.stats.bytes_used|bytes}}</td>
             <td data-title="'Objects'" sortable="'stats.objects'" style="text-align:right">{{pool.stats.objects}}</td>
-            <td data-title="'View'" sortable="pool" style="text-align:center"><a href="#/detail/{{pool.id}}"><i class="icon-eye-open" alt="view details of {{pool.name}}" title="view details of {{pool.name}}"></i></a></td>
+            <td data-title="'View'" sortable="pool" style="text-align:center"><i class="icon-eye-open" alt="view details of {{pool.name}}" title="view details of {{pool.name}}"></i></td>
         </tr>
     </table>
 </div>
 </div>
 <div ng-view id="control" ></div>
 
-
+<script>
+resize();
+</script>
 </body>
+
 </html>

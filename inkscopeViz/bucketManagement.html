@@ -29,14 +29,14 @@
         <tr>
             <th><input type="text" ng-model="search" class="search-query" placeholder="Search"></th>
             <th>&nbsp; &nbsp; </th>
-            <th><a href="#/new"><i class="icon-plus-sign" alt="add a new bucket" title="add a new bucket"></i></a></th>
+            <th>new bucket <a href="#/new"><i class="icon-plus-sign" alt="add a new bucket" title="add a new bucket"></i></a></th>
         </tr>
     </table>
     <br>
-    <table ng-table="tableParams" class="table table-condensed table-hover">
+    <table ng-table="tableParams" class="table table-condensed table-hover clickable">
         <tr ng-repeat="bucket in orderedData | filter:search" ng-click="showDetail(bucket)">
             <td data-title="'Bucket'" sortable="''">{{bucket}}</td>
-            <td data-title="'View'" sortable="pool" style="text-align:center"><a href="#/detail/{{bucket}}"><i class="icon-eye-open" alt="view details of {{ bucket }}" title="view details of {{ bucket }}"></i></a></td>
+            <td data-title="'View'" sortable="pool" style="text-align:center"><i class="icon-eye-open" alt="view details of {{ bucket }}" title="view details of {{ bucket }}"></i></td>
         </tr>
     </table>
 </div>

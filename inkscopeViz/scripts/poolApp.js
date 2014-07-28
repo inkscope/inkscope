@@ -17,28 +17,28 @@ angular.module('poolApp', ['ngRoute','ngTable','D3Directives','ui.bootstrap','di
 
     });
 
-function refreshPools($http, $rootScope, $templateCache) {
+function refreshPools($http, $scope, $templateCache) {
     $http({method: "get", url: cephRestApiURL + "df.json", cache: $templateCache}).
         success(function (data, status) {
-            $rootScope.status = status;
-            $rootScope.pools =  data.output.pools;
-            $rootScope.stats = data.output.stats;
+            $scope.status = status;
+            $scope.pools =  data.output.pools;
+            $scope.stats = data.output.stats;
             var totalUsed = data.output.stats.total_used;
             var totalSpace = data.output.stats.total_space;
-            $rootScope.percentUsed = totalUsed / totalSpace;
-            $rootScope.tableParams.reload();
+            $scope.percentUsed = totalUsed / totalSpace;
+            $scope.tableParams.reload();
         }).
         error(function (data, status, headers) {
             //alert("refresh pools failed with status "+status);
-            $rootScope.status = status;
-            $rootScope.pools =  data || "Request failed";
-            $rootScope.stats.total_used = "N/A";
-            $rootScope.stats.total_space = "N/A";
+            $scope.status = status;
+            $scope.pools =  data || "Request failed";
+            $scope.stats.total_used = "N/A";
+            $scope.stats.total_space = "N/A";
         });
 }
 
-function ListCtrl($rootScope,$http, $filter, ngTableParams) {
-    $rootScope.tableParams = new ngTableParams({
+function ListCtrl($scope,$http, $filter, ngTableParams, $location) {
+    $scope.tableParams = new ngTableParams({
         page: 1,            // show first page
         count: 20,          // count per page
         sorting: {
@@ -49,21 +49,25 @@ function ListCtrl($rootScope,$http, $filter, ngTableParams) {
         total: 1,  // value less than count hide pagination
         getData: function ($defer, params) {
             // use build-in angular filter
-            $rootScope.orderedData = params.sorting() ?
-                $filter('orderBy')($rootScope.pools, params.orderBy()) :
+            $scope.orderedData = params.sorting() ?
+                $filter('orderBy')($scope.pools, params.orderBy()) :
                 data;
-            $defer.resolve($rootScope.orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+            $defer.resolve($scope.orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
         }
     });
 
-    refreshPools($http,$rootScope);
+    refreshPools($http,$scope);
     setInterval(function(){
-        refreshPools($http, $rootScope)
+        refreshPools($http, $scope)
     }, 10000);
     var data;
+
+    $scope.showDetail = function (poolid) {
+        $location.path('/detail/'+poolid);
+    }
 }
 
-function SnapshotCtrl($rootScope,$scope, $http, $routeParams, $location, $dialogs) {
+function SnapshotCtrl($scope,$scope, $http, $routeParams, $location, $dialogs) {
     $scope.poolNum = $routeParams.poolNum;
     $scope.poolName = $routeParams.poolName;
     var uri = inkscopeCtrlURL + "pools/"+$scope.poolNum+"/snapshot" ;
@@ -73,7 +77,7 @@ function SnapshotCtrl($rootScope,$scope, $http, $routeParams, $location, $dialog
 
         $http({method: "post", url: uri, data: "json={\"snapshot_name\":\""+$scope.snap_name+"\"}", headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
             success(function (data, status) {
-                $rootScope.status = status;
+                $scope.status = status;
                 $dialogs.notify("Snapshot creation for pool \""+ $scope.poolName+"\"","Snapshot <strong>"+$scope.snap_name+"</strong> was created");
                 $location.path('/detail/'+$scope.poolNum);
             }).
@@ -85,41 +89,41 @@ function SnapshotCtrl($rootScope,$scope, $http, $routeParams, $location, $dialog
     }
 }
 
-function DetailCtrl($rootScope,$scope, $http, $routeParams, $route, $dialogs) {
+function DetailCtrl($scope,$scope, $http, $routeParams, $route, $dialogs) {
     var uri = inkscopeCtrlURL + "pools/"+$routeParams.poolNum ;
     var v;
     var v2 = '';
     $http({method: "get", url: cephRestApiURL + "tell/osd.0/version.json"}).
         success(function(data,status){
-            $rootScope.status = status;
+            $scope.status = status;
             v = data.output.version;
             for (var i=13; i<17; i++){
                 v2 = v2 + v[i];
             }
-            $rootScope.version = parseFloat(v2);
+            $scope.version = parseFloat(v2);
         }).
         error(function (data, status, headers) {
-            $rootScope.status = status;
-            $rootScope.versionosd =  data || "Request failed";
+            $scope.status = status;
+            $scope.versionosd =  data || "Request failed";
         }
     );
 
     $http({method: "get", url: uri }).
         success(function (data, status) {
-            $rootScope.status = status;
-            $rootScope.detailedPool =  data.output;
+            $scope.status = status;
+            $scope.detailedPool =  data.output;
             $scope.hasSnap=false;
 
-            for (var key in $rootScope.detailedPool){
+            for (var key in $scope.detailedPool){
 
                     if ( key == "pool_snaps"){
-                        if ($rootScope.version < 0.80){
-                            var value = ($rootScope.detailedPool[key])["pool_snap_info"];
+                        if ($scope.version < 0.80){
+                            var value = ($scope.detailedPool[key])["pool_snap_info"];
                         }
                         else{
-                            var value = ($rootScope.detailedPool[key])[$rootScope.detailedPool[key].length-1];
+                            var value = ($scope.detailedPool[key])[$scope.detailedPool[key].length-1];
                         }
-                        $rootScope.detailedPool[key] = "nr: "+value["snapid"]+", date: "+value["stamp"]+", name: "+value["name"];
+                        $scope.detailedPool[key] = "nr: "+value["snapid"]+", date: "+value["stamp"]+", name: "+value["name"];
                         $scope.hasSnap=true;
                         $scope.snap_name = value["name"];
                         break;
@@ -128,8 +132,8 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $route, $dialogs) {
 
         }).
         error(function (data, status, headers) {
-            $rootScope.status = status;
-            $rootScope.pools =  data || "Request failed";
+            $scope.status = status;
+            $scope.pools =  data || "Request failed";
             $dialogs.error("<h3>Can't display pools with num "+$routeParams.poolNum+"</h3><br>"+$scope.data);
         });
 
@@ -139,7 +143,7 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $route, $dialogs) {
         $scope.status = "en cours ...";
         $http({method: "delete", url: uri}).
             success(function (data, status) {
-                $rootScope.status = status;
+                $scope.status = status;
                 $dialogs.notify("Snapshot deletion for pool \""+ $scope.detailedPool.pool_name+"\"","Snapshot <strong>"+$scope.snap_name+"</strong> was deleted");
                 $route.reload();
             }).
@@ -174,7 +178,7 @@ function DeleteCtrl($scope, $http, $templateCache, $routeParams, $location, $dia
     }
 }
 
-function CreateCtrl($rootScope, $scope, $location, $http, $dialogs) {
+function CreateCtrl($scope, $scope, $location, $http, $dialogs) {
     $scope.operation = "creation";
     // functions declaration
     $scope.update = function (pool) {
@@ -231,7 +235,7 @@ function CreateCtrl($rootScope, $scope, $location, $http, $dialogs) {
     $scope.reset();
 
 }
-function ModifyCtrl($rootScope, $scope, $routeParams, $location, $http, $dialogs) {
+function ModifyCtrl($scope, $scope, $routeParams, $location, $http, $dialogs) {
     $scope.operation = "modification";
 
     // functions declaration
@@ -277,13 +281,13 @@ function ModifyCtrl($rootScope, $scope, $routeParams, $location, $http, $dialogs
 
     $http({method: "get", url: $scope.uri }).
         success(function (data, status) {
-            $rootScope.status = status;
+            $scope.status = status;
             $scope.master =  data.output;
             $scope.reset();
         }).
         error(function (data, status, headers) {
-            $rootScope.status = status;
-            $rootScope.pools =  data || "Request failed";
+            $scope.status = status;
+            $scope.pools =  data || "Request failed";
             $dialogs.error("<h3>Can't display pool with num "+$routeParams.poolNum+"</h3><br>"+$scope.data);
         });
     $scope.code = "";
