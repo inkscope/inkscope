@@ -24,7 +24,7 @@ configfile = "/opt/inkscope/etc/inkscopeCtrl.conf"
 datasource = open(configfile, "r")
 conf = json.load(datasource)
 datasource.close()
-minion = conf.get("minion")
+#minion = conf.get("minion")
 #
 # mongoDB query facility
 #
