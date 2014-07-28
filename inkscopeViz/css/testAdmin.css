@@ -127,7 +127,7 @@ label {
      width :350px;
      padding: 1em;
  }
-#listpool{
+#listpool, #listhost{
     margin : 2em;
     float:left;
     width :450px;

@@ -1,0 +1,52 @@
+<h3>Host details for {{detailedHost._id}}</h3>
+<br />
+
+<!--div class="button-bar">
+    <a href="#/snapshot/{{detailedHost.host}}/{{detailedHost.host_name}}" class="btn btn-info"><i class="icon-white icon-camera"></i> make snapshot </a>
+    <button ng-click="removeSnapshot()" class="btn btn-danger" ng-show="hasSnap"><i class="icon-white icon-camera"></i> remove snapshot </button>
+    <div style="width:35px;display: inline-block"></div>
+    <a href="#/modify/{{detailedHost.host}}" class="btn btn-success">Modify</a>
+    <a href="#/delete/{{detailedHost.host}}/{{detailedHost.host_name}}" class="btn btn-danger">Delete</a>
+    <a href="#/" class="btn btn-default">Close</a>
+</div>
+
+<br /><br /-->
+<table  class="table table-condensed table-nohead">
+    <tbody>
+    <tr><td width="80px">Id</td> <td> {{ detailedHost._id }} </td></tr>
+    <tr><td>IP</td> <td> {{ detailedHost.hostip }} </td></tr>
+    <tr><td>Disks</td>
+        <td>
+            <table class="table table-condensed table-nohead" style="width:100%">
+                <tr ng-repeat="disk in detailedHost.disks">
+                    <td>{{ disk.logical_name }}</td>
+                    <td>{{ disk.description }}</td>
+                    <td>{{ disk.size|bytes }}</td>
+                </tr>
+            </table>
+        </td></tr>
+    <tr><td >Partitions</td>
+        <td>
+            <table class="table table-condensed table-nohead" style="width:100%">
+                <tr ng-repeat="partition in detailedHost.partitions">
+                    <td>{{ partition.dev }}</td>
+                    <td>{{ partition.fs }}</td>
+                    <td>{{ partition.mountpoint }}</td>
+                </tr>
+            </table>
+        </td></tr>
+    <tr><td >Memory</td>
+        <td>
+            <table class="table table-condensed table-nohead" style="width:100%">
+                <tr><td style="width:80px">used</td><td>{{ detailedHost.mem.used|bytes }}</td></tr>
+                <tr><td>cached</td><td>{{ detailedHost.mem.cached|bytes }}</td></tr>
+                <tr><td>free</td><td>{{ detailedHost.mem.free|bytes }}</td></tr>
+                <tr><td>total</td><td>{{ detailedHost.mem.total|bytes }}</td></tr>
+                <tr><td>buffers</td><td>{{ detailedHost.mem.buffers|bytes }}</td></tr>
+            </table>
+        </td></tr>
+    <!--tr ng-repeat="(key, value) in detailedHost">
+       <td width="150px"> {{key.replace('_',' ', 'gi')}} </td> <td> {{ value }} </td>
+   </tr-->
+    </tbody>
+</table>
