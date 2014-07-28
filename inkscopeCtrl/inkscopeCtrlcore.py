@@ -45,7 +45,7 @@ def full(db):
 @app.route('/pools/', methods=['GET','POST'])
 @app.route('/pools/<int:id>', methods=['GET','DELETE','PUT'])
 def pool_manage(id=None):
-    return poolsCtrl.pool_manage(id, minion)
+    return poolsCtrl.pool_manage(id)
 
 @app.route('/pools/<int:id>/snapshot', methods=['POST'])
 def makesnapshot(id):
