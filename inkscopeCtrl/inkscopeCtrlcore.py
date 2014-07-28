@@ -13,7 +13,7 @@ from bson.json_util import dumps
 import time
 import mongoJuiceCore
 import poolsCtrl
-import poolsCtrlSalt
+#import poolsCtrlSalt
 import osdsCtrl
 from S3Ctrl import S3Ctrl, S3Error
 from Log import Log
