@@ -39,12 +39,12 @@
 <div id="listhost">
     <table>
         <tr>
-            <th><input type="text" ng-model="search" class="search-query" placeholder="Search"></th>
+            <th><input type="text" ng-model="search._id" class="search-query" placeholder="Search name"></th>
         </tr>
     </table>
     <br>
     <table ng-table="tableParams" class="table table-condensed table-hover clickable">
-        <tr ng-repeat="host in orderedData | filter:search" ng-click="showDetail(host._id)">
+        <tr ng-repeat="host in orderedData | filter:search:strict" ng-click="showDetail(host._id)">
             <td data-title="'Name'" sortable="'_id'">{{host._id}}</td>
             <td data-title="'IP'" sortable="'hostip'">{{host.hostip}}</td>
             <td data-title="'View'" sortable="host" style="text-align:center"><i class="icon-eye-open" alt="view details of {{host.name}}" title="view details of {{host.name}}"></i></td>

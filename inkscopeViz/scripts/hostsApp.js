@@ -30,7 +30,7 @@ function ListCtrl($scope,$http, $filter, ngTableParams, $location) {
         page: 1,            // show first page
         count: 20,          // count per page
         sorting: {
-            host: 'asc'     // initial sorting
+            _id: 'asc'     // initial sorting
         }
     }, {
         counts: [], // hide page counts control

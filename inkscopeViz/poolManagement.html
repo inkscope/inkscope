@@ -39,14 +39,14 @@
 <div id="listpool">
     <table>
         <tr>
-            <th><input type="text" ng-model="search" class="search-query" placeholder="Search"></th>
+            <th><input type="text" ng-model="search.name" class="search-query" placeholder="Search pool name"></th>
             <th>&nbsp; &nbsp; </th>
             <th>new pool <a href="#/new"><i class="icon-plus-sign" alt="add a new pool" title="add a new pool"></i></a></th>
         </tr>
     </table>
     <br>
     <table ng-table="tableParams" class="table table-condensed table-hover clickable">
-        <tr ng-repeat="pool in orderedData | filter:search" ng-click="showDetail(pool.id)">
+        <tr ng-repeat="pool in orderedData | filter:search:strict" ng-click="showDetail(pool.id)">
             <td data-title="'Id'" sortable="'id'">{{pool.id}}</td>
             <td data-title="'Pool'" sortable="'name'">{{pool.name}}</td>
             <!--td data-title="'Ruleset'" sortable="'ruleset'">{{pool.ruleset}}</td-->
