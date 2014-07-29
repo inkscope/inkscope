@@ -1,7 +1,7 @@
 ##What other products inkscope uses?
 
 
-[AngularJS 1.2.9](http://angularjs.org/) (MIT License)
+[AngularJS 1.2.21](http://angularjs.org/) (MIT License)
 
 [Bootstrap CSS](http://getbootstrap.com/) (MIT license)
 
