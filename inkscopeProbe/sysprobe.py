@@ -20,6 +20,10 @@ import re
 
 #psutil to perform system command
 import psutil
+import pkg_resources
+psutil_version = pkg_resources.get_distribution("psutil").version.split(".")[0]
+
+
 
 # for ceph command call
 import subprocess
@@ -462,14 +466,15 @@ def pickCpuStat(hostname, db):
     db.hosts.update({"_id": hostname}, {"$set": {"stat": DBRef("cpus_stat",cpus_stat_hostx_id)}})
         
 
-def pickCephProcesses(hostname, db):
-    print str(datetime.datetime.now()), "-- Pick Ceph Processes"  
+def pickCephProcessesV2(hostname, db):
+    # Compatibility with psutil V2.x
+    print str(datetime.datetime.now()), "-- Pick Ceph Processes"
     sys.stdout.flush()
     iterP = psutil.process_iter()
-    cephProcs = [p for p in iterP if p.name.startswith('ceph-')]
+    cephProcs = [p for p in iterP if p.name().startswith('ceph-')]
     
     for cephProc in cephProcs :
-        options, remainder = getopt.getopt(cephProc.cmdline[1:], 'i:f', ['cluster='])
+        options, remainder = getopt.getopt(cephProc.cmdline()[1:], 'i:f', ['cluster='])
         
         clust = None
         id = None
@@ -485,26 +490,70 @@ def pickCephProcesses(hostname, db):
                     "timestamp" : int(round(time.time() * 1000)) ,
                     "host" : DBRef( "hosts",  hostname),
                     "pid" : cephProc.pid,
-                    "mem_rss" : cephProc.get_ext_memory_info().rss,
-                    "mem_vms" : cephProc.get_ext_memory_info().vms,
-                    "mem_shared" : cephProc.get_ext_memory_info().shared,
-                    "num_threads" : cephProc.get_num_threads(),
-                    "cpu_times_user" : cephProc.get_cpu_times().user,
-                    "cpu_times_system" : cephProc.get_cpu_times().system,            
+                    "mem_rss" : cephProc.memory_info_ex().rss,
+                    "mem_vms" : cephProc.memory_info_ex().vms,
+                    "mem_shared" : cephProc.memory_info_ex().shared,
+                    "num_threads" : cephProc.num_threads(),
+                    "cpu_times_user" : cephProc.cpu_times().user,
+                    "cpu_times_system" : cephProc.cpu_times().system,
                     }
             
             
-            if cephProc.name == 'ceph-osd' :
+            if cephProc.name() == 'ceph-osd' :
                 #osd       
                 p_db["osd"] = DBRef("osd", id)
                 procid = db.processstat.insert(p_db)
                 db.osd.update({'_id' : id},{"$set" : {"process" : DBRef("process",procid)}})            
-            elif cephProc.name == 'ceph-mon' :
+            elif cephProc.name() == 'ceph-mon' :
                 #mon 
                 p_db["mon"] = DBRef("mon", id)
                 procid = db.processstat.insert(p_db)
                 db.mon.update({'_id' : id},{"$set" : {"process" : DBRef("process",procid)}})            
            
+
+def pickCephProcesses(hostname, db):
+    # Compatibility with psutil V1.x
+    print str(datetime.datetime.now()), "-- Pick Ceph Processes"
+    sys.stdout.flush()
+    iterP = psutil.process_iter()
+    cephProcs = [p for p in iterP if p.name.startswith('ceph-')]
+
+    for cephProc in cephProcs :
+        options, remainder = getopt.getopt(cephProc.cmdline[1:], 'i:f', ['cluster='])
+
+        clust = None
+        id = None
+
+        for opt, arg in options:
+            if opt == '-i':
+                id = arg
+            elif opt in  '--cluster':
+                clust = arg
+
+        if db.name == clust :
+            p_db = {
+                    "timestamp" : int(round(time.time() * 1000)) ,
+                    "host" : DBRef( "hosts",  hostname),
+                    "pid" : cephProc.pid,
+                    "mem_rss" : cephProc.get_ext_memory_info().rss,
+                    "mem_vms" : cephProc.get_ext_memory_info().vms,
+                    "mem_shared" : cephProc.get_ext_memory_info().shared,
+                    "num_threads" : cephProc.get_num_threads(),
+                    "cpu_times_user" : cephProc.get_cpu_times().user,
+                    "cpu_times_system" : cephProc.get_cpu_times().system,
+                    }
+
+
+            if cephProc.name == 'ceph-osd' :
+                #osd
+                p_db["osd"] = DBRef("osd", id)
+                procid = db.processstat.insert(p_db)
+                db.osd.update({'_id' : id},{"$set" : {"process" : DBRef("process",procid)}})
+            elif cephProc.name == 'ceph-mon' :
+                #mon
+                p_db["mon"] = DBRef("mon", id)
+                procid = db.processstat.insert(p_db)
+                db.mon.update({'_id' : id},{"$set" : {"process" : DBRef("process",procid)}})
 
 
 
@@ -712,7 +761,10 @@ class SysProbeDaemon(Daemon):
             
         processThread = None
         if process_refresh > 0:
-            processThread = Repeater(evt, pickCephProcesses, [hostname, db], process_refresh)
+            if psutil_version == "1":
+                processThread = Repeater(evt, pickCephProcesses, [hostname, db], process_refresh)
+            else:
+                processThread = Repeater(evt, pickCephProcessesV2, [hostname, db], process_refresh)
             processThread.start()
             
         # drop thread
