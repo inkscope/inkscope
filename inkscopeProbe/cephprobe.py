@@ -505,7 +505,7 @@ def handler(signum, frame):
     evt.set()
     
 
-class SysProbeDaemon(Daemon):
+class CephProbeDaemon(Daemon):
     def __init__(self, pidfile):
         Daemon.__init__(self, pidfile, stdout = logfile, stderr = logfile)
         
@@ -667,7 +667,7 @@ class SysProbeDaemon(Daemon):
 
 if __name__ == "__main__":   
     ensure_dir(runfile)
-    daemon = SysProbeDaemon(runfile)
+    daemon = CephProbeDaemon(runfile)
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:
             daemon.start()
@@ -682,6 +682,3 @@ if __name__ == "__main__":
     else:
         print "usage: %s start|stop|restart" % sys.argv[0]
         sys.exit(2)
-
-
-
