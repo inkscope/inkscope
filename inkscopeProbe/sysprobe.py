@@ -24,7 +24,6 @@ import pkg_resources
 psutil_version = pkg_resources.get_distribution("psutil").version.split(".")[0]
 
 
-
 # for ceph command call
 import subprocess
 
