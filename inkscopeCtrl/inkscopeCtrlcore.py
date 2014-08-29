@@ -13,7 +13,10 @@ from bson.json_util import dumps
 import time
 import mongoJuiceCore
 import poolsCtrl
-#import poolsCtrlSalt
+try:
+    import poolsCtrlSalt
+except:
+    pass
 import osdsCtrl
 from S3Ctrl import S3Ctrl, S3Error
 from Log import Log
@@ -24,7 +27,11 @@ configfile = "/opt/inkscope/etc/inkscopeCtrl.conf"
 datasource = open(configfile, "r")
 conf = json.load(datasource)
 datasource.close()
-#minion = conf.get("minion")
+
+try:
+    minion = conf.get("minion")
+except:
+    pass
 #
 # mongoDB query facility
 #
@@ -56,19 +63,27 @@ def removesnapshot(id, namesnapshot):
     return poolsCtrl.removesnapshot(id, namesnapshot)
 
 ## Rest API with Salt
-#@app.route('/poolsalt/', methods=['GET','POST'])
-#@app.route('/poolsalt/<int:id>', methods=['GET','DELETE','PUT'])
-#def pool_manage_salt(id=None):
-#    return poolsCtrlSalt.pool_manage_salt(id, minion)
+try:
+    @app.route('/poolsalt/', methods=['GET','POST'])
+    @app.route('/poolsalt/<int:id>', methods=['GET','DELETE','PUT'])
+    def pool_manage_salt(id=None):
+       return poolsCtrlSalt.pool_manage_salt(id, minion)
+except:
+    pass
 
-#@app.route('/poolsalt/<int:id>/snapshot', methods=['POST'])
-#def makesnapshot_salt(id):
-#    return poolsCtrl.makesnapshot(id, minion)
+try:
+    @app.route('/poolsalt/<int:id>/snapshot', methods=['POST'])
+    def makesnapshot_salt(id):
+       return poolsCtrl.makesnapshot(id, minion)
+except:
+    pass
 
-#@app.route('/poolsalt/<int:id>/snapshot/<namesnapshot>', methods=['DELETE'])
-#def removesnapshot_salt(id, namesnapshot):
-#    return poolsCtrl.removesnapshot(id, namesnapshot, minion)
-
+try:
+    @app.route('/poolsalt/<int:id>/snapshot/<namesnapshot>', methods=['DELETE'])
+    def removesnapshot_salt(id, namesnapshot):
+       return poolsCtrl.removesnapshot(id, namesnapshot, minion)
+except:
+    pass
 #
 # Osds management
 #

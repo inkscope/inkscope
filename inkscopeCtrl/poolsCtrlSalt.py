@@ -37,13 +37,13 @@ def getpoolname(ind, jsondata):
 
 def create_pool(poolname, pg_num, pgp_num,minion):
     cmd = local.cmd(minion,'cmd.run',['ceph osd pool create %s %d %d' % (poolname, pg_num, pgp_num)])
-    return 'salt-run last job id'
+    return 'salt-run jobs.lookup_jid last_job_id'
 
 def set_pool_values(poolname, **kwargs):
     minion ='v-intceph06'
     for key in kwargs:
         cmd = local.cmd(minion,'cmd.run',['ceph osd pool set %s %s %d' % (poolname, key, kwargs[key])])
-        return 'salt-run last job id'
+        return 'salt-run jobs.lookup_jid last_job_id'
 
 def set_pool_quotas(poolname, **kwargs):
     minion ='v-intceph06'
@@ -53,8 +53,10 @@ def set_pool_quotas(poolname, **kwargs):
         return 'salt-run last job id'
 
 def del_pool(poolname, minion):
-    cmd = local.cmd(minion,'cmd.run',['ceph osd pool delete %s %s --yes-really-really-mean-it' % (poolname, poolname)])
-    return 'salt-run last job id'
+    cmd = local.cmd(minion,'cmd.run',['ceph osd pool delete %s %s --yes-i-really-really-mean-it' % (poolname, poolname)])
+    #jobs = local.cmd(minion,'cmd.run',['salt-run jobs.list_jobs'])
+
+    return 'salt-run jobs.lookup_jid last_job_id'
 
 
 # @app.route('/poolsalt/', methods=['GET','POST'])
