@@ -9,7 +9,7 @@ The main folders are:
 
 **inkscopeViz** : GUI to visualize Ceph cluster status (dashboard) and and relations between Ceph cluster objects and manage of a ceph cluster
 
-**inkscopeCtrl** : server part for inkscopeAdm and inkscopeViz
+**inkscopeCtrl** : server part for inkscopeViz
 
 **inkscopeProbe** : probes to collect information about the cluster (Ceph and system info)
 
