@@ -16,14 +16,17 @@ TO DO
 
 CONTAINS
 ------ 
-     This contains a lib to create a  supervision  with nrpe and shinken framework.
+This contains a lib to create a  supervision  with nrpe and shinken framework.
 
 REMARKS
 -------
-- this  user the configuration file inkscopeCtrl.conf. it must be put in /opt/inkscope/etc/
--needs some python modules:
+It uses the configuration file inkscopeCtrl.conf that must be put in /opt/inkscope/etc/
 
-pip install pymongo
-pip install flask
-pip install bson
+It needs also some python modules:
+
+    pip install pymongo
+    
+    pip install flask
+    
+    pip install bson
 
