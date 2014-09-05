@@ -1,0 +1,16 @@
+#!/usr/bin/python
+#@author eric Mourgaya
+# check  ceph health
+from libmongojuice import *
+import sys
+
+res=check_full()
+
+if  res == 0:
+    print "ceph is not full ok"
+elif res == 1:
+    print "warning  something  wrong ceph is full: add new osd "
+else:
+    print "alert:  something really wrong add new osd !"
+sys.exit(res)
+

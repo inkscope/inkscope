@@ -1,0 +1,16 @@
+#!/usr/bin/python
+#@author eric Mourgaya
+# check  ceph health
+from libmongojuice import *
+import sys
+
+res=check_health()
+
+if  res == 0:
+    print "ceph health ok"
+elif res == 1:
+    print "warning  something  wrong : try 'ceph -s' command "
+else:
+    print "alert:  something really wrong on ceph  cluster!"
+sys.exit(res)
+
