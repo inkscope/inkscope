@@ -1,0 +1,16 @@
+#!/usr/bin/python
+#@author eric Mourgaya
+# check  ceph health
+from libmongojuice import *
+import sys
+
+res=check_nearfull()
+
+if  res == 0:
+    print "ceph is not nearfull ok"
+elif res == 1:
+    print "warning  something  wrong : cluster is nearfull "
+else:
+    print "alert:  something really wrong: quick!"
+sys.exit(res)
+
