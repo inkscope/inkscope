@@ -12,7 +12,31 @@ from bson import ObjectId
 import time
 
 
+
+
+configfile = "/opt/inkscope/etc/inkscopeCtrl.conf"
+
+
+def load_conf(config):
+    '''
+        load the  configfile  an return  a json  objet
+    '''
+    datasource = open(configfile, "r")
+    data = json.load(datasource)
+    datasource.close
+    return data
+
+
 def getClient(conf):
+    '''
+        conf : json  conf objet
+        conf=load_conf(configfile)
+        db = getClient(conf)['ceph']
+        collection =db['cluster']
+        cursor=collection.find_one()
+        Return  a connexion to  database specified  in  conf file
+        take care with authentication
+    '''
     mongodb_host = conf.get("mongodb_host", "127.0.0.1")
     mongodb_port = conf.get("mongodb_port", "27017")
     mongodb_URL = "mongodb://"+mongodb_host+":"+mongodb_port
@@ -21,11 +45,19 @@ def getClient(conf):
     mongodb_set = "'"+conf.get("mongodb_set","")+"'"
     mongodb_replicaSet =conf.get("mongodb_replicaSet",None)
     mongodb_read_preference = conf.get("mongodb_read_preference",None)
+    cluster = conf.get("cluster", "ceph")
     if is_mongo_replicat ==  1:
-        return MongoReplicaSetClient(eval(mongodb_set), replicaSet=mongodb_replicaSet, read_preference=eval(mongodb_read_preference))
+        client = MongoReplicaSetClient(eval(mongodb_set), replicaSet=mongodb_replicaSet, read_preference=eval(mongodb_read_preference))
     else:
         #if not replicated
-        return MongoClient(mongodb_URL)
+        client = MongoClient(mongodb_URL)
+    # mongo db  authentication
+    is_mongo_authenticate = conf.get("is_mongo_authenticate", 0)
+    mongodb_user = conf.get("mongodb_user", "ceph")
+    mongodb_passwd = conf.get("mongodb_passwd", "empty")
+    if is_mongo_authenticate == 1:
+        client[cluster].authenticate(mongodb_user,mongodb_passwd)
+    return client
 
 def getObject(db, collection, objectId, depth, branch):
     """
