@@ -1,21 +1,21 @@
 inkScope
 ========
 
-**Inkscope** is  a [Ceph](http://ceph.com) admin and supervision interface. It  relies on a nosql solution. We use  mongodb to store real time metrics and history metrics but not on the same collection. Each collection is ruled by a TTL.
+**Inkscope** is  a [Ceph](http://ceph.com) admin and supervision interface. It  relies on API provided by ceph. We also use  mongoDB to store real time metrics and history metrics.
 
 The main folders are:
 
 **documentation** contains diagram of inkScope architecture, datamodel...
 
-**inkscopeViz** : GUI to visualize Ceph cluster status (dashboard) and and relations between Ceph cluster objects and manage of a ceph cluster
+**inkscopeViz** : GUI to visualize Ceph cluster status (dashboard),relations between Ceph cluster objects and to manage some elements of a ceph cluster
 
-**inkscopeCtrl** : server part for inkscopeViz
+**inkscopeCtrl** : server part of inkscopeViz. It provides a REST API, orchestrating calls to ceph API's and command lines
 
 **inkscopeProbe** : probes to collect information about the cluster (Ceph and system info)
 
-**inkscopeMonitor** : for supervision of Ceph 
+**inkscopeMonitor** : for supervision of Ceph (to be developed) 
 
-Manual installation is described in the [inkScope wiki](https://github.com/inkscope/inkscope/wiki)
+Manual installation is fully described in the [inkScope wiki](https://github.com/inkscope/inkscope/wiki)
 
 Here is the dashboard screenshot and an object storage user management screenshot. Other screenshots can be found [there](https://github.com/inkscope/inkscope/tree/master/screenshots)
 
