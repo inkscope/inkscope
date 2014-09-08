@@ -4,7 +4,7 @@ from flask import Flask, request, Response
 from S3.bucket import S3Bucket, S3Error
 from S3.user import  S3User
 from Log import Log
-
+import json
 
 class S3Ctrl:
 
@@ -17,10 +17,10 @@ class S3Ctrl:
         if not self.radosgw_url.endswith('/'):
             self.radosgw_url += '/'
         self.url = self.radosgw_url + self.admin
-        print "config url: "+self.url
-        print "config admin: "+self.admin
-        print "config key: "+self.key
-        print "config secret: "+self.secret
+        #print "config url: "+self.url
+        #print "config admin: "+self.admin
+        #print "config key: "+self.key
+        #print "config secret: "+self.secret
 
     def getAdminConnection(self):
         return S3Bucket(self.admin, access_key=self.key, secret_key=self.secret , base_url= self.url)
@@ -94,11 +94,21 @@ class S3Ctrl:
         bucket = request.form['bucket']
         owner = request.form['owner']
         Log.debug( "createBucket "+bucket+" for user "+owner)
-        # creation under admin account
-        mybucket = S3Bucket( bucket,  access_key=self.key, secret_key=self.secret , base_url= self.radosgw_url+bucket)
-        mybucket.put_bucket()
-        # change new bucket's owner
-        return self.linkBucket(owner,bucket)
+        print "\n--- info user for owner ---"
+        userInfo = self.getUser(owner)
+        #print userInfo
+        userInfo = json.loads(userInfo)
+        keys = userInfo.get('keys')
+        #print keys
+        access_key = keys[0].get('access_key')
+        secret_key = keys[0].get('secret_key')
+        #print access_key
+        #print secret_key
+
+        print "\n--- create bucket for owner ---"
+        mybucket = S3Bucket(bucket, access_key=access_key, secret_key=secret_key , base_url= self.radosgw_url+bucket)
+        res = mybucket.put_bucket()
+        return 'OK'
 
 
     def getBucketInfo (self, bucket):
