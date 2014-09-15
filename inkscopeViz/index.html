@@ -214,9 +214,13 @@
 <div id="pg_status" ng-show="viewPgStatusModule" class="animate-show">
     <i class="icon-remove closeButton" title="hide" alt="hide" ng-click="showModule('viewPgStatusModule',false)" style="float:right"></i>
     <h2 onclick="document.location='poolspgsosds.html'" style="cursor:pointer">{{pgmap.num_pgs}} Placement groups</h2>
-
+    <div ng-show="pgmap.degraded_objects!=0">
+        <p class="text-warning"><i class="icon-warning-sign" ></i>
+            {{ getPgmapMessage() }}
+        </p>
+    </div>
     <div id="pg_status_graph">
-        <ad-pie id="pie01" value="pgsByState" width="350" labelfield="state_name" valuefield="count"></ad-pie>
+        <ad-pie id="pie01" value="pgsByState" width="330" labelfield="state_name" valuefield="count"></ad-pie>
     </div>
 
 </div>
