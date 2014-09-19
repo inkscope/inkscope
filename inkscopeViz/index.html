@@ -65,6 +65,7 @@
             font-family: Arial, Helvetica, sans-serif;
             float:right;
         text-align: right;
+        font-size: .85em;
         }
     #iopschart {
             position: relative;
@@ -130,7 +131,7 @@
     <div id="chart_container">
         <div id="y_axis"></div>
         <div id="iopschart"></div>
-        Read : {{ read | bytes:kB }}/s , Write : {{ write | bytes:kB }}/s
+        Read : {{ read | bytes:kB }}/s , Write : {{ write | bytes:kB }} , Recovery : {{ recovery | bytes:kB }}/s
     </div>
     <h2>Cluster health at {{date | date:'HH:mm:ss'}}</h2>
     <div class="health_summary health_status_{{health.severity}}">{{health.summary}}</div>

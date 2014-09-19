@@ -34,7 +34,7 @@ StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
         width: 300,
         height: 30,
         renderer: 'line',
-        series: new Rickshaw.Series.FixedDuration([{ name: 'read' },{ name: 'write' }], undefined, {
+        series: new Rickshaw.Series.FixedDuration([{ name: 'read' },{ name: 'write' },{ name: 'recovery' }], undefined, {
             timeInterval: 3000,
             maxDataPoints: 100,
             timeBase: new Date().getTime() / 1000
@@ -148,8 +148,9 @@ StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
 
                 $scope.read = (data.output.pgmap.read_bytes_sec ? data.output.pgmap.read_bytes_sec : 0);
                 $scope.write = (data.output.pgmap.write_bytes_sec ? data.output.pgmap.write_bytes_sec : 0);
+                $scope.recovery = (data.output.pgmap.recovering_bytes_per_sec ? data.output.pgmap.recovering_bytes_per_sec : 0);
 
-                var iopsdata = { read: $scope.read , write : $scope.write };
+                var iopsdata = { read: $scope.read , write : $scope.write , recovery : $scope.recovery };
                 graph.series.addData(iopsdata);
                 yAxis.render();
                 graph.render();
