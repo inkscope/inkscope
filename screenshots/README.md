@@ -8,7 +8,8 @@ Some screenshots
 ![pg links to osd](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-Pg.png)
 ![osd status](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-OsdStatus.png)
 ![osd status space](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-OsdStatus2.png)
-![cluster general flags](https://raw.github.com/inkscope/inkscope/master/screenshots/ClusterFlags.png)
+![cluster general flags](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-ClusterFlags.png
+)
 ![Object storage user management](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-S3userManagement.png)
 ![Object storage bucket management](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-S3bucketManagement.png)
 ![Crushmap buckets](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-crushmap-buckets.png)
