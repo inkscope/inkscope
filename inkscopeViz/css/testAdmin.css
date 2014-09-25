@@ -156,6 +156,8 @@ label {
     line-height:45px;
     border-radius: 10px;
     margin:20px auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 /* Mon status */
 #general_status, .general_status, #mon_status {
