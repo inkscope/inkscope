@@ -170,7 +170,8 @@ StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
                     if (data.output.health.detail[0])
                         $scope.health.summary = data.output.health.detail[0];
                     else
-                        $scope.health.summary = "OK";
+                        //remove HEALTH_ in severity
+                        $scope.health.summary = $scope.health.severity.substring(7);
                 }
 
                 historise();
