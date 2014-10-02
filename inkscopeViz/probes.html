@@ -24,7 +24,7 @@
 <div id="probes">
     <h3>Ceph probes</h3>
 
-    <div ng-repeat="probe in cephprobes" class=" tooltips {{probe.class}}">
+    <div ng-repeat="probe in cephprobes | orderBy:'_id'" class=" tooltips {{probe.class}}">
         {{probe._id}}
         <div> <!-- tooltip -->
                 <span>
@@ -37,7 +37,7 @@
     <br>
     <h3>Sys probes</h3>
 
-    <div ng-repeat="probe in sysprobes" class=" tooltips {{probe.class}}">
+    <div ng-repeat="probe in sysprobes | orderBy:'_id'" class=" tooltips {{probe.class}}">
         {{probe._id}}
         <div> <!-- tooltip -->
                 <span>
