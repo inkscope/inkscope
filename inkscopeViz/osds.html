@@ -98,7 +98,13 @@
     <div class="notfilter clickable" ng-hide="downFilter" ng-click="addFilter('down')"> + down</div>
 </div>
 <br>
-<div id="datePanel"><br>Date : {{date | date:'HH:mm:ss'}} - matching: {{count}} of {{nbOsd}} OSD <div ng-hide="osdControl<15 || count == 0"><p class="text-warning"> <i class="icon-warning-sign" ></i> osds not verified since {{osdControl|duration}}</p></div> </div>
+<div id="datePanel"><br>Date : {{date | date:'HH:mm:ss'}} - matching: {{count}} of {{nbOsd}} OSD
+    <div ng-hide="osdControl<15 || count == 0">
+        <a href="probes.html">
+            <p class="text-warning"> <i class="icon-warning-sign" ></i> osds not verified since {{osdControl|duration}}</p>
+        </a>
+    </div>
+</div>
 
 
 <div id="osds" ng-show="dispoMode == 'state'">

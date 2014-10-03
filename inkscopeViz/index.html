@@ -242,7 +242,9 @@
     <i class="icon-remove closeButton" title="hide" alt="hide" ng-click="showModule('viewOsdModule',false)" style="float:right"></i>
     <h2 onclick="document.location='osds.html'" class="clickable">{{osdsUp + osdsDown}} OSD </h2>
     <div ng-hide="osdControl<30">
+        <a href="probes.html">
         <p class="text-warning"><i class="icon-warning-sign" ></i> osds not verified<br>since {{osdControl|duration}}</p>
+        </a>
     </div>
 
     <div id="osd_status_details">
