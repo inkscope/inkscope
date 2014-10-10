@@ -34,9 +34,9 @@ showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $sc
         });
 
     $scope.getType = function (id) {
-        for (var i = 0; i < $rootScope.types.length; i++) {
-            if ($rootScope.types[i].type_id == id) return $rootScope.types[i].name;
-        }
+        if (id==1) return "replicated";
+        if (id==2) return "raid-4";
+        if (id==3) return "erasure";
         return "N/A";
     }
 
@@ -116,7 +116,10 @@ showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $sc
             return "take "+ $scope.getBucketForId(step.item).name;
         if (step.op == "emit")
             return "emit";
-        return step.op.replace("_"," ") +" "+ step.num +" type "+ step.type;
+        var txtStep = step.op.replace("_"," ") +" "+ step.num;
+        if (typeof step.type !== "undefined")
+            txtStep +=" type "+ step.type;
+        return txtStep;
 
     }
 
