@@ -21,6 +21,7 @@ function refreshPools($http, $scope, $templateCache) {
     $http({method: "get", url: cephRestApiURL + "df.json", cache: $templateCache}).
         success(function (data, status) {
             $scope.status = status;
+            $scope.date = new Date();
             $scope.pools =  data.output.pools;
             $scope.stats = data.output.stats;
             var totalUsed = data.output.stats.total_used;
@@ -89,7 +90,44 @@ function SnapshotCtrl($scope,$scope, $http, $routeParams, $location, $dialogs) {
     }
 }
 
-function DetailCtrl($scope,$scope, $http, $routeParams, $route, $dialogs) {
+function DetailCtrl($scope, $http, $routeParams, $route, $dialogs, ngTableParams , $filter) {
+    i = 0;
+    poolParameters = {
+            pool:{cat:"General",transform:"",rank:i++},
+            pool_name:{cat:"General",transform:"",rank:i++},
+            auid:{cat:"General",transform:"",rank:i++},
+            type:{cat:"General",transform:"getPoolTypeLabel",rank:i++},
+            size:{cat:"General",transform:"",rank:i++},
+            min_size:{cat:"General",transform:"",rank:i++},
+            crush_ruleset:{cat:"General",transform:"",rank:i++},
+            pg_num:{cat:"General",transform:"",rank:i++},
+            pg_placement_num:{cat:"General",transform:"",rank:i++},
+            quota_max_bytes:{cat:"General",transform:"getBytesLabel",rank:i++},
+            quota_max_objects:{cat:"General",transform:"",rank:i++},
+            flags_names:{cat:"General",transform:"",rank:i++},
+            tiers:{cat:"Cache_tiering",transform:"",rank:i++},
+            tier_of:{cat:"Cache_tiering",transform:"",rank:i++},
+            read_tier:{cat:"Cache_tiering",transform:"",rank:i++},
+            write_tier:{cat:"Cache_tiering",transform:"",rank:i++},
+            cache_mode:{cat:"Cache_tiering",transform:"",rank:i++},
+            cache_target_dirty_ratio_micro:{cat:"Cache_tiering",transform:"getPercentFromMicroLabel",rank:i++},
+            cache_target_full_ratio_micro:{cat:"Cache_tiering",transform:"getPercentFromMicroLabel",rank:i++},
+            cache_min_flush_age:{cat:"Cache_tiering",transform:"getSecondLabel",rank:i++},
+            cache_min_evict_age:{cat:"Cache_tiering",transform:"getSecondLabel",rank:i++},
+            target_max_age:{cat:"Cache_tiering",transform:"getSecondLabel",rank:i++},
+            target_max_objects:{cat:"Cache_tiering",transform:"",rank:i++},
+            target_max_bytes:{cat:"Cache_tiering",transform:"getBytesLabel",rank:i++},
+            hit_set_count:{cat:"Cache_tiering",transform:"",rank:i++},
+            hit_set_period:{cat:"Cache_tiering",transform:"getSecondLabel",rank:i++},
+            hit_set_params:{cat:"Cache_tiering",transform:"getPrettyfiedJSONLabel",rank:i++},
+            erasure_code_profile:{cat:"Erasure_coded_pool",transform:"",rank:i++},
+            snap_epoch:{cat:"Snapshot",transform:"",rank:i++},
+            snap_mode:{cat:"Snapshot",transform:"",rank:i++},
+            snap_seq:{cat:"Snapshot",transform:"",rank:i++},
+            pool_snaps:{cat:"Snapshot",transform:"getSnapshotLabel",rank:i++},
+            removed_snaps:{cat:"Snapshot",transform:"",rank:i++}
+    };
+
     var uri = inkscopeCtrlURL + "pools/"+$routeParams.poolNum ;
     var v;
     var v2 = '';
@@ -114,21 +152,55 @@ function DetailCtrl($scope,$scope, $http, $routeParams, $route, $dialogs) {
             $scope.detailedPool =  data.output;
             $scope.hasSnap=false;
 
+            $scope.detailedPoolParams=new Array();
             for (var key in $scope.detailedPool){
-
-                    if ( key == "pool_snaps"){
-                        if ($scope.version < 0.80){
-                            var value = ($scope.detailedPool[key])["pool_snap_info"];
-                        }
-                        else{
-                            var value = ($scope.detailedPool[key])[$scope.detailedPool[key].length-1];
-                        }
-                        $scope.detailedPool[key] = "nr: "+value["snapid"]+", date: "+value["stamp"]+", name: "+value["name"];
-                        $scope.hasSnap=true;
-                        $scope.snap_name = value["name"];
-                        break;
+                var param ={};
+                keyParams = poolParameters[key];
+                if (typeof keyParams !== "undefined"){
+                    transformFunctionName = keyParams.transform;
+                    param.cat = keyParams.cat;
+                    param.rank = keyParams.rank;
+                }
+                else {
+                    transformFunctionName = $scope["getNoTransformLibelle"];
+                    param.cat = "Uncategorized";
+                    param.rank = 9999;
+                }
+                if (transformFunctionName =="")
+                    param.value = ""+$scope.detailedPool[key];
+                else {
+                    transformFunction = $scope[transformFunctionName];
+                    if (typeof transformFunction === "function"){
+                        //console.log(key+" : "+transformFunctionName+" : "+JSON.stringify($scope.detailedPool[key]));
+                        param.value = transformFunction($scope.detailedPool[key]);
                     }
+                    else
+                        param.value = ""+$scope.detailedPool[key];
+                }
+                param.key=key.replace('_',' ', 'gi');
+
+                $scope.detailedPoolParams.push(param);
+
             }
+
+            $scope.poolParams = new ngTableParams({
+                page: 1,            // show first page
+                count: -1,          // count per page
+                sorting: {
+                    rank: 'asc'     // initial sorting
+                }
+            }, {
+                groupBy: 'cat',
+                counts: [], // hide page counts control
+                total: -1,  // value less than count hide pagination
+                getData: function ($defer, params) {
+                    // use build-in angular filter
+                    $scope.orderedData = params.sorting() ?
+                        $filter('orderBy')($scope.detailedPoolParams, params.orderBy()) :
+                        data;
+                    $defer.resolve($scope.orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+                }
+            });
 
         }).
         error(function (data, status, headers) {
@@ -137,6 +209,36 @@ function DetailCtrl($scope,$scope, $http, $routeParams, $route, $dialogs) {
             $dialogs.error("<h3>Can't display pools with num "+$routeParams.poolNum+"</h3><br>"+$scope.data);
         });
 
+    /* transform function for parameters */
+    $scope.getPoolTypeLabel = function(type){typeLabels = ["","replicated","raid-4","erasure"];return typeLabels[type];}
+    $scope.getPercentFromMicroLabel = function(value){return  (value / 10000).toFixed(0) + " %";}
+    $scope.getSecondLabel=function(value){return value+" s";}
+    $scope.getBytesLabel=function(value){return funcBytes(value,"bytes");}
+    $scope.getPrettyfiedJSONLabel=function(obj){
+        //console.log("getPrettyfiedJSONLabel : "+JSON.stringify(obj));
+        var label = "";
+        for  (var key in obj){
+            //console.log (key);
+            label+= key+ ' : '+obj[key]+"<br>";
+        }
+        return label;
+    }
+
+    $scope.getSnapshotLabel=function(obj){
+        console.log("getSnapshotLabel : "+JSON.stringify(obj));
+
+        if (obj.length == 0 ) return "none";
+        $scope.hasSnap=true;
+        var label="";
+        for (var i=0; i< obj.length;i++){
+            var value = obj[i];
+            $scope.snap_name = value["name"];
+            if (label!="") label +="<br>";
+            label+="nr: "+value["snapid"]+", date: "+value["stamp"]+", name: "+value["name"];}
+        return label;
+    }
+
+     /**/
 
     $scope.removeSnapshot = function () {
         var uri = inkscopeCtrlURL + "pools/"+$scope.detailedPool.pool+"/snapshot/"+$scope.snap_name ;
