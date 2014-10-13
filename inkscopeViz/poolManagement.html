@@ -24,7 +24,7 @@
     <script>
         function resize(){
         var header = document.querySelector("#header");
-        var height = window.innerHeight-200;
+        var height = window.innerHeight-250;
         var control = document.querySelector("#control");
         control.style.maxHeight = height+"px";
         }
@@ -36,7 +36,9 @@
 
 <div>
 <!--div id="status"  >{{status}}</div-->
-<div id="listpool">
+    <div id="datePanel"><br>Date : {{date | date:'HH:mm:ss'}}</div>
+
+    <div id="listpool">
     <table>
         <tr>
             <th><input type="text" ng-model="search.name" class="search-query" placeholder="Search pool name"></th>
