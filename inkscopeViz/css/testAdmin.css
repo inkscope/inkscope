@@ -90,7 +90,8 @@ label {
 
 .button-bar {
     clear: both;
-    float: right;
+    width: 100%;
+    text-align: right;
 }
 
 #control{
