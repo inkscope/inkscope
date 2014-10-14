@@ -105,22 +105,22 @@ function DetailCtrl($scope, $http, $routeParams, $route, $dialogs, ngTableParams
             quota_max_bytes:{cat:"General",transform:"getBytesLabel",rank:i++},
             quota_max_objects:{cat:"General",transform:"",rank:i++},
             flags_names:{cat:"General",transform:"",rank:i++},
-            tiers:{cat:"Cache_tiering",transform:"",rank:i++},
-            tier_of:{cat:"Cache_tiering",transform:"",rank:i++},
-            read_tier:{cat:"Cache_tiering",transform:"",rank:i++},
-            write_tier:{cat:"Cache_tiering",transform:"",rank:i++},
-            cache_mode:{cat:"Cache_tiering",transform:"",rank:i++},
-            cache_target_dirty_ratio_micro:{cat:"Cache_tiering",transform:"getPercentFromMicroLabel",rank:i++},
-            cache_target_full_ratio_micro:{cat:"Cache_tiering",transform:"getPercentFromMicroLabel",rank:i++},
-            cache_min_flush_age:{cat:"Cache_tiering",transform:"getSecondLabel",rank:i++},
-            cache_min_evict_age:{cat:"Cache_tiering",transform:"getSecondLabel",rank:i++},
-            target_max_age:{cat:"Cache_tiering",transform:"getSecondLabel",rank:i++},
-            target_max_objects:{cat:"Cache_tiering",transform:"",rank:i++},
-            target_max_bytes:{cat:"Cache_tiering",transform:"getBytesLabel",rank:i++},
-            hit_set_count:{cat:"Cache_tiering",transform:"",rank:i++},
-            hit_set_period:{cat:"Cache_tiering",transform:"getSecondLabel",rank:i++},
-            hit_set_params:{cat:"Cache_tiering",transform:"getPrettyfiedJSONLabel",rank:i++},
-            erasure_code_profile:{cat:"Erasure_coded_pool",transform:"",rank:i++},
+            tiers:{cat:"Cache tiering",transform:"",rank:i++},
+            tier_of:{cat:"Cache tiering",transform:"",rank:i++},
+            read_tier:{cat:"Cache tiering",transform:"",rank:i++},
+            write_tier:{cat:"Cache tiering",transform:"",rank:i++},
+            cache_mode:{cat:"Cache tiering",transform:"",rank:i++},
+            cache_target_dirty_ratio_micro:{cat:"Cache tiering",transform:"getPercentFromMicroLabel",rank:i++},
+            cache_target_full_ratio_micro:{cat:"Cache tiering",transform:"getPercentFromMicroLabel",rank:i++},
+            cache_min_flush_age:{cat:"Cache tiering",transform:"getSecondLabel",rank:i++},
+            cache_min_evict_age:{cat:"Cache tiering",transform:"getSecondLabel",rank:i++},
+            target_max_age:{cat:"Cache tiering",transform:"getSecondLabel",rank:i++},
+            target_max_objects:{cat:"Cache tiering",transform:"",rank:i++},
+            target_max_bytes:{cat:"Cache tiering",transform:"getBytesLabel",rank:i++},
+            hit_set_count:{cat:"Cache tiering",transform:"",rank:i++},
+            hit_set_period:{cat:"Cache tiering",transform:"getSecondLabel",rank:i++},
+            hit_set_params:{cat:"Cache tiering",transform:"getPrettyfiedJSONLabel",rank:i++},
+            erasure_code_profile:{cat:"Erasure coded pool",transform:"",rank:i++},
             snap_epoch:{cat:"Snapshot",transform:"",rank:i++},
             snap_mode:{cat:"Snapshot",transform:"",rank:i++},
             snap_seq:{cat:"Snapshot",transform:"",rank:i++},
@@ -182,7 +182,11 @@ function DetailCtrl($scope, $http, $routeParams, $route, $dialogs, ngTableParams
                 $scope.detailedPoolParams.push(param);
 
             }
-
+            $scope.firstGroup=true;
+            $scope.checkGroup = function(group){
+                if ($scope.firstGroup) $scope.firstGroup = false;
+                else group.$hideRows=true;
+            }
             $scope.poolParams = new ngTableParams({
                 page: 1,            // show first page
                 count: -1,          // count per page

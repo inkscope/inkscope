@@ -52,7 +52,7 @@
         </tr>
     </table>
     <br>
-    <table ng-table="tableParams" class="table table-condensed table-hover clickable">
+    <table ng-table="tableParams" class="table table-condensed clickable">
         <tr ng-repeat="pool in orderedData | filter:search:strict" ng-click="showDetail(pool.id)">
             <td data-title="'Id'" sortable="'id'">{{pool.id}}</td>
             <td data-title="'Pool'" sortable="'name'">{{pool.name}}</td>
