@@ -38,6 +38,21 @@ function refreshPools($http, $scope, $templateCache) {
         });
 }
 
+function getRules($http, $scope, $templateCache) {
+    $http({method: "get", url: cephRestApiURL + "osd/crush/dump.json", cache: $templateCache}).
+        success(function (data, status) {
+            $scope.status = status;
+            $scope.date = new Date();
+            $scope.rules = data.output.rules;
+        }).
+        error(function (data, status, headers) {
+            //alert("refresh pools failed with status "+status);
+            $scope.status = status;
+            $scope.pools =  data || "Request failed";
+        });
+}
+
+
 function ListCtrl($scope,$http, $filter, ngTableParams, $location) {
     $scope.tableParams = new ngTableParams({
         page: 1,            // show first page
@@ -62,6 +77,8 @@ function ListCtrl($scope,$http, $filter, ngTableParams, $location) {
         refreshPools($http, $scope)
     }, 10000);
     var data;
+
+    getRules($http,$scope)
 
     $scope.showDetail = function (poolid) {
         $location.path('/detail/'+poolid);
@@ -99,16 +116,16 @@ function DetailCtrl($scope, $http, $routeParams, $route, $dialogs, ngTableParams
             type:{cat:"General",transform:"getPoolTypeLabel",rank:i++},
             size:{cat:"General",transform:"",rank:i++},
             min_size:{cat:"General",transform:"",rank:i++},
-            crush_ruleset:{cat:"General",transform:"",rank:i++},
+            crush_ruleset:{cat:"General",transform:"getRulesetNameLabel",rank:i++},
             pg_num:{cat:"General",transform:"",rank:i++},
             pg_placement_num:{cat:"General",transform:"",rank:i++},
             quota_max_bytes:{cat:"General",transform:"getBytesLabel",rank:i++},
             quota_max_objects:{cat:"General",transform:"",rank:i++},
             flags_names:{cat:"General",transform:"",rank:i++},
-            tiers:{cat:"Cache tiering",transform:"",rank:i++},
-            tier_of:{cat:"Cache tiering",transform:"",rank:i++},
-            read_tier:{cat:"Cache tiering",transform:"",rank:i++},
-            write_tier:{cat:"Cache tiering",transform:"",rank:i++},
+            tiers:{cat:"Cache tiering",transform:"getPoolLabel",rank:i++},
+            tier_of:{cat:"Cache tiering",transform:"getPoolLabel",rank:i++},
+            read_tier:{cat:"Cache tiering",transform:"getPoolLabel",rank:i++},
+            write_tier:{cat:"Cache tiering",transform:"getPoolLabel",rank:i++},
             cache_mode:{cat:"Cache tiering",transform:"",rank:i++},
             cache_target_dirty_ratio_micro:{cat:"Cache tiering",transform:"getPercentFromMicroLabel",rank:i++},
             cache_target_full_ratio_micro:{cat:"Cache tiering",transform:"getPercentFromMicroLabel",rank:i++},
@@ -214,10 +231,23 @@ function DetailCtrl($scope, $http, $routeParams, $route, $dialogs, ngTableParams
         });
 
     /* transform function for parameters */
-    $scope.getPoolTypeLabel = function(type){typeLabels = ["","replicated","raid-4","erasure"];return typeLabels[type];}
+    $scope.getRulesetNameLabel=function(rulesetid){
+        if ( typeof $scope.rules === "undefined") return rulesetid;
+        for (var i in $scope.rules){
+            if ($scope.rules[i].ruleset == rulesetid) return rulesetid+" ("+$scope.rules[i].rule_name+")";
+        }
+        return rulesetid+" (unknown)";
+    }
+    $scope.getPoolLabel = function(poolid){
+        if ((typeof poolid == "object")&&(poolid.length ==0)) return "none";
+        if (poolid== -1) return "-1";
+        for (var i in $scope.pools)if (poolid == $scope.pools[i].id) return poolid +" (<a href='#/detail/"+poolid+"'>"+ $scope.pools[i].name+"</a>)";
+        return poolid +" (unknown)";
+        }
+    $scope.getPoolTypeLabel = function(type){typeLabels = ["","replicated","raid-4","erasure"];return type+ " ("+typeLabels[type]+")";}
     $scope.getPercentFromMicroLabel = function(value){return  (value / 10000).toFixed(0) + " %";}
     $scope.getSecondLabel=function(value){return value+" s";}
-    $scope.getBytesLabel=function(value){return funcBytes(value,"bytes");}
+    $scope.getBytesLabel=function(value){if (value==0) return "0"; else return funcBytes(value,"bytes");}
     $scope.getPrettyfiedJSONLabel=function(obj){
         //console.log("getPrettyfiedJSONLabel : "+JSON.stringify(obj));
         var label = "";
