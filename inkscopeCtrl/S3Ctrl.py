@@ -25,6 +25,9 @@ class S3Ctrl:
     def getAdminConnection(self):
         return S3Bucket(self.admin, access_key=self.key, secret_key=self.secret , base_url= self.url)
 
+    def getBucket(self,bucketName):
+        return S3Bucket(bucketName, access_key=self.key, secret_key=self.secret , base_url= self.radosgw_url +bucketName)
+
     def listUsers(self):
         Log.debug( "list users from rgw api")
         return S3User.list(self.getAdminConnection())
@@ -134,6 +137,33 @@ class S3Ctrl:
         info = res.read()
         print info
         return info
+
+    def listBucket (self, bucketName):
+        myargs = []
+        if bucketName is not None:
+            myargs.append(("bucket",bucketName))
+        conn = self.getAdminConnection()
+        request2= conn.request(method="GET", key="bucket", args= myargs)
+        res = conn.send(request2)
+        bucketInfo = json.loads(res.read())
+        print bucketInfo
+        owner = bucketInfo.get('owner')
+        userInfo = self.getUser(owner)
+        print userInfo
+        userInfo = json.loads(userInfo)
+        keys = userInfo.get('keys')
+        print keys
+        access_key = keys[0].get('access_key')
+        secret_key = keys[0].get('secret_key')
+        bucket = S3Bucket(bucketName, access_key=access_key, secret_key=secret_key , base_url= self.radosgw_url+bucketName)
+        list = []
+        for (key, modify, etag, size) in bucket.listdir():
+            obj = {}
+            obj['name'] = key
+            obj['size'] = size
+            list.append(obj)
+            print "%r (%r) is size %r, modified %r" % (key, etag, size, modify)
+        return json.dumps(list)
 
     def unlinkBucket (self,uid, bucket):
         conn = self.getAdminConnection()
