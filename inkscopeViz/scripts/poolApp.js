@@ -85,7 +85,7 @@ function ListCtrl($scope,$http, $filter, ngTableParams, $location) {
     }
 }
 
-function SnapshotCtrl($scope,$scope, $http, $routeParams, $location, $dialogs) {
+function SnapshotCtrl($scope, $http, $routeParams, $location, $dialogs) {
     $scope.poolNum = $routeParams.poolNum;
     $scope.poolName = $routeParams.poolName;
     var uri = inkscopeCtrlURL + "pools/"+$scope.poolNum+"/snapshot" ;
