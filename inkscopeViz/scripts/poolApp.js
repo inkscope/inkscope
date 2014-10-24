@@ -179,7 +179,7 @@ function DetailCtrl($scope, $http, $routeParams, $route, $dialogs, ngTableParams
                     param.rank = keyParams.rank;
                 }
                 else {
-                    transformFunctionName = $scope["getNoTransformLibelle"];
+                    transformFunctionName = "";
                     param.cat = "Uncategorized";
                     param.rank = 9999;
                 }
