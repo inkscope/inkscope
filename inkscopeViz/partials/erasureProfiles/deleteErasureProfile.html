@@ -1,0 +1,13 @@
+<h3>Erasure code profile deletion</h3>
+<br />
+<form name="myForm">
+    <p>Are you sure you want to delete erasure code profile named <strong>"{{erasureProfileName}}"</strong> ?</p>
+
+    <br>
+    <p class="text-info"><i class="icon-warning-sign"></i> <em>If the profile is referenced by a pool, the deletion will fail.</em></p>
+
+    <div class="button-bar">
+        <button ng-click="erasureProfileDelete()" ng-show="erasureProfileName!=''" class="btn btn-danger">Delete</button>
+        <a href="#/detail/{{erasureProfileName}}" class="btn">Cancel</a>
+    </div>
+</form>

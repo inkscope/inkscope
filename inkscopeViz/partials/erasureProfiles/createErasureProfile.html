@@ -1,0 +1,100 @@
+<h3>Erasure code profile {{operation}}</h3>
+<br/>
+<form name="form" novalidate class="form-horizontal">
+    <div class="control-group">
+        <label for="erasureProfile.name" class="col-sm-2 control-label">profile name :</label>
+        <div class="controls">
+            <input type=text id="erasureProfile.name" ng-model="erasureProfile.name" placeholder="profile name" required/>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="erasureProfile.plugin" class="col-sm-2 control-label">plugin : </label>
+        <div class="controls">
+            <select id="erasureProfile.plugin" ng-model="erasureProfile.plugin" ng-options="plugin for plugin in plugins" ng-init="erasureProfile.plugin='jerasure'" ng-change="setPlugin(erasureProfile.plugin)"></select>
+            &nbsp;<a class="tooltips"><i class="icon-book"></i><span>Use the erasure code plugin to compute coding chunks and recover missing chunks</span></a>
+        </div>
+    </div>
+
+    <div class="control-group" ng-hide="erasureProfile.plugin=='lrc'">
+        <label for="erasureProfile.technique" class="col-sm-2 control-label">technique : </label>
+        <div class="controls">
+            <select id="erasureProfile.technique" ng-model="erasureProfile.technique" ng-options="technique for technique in techniques"></select>
+            &nbsp;<a class="tooltips"><i class="icon-book"></i><span>Default is reed_sol_van</span></a>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="erasureProfile.k" class="col-sm-2 control-label">k (data chunks): </label>
+        <div class="controls">
+            <input type=number id="erasureProfile.k" ng-model="erasureProfile.k" required/>
+            &nbsp;<a class="tooltips"><i class="icon-book"></i><span>Each object is split in data-chunks parts, each stored on a different OSD.</span></a>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="erasureProfile.m" class="col-sm-2 control-label">m (coding chunks) : </label>
+        <div class="controls">
+            <input type=number id="erasureProfile.m" ng-model="erasureProfile.m" required/>
+            &nbsp;<a class="tooltips"><i class="icon-book"></i><span>Compute coding chunks for each object and store them on different OSDs. The number of coding chunks is also the number of OSDs that can be down without losing data.</span></a>
+        </div>
+    </div>
+
+    <div class="control-group" ng-show="erasureProfile.plugin=='lrc'">
+        <label for="erasureProfile.l" class="col-sm-2 control-label">l (set size) : </label>
+        <div class="controls">
+            <input type=number id="erasureProfile.l" ng-model="erasureProfile.l" ng-required="erasureProfile.plugin =='lrc'"/>
+            &nbsp;<a class="tooltips"><i class="icon-book"></i><span>Group the coding and data chunks into sets of size locality. For instance, for k=4 and m=2, when locality=3 two groups of three are created. Each set can be recovered without reading chunks from another set.</span></a>
+        </div>
+    </div>
+
+    <div class="control-group" ng-show="erasureProfile.plugin=='jerasure'">
+        <label for="erasureProfile.packetsize" class="col-sm-2 control-label">packet size : </label>
+        <div class="controls">
+            <input type=number id="erasureProfile.packetsize" ng-model="erasureProfile.packetsize"/>
+            &nbsp;<a class="tooltips"><i class="icon-book"></i><span>The encoding will be done on packets of bytes size at a time. Chosing the right packet size is difficult.</span></a>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="erasureProfile.ruleset_failure_domain" class="col-sm-2 control-label">ruleset failure domain
+            : </label>
+        <div class="controls">
+            <input type=text id="erasureProfile.ruleset_failure_domain" ng-model="erasureProfile.ruleset_failure_domain"
+                   ng-init="erasureProfile.ruleset_failure_domain='host'"/>
+            &nbsp;<a class="tooltips"><i class="icon-book"></i><span>Ensure that no two chunks are in a bucket with the same failure domain. For instance, if the failure domain is host no two chunks will be stored on the same host. It is used to create a ruleset step such as step chooseleaf host.</span></a>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="erasureProfile.ruleset_root" class="col-sm-2 control-label">ruleset root : </label>
+        <div class="controls">
+            <input type=text id="erasureProfile.ruleset_root" ng-model="erasureProfile.ruleset_root"/>
+            &nbsp;<a class="tooltips"><i class="icon-book"></i><span>The name of the crush bucket used for the first step of the ruleset. For intance step take default.</span></a>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="erasureProfile.directory" class="col-sm-2 control-label">directory : </label>
+        <div class="controls">
+            <input type=text id="erasureProfile.directory" ng-model="erasureProfile.directory"/>
+            &nbsp;<a class="tooltips"><i class="icon-book"></i><span>Set the directory name from which the erasure code plugin is loaded.</span></a>
+        </div>
+    </div>
+
+    <br/>
+    <br/>
+
+    <div class="button-bar">
+        <button ng-click="submit()" ng-disabled="form.$invalid || isUnchanged(erasureProfile)" class="btn btn-success">
+            {{ (operation=="creation"?"Create":"Modify") }}
+        </button>
+        <button ng-click="reset()" ng-disabled="isUnchanged(erasureProfile)" class="btn btn-default">
+            Reset
+        </button>
+        <button ng-click="cancel()" class="btn btn-default">Cancel</button>
+
+    </div>
+</form>
+<br>
+
