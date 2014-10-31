@@ -46,7 +46,7 @@ import signal
 #from bson.objectid import ObjectId
 #db.col.find({"_id": ObjectId(obj_id_to_find)})
 
-configfile = "/opt/inkscope/etc/sysprobe.conf"
+configfile = "/opt/inkscope/etc/inkscope.conf"
 runfile = "/var/run/sysprobe/sysprobe.pid"
 logfile = "/var/log/sysprobe.log"
 

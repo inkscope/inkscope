@@ -5,5 +5,5 @@
 INKPATHETC='/opt/inkscope/etc'
 mkdir -pv $INKPATHETC
 
-mv inkscopeCtrl.conf $INKPATHETC
+mv ../inkscope.conf $INKPATHETC
 

@@ -14,7 +14,7 @@ import time
 
 
 
-configfile = "/opt/inkscope/etc/inkscopeCtrl.conf"
+configfile = "/opt/inkscope/etc/inkscope.conf"
 
 
 def load_conf(config):

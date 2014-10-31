@@ -20,7 +20,7 @@ This contains a lib to create a  supervision  with nrpe and shinken framework.
 
 REMARKS
 -------
-It uses the configuration file inkscopeCtrl.conf that must be put in /opt/inkscope/etc/
+It uses the configuration file inkscope.conf that must be put in /opt/inkscope/etc/
 
 It needs also some python modules:
 

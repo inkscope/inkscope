@@ -41,7 +41,7 @@ import signal
 #from bson.objectid import ObjectId
 #db.col.find({"_id": ObjectId(obj_id_to_find)})
 
-configfile = "/opt/inkscope/etc/cephprobe.conf"
+configfile = "/opt/inkscope/etc/inkscope.conf"
 runfile = "/var/run/cephprobe/cephprobe.pid"
 logfile = "/var/log/cephprobe.log"
 clusterName = "ceph"

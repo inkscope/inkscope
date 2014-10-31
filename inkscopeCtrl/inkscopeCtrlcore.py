@@ -23,7 +23,7 @@ from Log import Log
 
 
 # Load configuration from file
-configfile = "/opt/inkscope/etc/inkscopeCtrl.conf"
+configfile = "/opt/inkscope/etc/inkscope.conf"
 datasource = open(configfile, "r")
 conf = json.load(datasource)
 datasource.close()
