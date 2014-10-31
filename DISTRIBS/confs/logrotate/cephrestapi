@@ -1,0 +1,9 @@
+/var/log/ceph/ceph_rest_api {
+    rotate 2
+    daily
+    compress
+    sharedscripts
+    postrotate
+    missingok
+endscript
+}
