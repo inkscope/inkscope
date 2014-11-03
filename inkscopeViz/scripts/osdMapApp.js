@@ -13,8 +13,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http, $location 
     if ($location.absUrl().indexOf("dispoMode=space") > -1) $scope.dispoMode = "free space (%)";
     // get OSD info and refresh every 10s
     getOsds();
-    //setInterval(function () {getOsds()},10*1000);
-    d3.timer(function () {getOsds()},10*1000);
+    setInterval(function () {getOsds()},10*1000);
 
     // Prepare OSD topology from crushmap
 

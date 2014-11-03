@@ -2,7 +2,8 @@
 var colorsGnYlRd = ["#038a00","#05a001","#0ac800","#0ad600","#50d600","#92d600","#d6d600","#e6b000","#ff8c00","#d62800","#C00000"];
 /*---------------------0---------10---------20--------30--------40-------50---------60-------70--------80--------90-------100-------*/
 function color4ascPercent(percent) {
-    if (percent<0) return "#cccccc";
+    //console.log("percent="+percent);
+    if ((percent == "N/A")||(percent<0)) return "#cccccc";
     var index = parseInt(10-(percent*10));
     if (index == 10) return colorsGnYlRd[10];
     var delta = (10-(percent*10))-index;
