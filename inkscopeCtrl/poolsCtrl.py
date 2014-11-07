@@ -5,7 +5,7 @@ from flask import Flask, request, Response
 import json
 import requests
 from array import *
-
+from Log import Log
 
 def getCephRestApiUrl(request):
     # discover ceph-rest-api URL
@@ -21,10 +21,12 @@ class Pools:
         self.name = jsondata['pool_name']
         self.pg_num = jsondata['pg_num']
         self.pgp_num = jsondata['pg_placement_num']
+        self.type = jsondata['type']
         self.size = jsondata['size']
         self.min_size = jsondata['min_size']
         self.crash_replay_interval = jsondata['crash_replay_interval']
         self.crush_ruleset = jsondata['crush_ruleset']
+        self.erasure_code_profile = jsondata['erasure_code_profile']
         self.quota_max_objects = jsondata['quota_max_objects']
         self.quota_max_bytes = jsondata['quota_max_bytes']
 
@@ -33,15 +35,20 @@ class Pools:
         self.name = r['output']['pools'][ind]['pool_name']
         self.pg_num = r['output']['pools'][ind]['pg_num']
         self.pgp_num = r['output']['pools'][ind]['pg_placement_num']
+        self.type = r['output']['pools'][ind]['type']
         self.size = r['output']['pools'][ind]['size']
         self.min_size = r['output']['pools'][ind]['min_size']
         self.crash_replay_interval = r['output']['pools'][ind]['crash_replay_interval']
         self.crush_ruleset = r['output']['pools'][ind]['crush_ruleset']
+        self.erasure_code_profile = r['output']['pools'][ind]['erasure_code_profile']
         self.quota_max_objects = r['output']['pools'][ind]['quota_max_objects']
         self.quota_max_bytes = r['output']['pools'][ind]['quota_max_bytes']
 
     def register(self):
-        register_pool = requests.put(self.cephRestApiUrl+'osd/pool/create?pool='+self.name+'&pg_num='+str(self.pg_num)+'&pgp_num='+str(self.pgp_num))
+        uri = self.cephRestApiUrl+'osd/pool/create?pool='+self.name+'&pool_type='+self.type+'&pg_num='+str(self.pg_num)+'&pgp_num='+str(self.pgp_num)
+        if self.erasure_code_profile != "":
+            uri += '&erasure_code_profile='+self.erasure_code_profile
+        register_pool = requests.put(uri)
         # if newpool.register().status_code != 200:
         # #     return 'Error '+str(r.status_code)+' on creating pools'
         # else:

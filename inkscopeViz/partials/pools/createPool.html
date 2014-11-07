@@ -2,9 +2,30 @@
 <br />
 <form name="form" novalidate class="form-horizontal">
     <div class="control-group">
-        <label for="pool.pool_name" class="col-sm-2 control-label">Pool name :</label>
+        <label for="pool.pool_name" class="col-sm-2 control-label">pool name :</label>
         <div class="controls">
             <input type=text id="pool.pool_name"  ng-model="pool.pool_name" placeholder="Pool name" required/>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="pool.type" class="col-sm-2 control-label">type : </label>
+        <div class="controls">
+            <select id="pool.type" ng-model="pool.type" ng-options="type for type in ['replicated','erasure']" required></select>
+        </div>
+    </div>
+    <div class="control-group" ng-hide="pool.type!='erasure'">
+        <label for="pool.erasure_code_profile" class="col-sm-2 control-label">erasure code profile : </label>
+        <div class="controls">
+            <select id="pool.erasure_code_profile" ng-model="pool.erasure_code_profile" ng-options="profile for profile in erasureProfiles" ng-required="pool.type=='erasure'"></select>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="pool.crush_ruleset" class="col-sm-2 control-label">rule : </label>
+        <div class="controls">
+            <select id="pool.crush_ruleset" ng-model="pool.crush_ruleset" required>
+                <option ng-repeat="item in rules" value="{{ item.ruleset }}">{{ item.rule_name }}</option>
+            </select>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>ruleset to use for mapping object placement in the cluster</span></a>
         </div>
     </div>
     <div class="control-group">
@@ -40,13 +61,6 @@
         <div class="controls">
             <input type=number id="pool.crash_replay_interval"  ng-model="pool.crash_replay_interval" required/>
             &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>number of seconds to allow clients to replay acknowledged, but uncommitted requests</span></a>
-        </div>
-    </div>
-    <div class="control-group">
-        <label for="pool.crush_ruleset" class="col-sm-2 control-label">crush ruleset : </label>
-        <div class="controls">
-            <input type=number id="pool.crush_ruleset"  ng-model="pool.crush_ruleset" required/>
-            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>ruleset to use for mapping object placement in the cluster</span></a>
         </div>
     </div>
     <div class="control-group">

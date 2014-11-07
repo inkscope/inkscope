@@ -52,6 +52,18 @@ function getRules($http, $scope, $templateCache) {
         });
 }
 
+function getErasureProfiles($http, $scope) {
+    $http({method: "get", url: cephRestApiURL + "osd/erasure-code-profile/ls.json"}).
+        success(function (data, status) {
+            $scope.status = status;
+            $scope.erasureProfiles =  data.output;
+        }).
+        error(function (data, status, headers) {
+            //alert("refresh erasureProfiles failed with status "+status);
+            $scope.status = status;
+            $scope.erasureProfiles =  ['default'];
+        });
+}
 
 function ListCtrl($scope,$http, $filter, ngTableParams, $location) {
     $scope.tableParams = new ngTableParams({
@@ -79,6 +91,7 @@ function ListCtrl($scope,$http, $filter, ngTableParams, $location) {
     var data;
 
     getRules($http,$scope)
+    getErasureProfiles($http,$scope)
 
     $scope.showDetail = function (poolid) {
         $location.path('/detail/'+poolid);
@@ -364,6 +377,7 @@ function CreateCtrl($scope, $scope, $location, $http, $dialogs) {
     // default values
     $scope.master = {};
     $scope.pool = {};
+    $scope.master.erasure_code_profile = "";
     $scope.master.crash_replay_interval = 0;
     $scope.master.quota_max_bytes = 0;
     $scope.master.quota_max_objects = 0;
