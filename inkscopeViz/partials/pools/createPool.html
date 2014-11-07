@@ -10,13 +10,13 @@
     <div class="control-group">
         <label for="pool.type" class="col-sm-2 control-label">type : </label>
         <div class="controls">
-            <select id="pool.type" ng-model="pool.type" ng-options="type for type in ['replicated','erasure']" required></select>
+            <select id="pool.type" ng-model="pool.type" ng-options="type for type in ['replicated','erasure']" required ng-disabled="operation == 'modification'"></select>
         </div>
     </div>
     <div class="control-group" ng-hide="pool.type!='erasure'">
         <label for="pool.erasure_code_profile" class="col-sm-2 control-label">erasure code profile : </label>
         <div class="controls">
-            <select id="pool.erasure_code_profile" ng-model="pool.erasure_code_profile" ng-options="profile for profile in erasureProfiles" ng-required="pool.type=='erasure'"></select>
+            <select id="pool.erasure_code_profile" ng-model="pool.erasure_code_profile" ng-options="profile for profile in erasureProfiles" ng-required="pool.type=='erasure' && operation == 'creation'" ng-disabled="operation == 'modification'"></select>
         </div>
     </div>
     <div class="control-group">

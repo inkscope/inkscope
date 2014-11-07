@@ -433,6 +433,10 @@ function ModifyCtrl($scope, $scope, $routeParams, $location, $http, $dialogs) {
         success(function (data, status) {
             $scope.status = status;
             $scope.master =  data.output;
+            if ($scope.master.type==1)$scope.master.type="replicated";
+            else
+                if ($scope.master.type==3)$scope.master.type="erasure";
+                else $scope.master.type="unknown";
             $scope.reset();
         }).
         error(function (data, status, headers) {
