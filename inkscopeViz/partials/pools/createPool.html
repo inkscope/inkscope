@@ -22,8 +22,8 @@
     <div class="control-group">
         <label for="pool.crush_ruleset" class="col-sm-2 control-label">rule : </label>
         <div class="controls">
-            <select id="pool.crush_ruleset" ng-model="pool.crush_ruleset" required>
-                <option ng-repeat="item in rules" value="{{ item.ruleset }}">{{ item.rule_name }}</option>
+            <select id="pool.crush_ruleset" ng-model="pool.crush_ruleset" >
+                <option ng-repeat="item in rulestab[pool.type]" value="{{ item.ruleset }}" ng-selected="item.ruleset == pool.crush_ruleset">{{ item.rule_name }}</option>
             </select>
             &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>ruleset to use for mapping object placement in the cluster</span></a>
         </div>

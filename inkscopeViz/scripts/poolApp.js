@@ -44,6 +44,13 @@ function getRules($http, $scope, $templateCache) {
             $scope.status = status;
             $scope.date = new Date();
             $scope.rules = data.output.rules;
+            $scope.rulestab = {"replicated" :[], "erasure":[]};
+            for (var i = 0; i < $scope.rules.length; i++) {
+                var rule = $scope.rules[i];
+                if (rule.type==1) $scope.rulestab["replicated"].push(rule);
+                else if (rule.type==3) $scope.rulestab["erasure"].push(rule);
+            }
+
         }).
         error(function (data, status, headers) {
             //alert("refresh pools failed with status "+status);
