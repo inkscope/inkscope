@@ -157,7 +157,7 @@ function DetailCtrl($scope, $http, $routeParams, $route, $dialogs, ngTableParams
             hit_set_count:{cat:"Cache tiering",transform:"",rank:i++},
             hit_set_period:{cat:"Cache tiering",transform:"getSecondLabel",rank:i++},
             hit_set_params:{cat:"Cache tiering",transform:"getPrettyfiedJSONLabel",rank:i++},
-            erasure_code_profile:{cat:"Erasure coded pool",transform:"",rank:i++},
+            erasure_code_profile:{cat:"Erasure coded pool",transform:"getECProfile",rank:i++},
             snap_epoch:{cat:"Snapshot",transform:"",rank:i++},
             snap_mode:{cat:"Snapshot",transform:"",rank:i++},
             snap_seq:{cat:"Snapshot",transform:"",rank:i++},
@@ -265,6 +265,7 @@ function DetailCtrl($scope, $http, $routeParams, $route, $dialogs, ngTableParams
         return poolid +" (unknown)";
         }
     $scope.getPoolTypeLabel = function(type){typeLabels = ["","replicated","raid-4","erasure"];return type+ " ("+typeLabels[type]+")";}
+    $scope.getECProfile = function(profile){ return "<a href='erasureProfiles.html#/detail/"+profile+"'>"+profile+"</a>"}
     $scope.getPercentFromMicroLabel = function(value){return  (value / 10000).toFixed(0) + " %";}
     $scope.getSecondLabel=function(value){return value+" s";}
     $scope.getBytesLabel=function(value){if (value==0) return "0"; else return funcBytes(value,"bytes");}
