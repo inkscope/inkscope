@@ -21,9 +21,13 @@ import osdsCtrl
 from S3Ctrl import S3Ctrl, S3Error
 from Log import Log
 
+#Added for S3 objects management
+
+from   S3ObjectCtrl  import *
+
 
 # Load configuration from file
-configfile = "/opt/inkscope/etc/inkscope.conf"
+configfile = "/opt/inkscope/etc/inkscopeCtrl.conf"
 datasource = open(configfile, "r")
 conf = json.load(datasource)
 datasource.close()
@@ -96,6 +100,16 @@ def osds_manage(id=None):
 #
 # Object storage management
 #
+# This method return a S3 Object that id is "objId".
+# An exception is trhown if the object does not exist or there an issue
+@app.route('/S3/object', methods=['GET'])
+def getObjectStructure() :
+    Log.debug("Calling  getObjectStructure() method")
+    try :
+        return Response(S3ObjectCtrl(conf).getObjectStructure(),mimetype='application/json')
+    except S3Error , e :
+        Log.err(e.__str__())
+        return Response(e.reason, status=e.code)
 
 # User management
 @app.route('/S3/user', methods=['GET'])

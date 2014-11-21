@@ -1,0 +1,63 @@
+{
+            id : "objecthgfhgfhgf",
+            bucketName : "bucketuytfg",
+            bucketId : "default.56.h",
+            poolId : 54,
+            poolName : "poolname",
+            poolType : 'replicated"
+            size : 6512,
+            chunks :[
+                {
+                    id : "6igkjd54654",
+                    size : 4096,
+                    pgid : "54.fe"
+                },
+                {
+                    id : "6igkjd54651",
+                    size : 3526,
+                    pgid : "54.fe"
+                }
+            ],
+            pgs : [
+                {
+                    pgid : "54.fe",
+                    state:"active+degraded",
+                    acting : [5,9],
+                    up : [5,9],
+                    acting_primary : 5,
+                    up_primary : 5
+                },
+                {
+                    pgid : "54.4e",
+                    state : "active+clean",
+                    acting : [5,1],
+                    up : [5,1],
+                    acting_primary : 1,
+                    up_primary : 1
+                }
+            ],
+            osds : [
+                {
+                    id : "osd.1",
+                    status : ['in','up'],
+                    host : "p-sbceph12",
+                    capacity : 1000000000,
+                    occupation : 0.236
+                },
+                {
+                    id : "osd.5",
+                    status : ['in','up'],
+                    host : "p-sbceph11",
+                    capacity : 1000000000,
+                    occupation : 0.236
+                },
+                {
+                    id : "osd.9",
+                    status : ['in','down'],
+                    host : "p-sbceph15",
+                    capacity : 1000000000,
+                    occupation : 0.514
+                }
+            ]
+
+        }
