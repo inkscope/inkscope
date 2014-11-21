@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html ng-app="RGWobjectVizApp">
+<head>
+    <meta charset=utf-8/>
+    <title>RGW object visualization</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/testAdmin.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="css/tooltip.css"/>
+    <script src="scripts/angular/angular.min.js"></script>
+    <script src="scripts/angular/angular-sanitize.min.js"></script>
+    <script src="scripts/angular-misc/angular-commons.js"></script>
+    <script src="scripts/angular-misc/ui-bootstrap-tpls-0.10.0.min.js"></script>
+    <script src="scripts/angular-misc/dialogs.v2.min.js"></script>
+    <script src="scripts/rgwObjectViz.js"></script>
+    <script src="scripts/d3/d3.v3.min.js"></script>
+    <script src="scripts/d3/sankey.js"></script>
+    <script src="scripts/d3/common.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
+    <style>
+        .node rect {
+            cursor: pointer;
+            fill-opacity: .9;
+            shape-rendering: crispEdges;
+        }
+
+        .node text {
+            pointer-events: none;
+            text-shadow: 0 1px 0 #fff;
+        }
+
+        .link {
+            fill: none;
+            stroke: #000;
+            stroke-opacity: .2;
+        }
+
+        .link:hover {
+            stroke-opacity: 1.0;
+        }
+
+
+        #controlPanel {
+            border: black solid 1px;
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            margin: 10px;
+            border-radius: 5px;
+            vertical-align: middle;
+            line-height: 40px;
+            padding:5px;
+        }
+
+        #controlPanel input[type=number] {
+            width:40px;
+        }
+    </style>
+    <!--[if IE]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+<body ng-controller="RGWobjectVizCtrl">
+
+<header ng-include src="'partials/header.html'" ng-init="pageTitle='RGW object visualization'"></header>
+
+<form ng-submit="changePeriod()">
+    <div id="controlPanel">
+        Refresh period
+        <input type="number" ng-model="refreshPeriod" name="refreshPeriod" placeholder="infinite">
+        <input type="submit" id="submit" value="update">
+    </div>
+</form>
+<div id="datePanel">
+    Date : {{date | date:'HH:mm:ss'}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Bucket: <select id="bucketName" ng-model="bucketName" ng-options="bucketName as bucketName for bucketName in buckets | orderBy:'toString()'" ng-change="getObjects(bucketName)"></select>
+    Object: <select id="selectedObject" ng-model="selectedObject" ng-options="item.name for item in objects | orderBy:'name'"  ng-change="setObject()"></select>
+    Size : {{ selectedObject.size | bytes:kB}} &nbsp;&nbsp;&nbsp;
+    <a class="btn btn-small" ng-disabled="selectedObject==null" ng-click="showObject()">show</a>
+</div>
+
+<p id="chart"></p>
+</body>
+</html>
