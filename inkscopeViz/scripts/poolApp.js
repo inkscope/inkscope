@@ -26,13 +26,27 @@ function refreshPools($http, $scope, $templateCache) {
             $scope.stats = data.output.stats;
             var totalUsed = data.output.stats.total_used;
             var totalSpace = data.output.stats.total_space;
-            $scope.percentUsed = totalUsed / totalSpace;
+
+
+            if ( typeof data.output.stats.total_used_bytes === "undefined")
+                $scope.totalUsed = data.output.stats.total_used * 1024;
+            else
+                $scope.totalUsed = data.output.stats.total_used_bytes;
+
+            if ( typeof data.output.stats.total_bytes === "undefined")
+                $scope.totalSpace = data.output.stats.total_space * 1024;
+            else
+                $scope.totalSpace = data.output.stats.total_bytes;
+
+            $scope.percentUsed = $scope.totalUsed / $scope.totalSpace;
             $scope.tableParams.reload();
         }).
         error(function (data, status, headers) {
             //alert("refresh pools failed with status "+status);
             $scope.status = status;
             $scope.pools =  data || "Request failed";
+            $scope.totalUsed = "N/A";
+            $scope.totalSpace = "N/A";
             $scope.stats.total_used = "N/A";
             $scope.stats.total_space = "N/A";
         });

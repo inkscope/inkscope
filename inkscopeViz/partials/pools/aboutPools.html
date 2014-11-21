@@ -2,7 +2,7 @@
     <h3>Total space usage</h3>
     <ad-gauge value="percentUsed" colormode="desc" width="400"></ad-gauge>
     <div class="gaugeLegend">
-        {{stats.total_used * 1024| bytes}} used <br>on {{stats.total_space *1024| bytes}}
+        {{totalUsed| bytes}} used <br>on {{totalSpace| bytes}}
     </div>
     <br />
     <p>View also:<br>
