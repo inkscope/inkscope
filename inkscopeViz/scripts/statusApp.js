@@ -213,7 +213,8 @@ StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
                 function healthCompare(h1,h2){
                     if ((h1 == "HEALTH_ERROR")||(h2 == "HEALTH_ERROR")) return "HEALTH_ERROR";
                     if ((h1 == "HEALTH_WARN")||(h2 == "HEALTH_WARN")) return "HEALTH_WARN";
-                    return h1;
+                    if ((h1 == "HEALTH_OK")||(h2 == "HEALTH_OK")) return "HEALTH_OK";
+                    return "HEALTH_UNKNOWN";
                 }
 
                 var osdmap = data.output.osdmap.osdmap;
