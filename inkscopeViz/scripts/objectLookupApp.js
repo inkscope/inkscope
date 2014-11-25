@@ -3,7 +3,7 @@
  */
 // angular stuff
 // create module for custom directives
-var ObjectLookupApp = angular.module('ObjectLookupApp', ['D3Directives'])
+var ObjectLookupApp = angular.module('ObjectLookupApp', ['D3Directives','InkscopeCommons'])
     .filter('bytes', funcBytesFilter)
     .filter('duration',funcDurationFilter);
 

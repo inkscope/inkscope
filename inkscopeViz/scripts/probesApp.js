@@ -3,7 +3,7 @@
  */
 // angular stuff
 // create module for custom directives
-var ProbesApp = angular.module('ProbesApp', [])
+var ProbesApp = angular.module('ProbesApp', ['InkscopeCommons'])
     .filter('duration', funcDurationFilter);
 
 ProbesApp.controller("ProbesCtrl", function ($scope, $http) {

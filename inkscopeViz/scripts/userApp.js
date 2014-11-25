@@ -2,7 +2,7 @@
  * Created by arid6405 on 11/21/13.
  */
 
-angular.module('userApp', ['ngRoute','ngTable','ui.bootstrap','dialogs','ngSanitize'])
+angular.module('userApp', ['ngRoute','ngSanitize','InkscopeCommons'])
     .config(function ($routeProvider) {
         $routeProvider.
             when('/', {controller: ListCtrl, templateUrl: 'partials/users/aboutUsers.html'}).

@@ -2,7 +2,7 @@
  * Created by arid6405 on 29/04/2014.
  */
 
-angular.module('bucketApp', ['ngRoute','ngTable','ui.bootstrap','dialogs'])
+angular.module('bucketApp', ['ngRoute','ui.bootstrap','InkscopeCommons'])
     .config(function ($routeProvider) {
         $routeProvider.
             when('/', {controller: ListCtrl, templateUrl: 'partials/buckets/aboutBuckets.html'}).

@@ -2,7 +2,7 @@
  * Created by Alain Dechorgnat on 2014/10/23.
  */
 
-angular.module('erasureProfilesApp', ['ngRoute','ngTable','D3Directives','ui.bootstrap','dialogs'])
+angular.module('erasureProfilesApp', ['ngRoute','D3Directives','InkscopeCommons'])
     .filter('bytes', funcBytesFilter)
     .config(function ($routeProvider) {
         $routeProvider.

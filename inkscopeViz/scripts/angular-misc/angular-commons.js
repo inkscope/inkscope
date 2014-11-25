@@ -34,6 +34,7 @@ function funcDurationFilter(){
         return sign+days+"d "+str;
     }
 }
+
 function getMenu(){
     var navList = angular.module('navList', []);
 
@@ -45,3 +46,37 @@ function getMenu(){
     }]);
 }
 
+
+angular.module('InkscopeCommons', ['ngTable','dialogs','ui.bootstrap'])
+    .controller('statusCtrl', function ($scope,$http) {
+        refreshData();
+        setInterval(function () {
+            refreshData()
+        }, 10 * 1000)
+        function refreshData(){
+            $http({method: "get", url: cephRestApiURL + "status.json",timeout:4000})
+            .success(function (data) {
+                $scope.health = {};
+                $scope.health.severity = data.output.health.overall_status;
+                $scope.health.summary="";
+                var i = 0;
+                while(typeof data.output.health.summary[i] !== "undefined"){
+                    if ($scope.health.summary!="") $scope.health.summary+=" | ";
+                    $scope.health.summary += data.output.health.summary[i].summary;
+                    i++;
+                    }
+                if ($scope.health.summary==""){
+                    if (data.output.health.detail[0])
+                    $scope.health.summary = data.output.health.detail[0];
+                    else
+                    //remove HEALTH_ in severity
+                    $scope.health.summary = $scope.health.severity.substring(7);
+                    }
+                })
+            .error(function (data) {
+                $scope.health = {};
+                $scope.health.severity = "HEALTH_WARN";
+                $scope.health.summary = "Status not available";
+                });
+        }
+});

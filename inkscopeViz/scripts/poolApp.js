@@ -2,7 +2,7 @@
  * Created by arid6405 on 11/21/13.
  */
 
-angular.module('poolApp', ['ngRoute','ngTable','D3Directives','ui.bootstrap','dialogs'])
+angular.module('poolApp', ['ngRoute','ngTable','D3Directives','ui.bootstrap','dialogs','InkscopeCommons' ])
     .filter('bytes', funcBytesFilter)
     .config(function ($routeProvider) {
         $routeProvider.

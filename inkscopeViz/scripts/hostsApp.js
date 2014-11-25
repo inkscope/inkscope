@@ -2,7 +2,7 @@
  * Created by arid6405 on 2014/07/28.
  */
 
-angular.module('hostsApp', ['ngRoute','ngTable','D3Directives','ui.bootstrap','dialogs'])
+angular.module('hostsApp', ['ngRoute','ngTable','D3Directives','ui.bootstrap','dialogs','InkscopeCommons'])
     .filter('bytes', funcBytesFilter)
     .config(function ($routeProvider) {
         $routeProvider.

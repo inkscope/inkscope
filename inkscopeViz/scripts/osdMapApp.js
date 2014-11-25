@@ -1,7 +1,7 @@
 /**
  * Created by Alain Dechorgnat on 24/02/14.
  */
-var osdMapApp = angular.module('osdMapApp', ['dialogs'])
+var osdMapApp = angular.module('osdMapApp', ['InkscopeCommons'])
     .filter('duration', funcDurationFilter);
 
 osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http, $location , $window, $dialogs) {

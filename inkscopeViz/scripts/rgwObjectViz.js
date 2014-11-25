@@ -1,7 +1,7 @@
 /**
  * Created by Alain Dechorgnat on 1/3/14.
  */
-var RGWobjectVizApp = angular.module('RGWobjectVizApp', ['ui.bootstrap','dialogs'])
+var RGWobjectVizApp = angular.module('RGWobjectVizApp', ['ui.bootstrap','InkscopeCommons'])
     .filter('bytes', funcBytesFilter)
     .filter('duration', funcDurationFilter);
 

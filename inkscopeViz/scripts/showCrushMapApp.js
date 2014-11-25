@@ -1,7 +1,7 @@
 /**
  * Created by arid6405 on 12/1/13.
  */
-var showCrushMapApp = angular.module('showCrushMapApp', ['components']);
+var showCrushMapApp = angular.module('showCrushMapApp', ['components','InkscopeCommons']);
 
 
 showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $scope, $http, $templateCache) {

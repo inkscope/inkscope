@@ -3,7 +3,7 @@
  */
 // angular stuff
 // create module for custom directives
-var OsdsApp = angular.module('OsdsApp', ['D3Directives'])
+var OsdsApp = angular.module('OsdsApp', ['D3Directives','InkscopeCommons'])
     .filter('bytes', funcBytesFilter)
     .filter('duration', funcDurationFilter);
 

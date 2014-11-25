@@ -2,7 +2,7 @@
  * Created by Alain Dechorgnat on 1/3/14.
  */
 
-var PoolPgOsdApp = angular.module('PoolPgOsdApp', []);
+var PoolPgOsdApp = angular.module('PoolPgOsdApp', ['InkscopeCommons']);
 
 PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $location) {
     var apiURL = '/ceph-rest-api/';

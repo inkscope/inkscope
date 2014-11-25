@@ -1,7 +1,7 @@
 /**
  * Created by Alain Dechorgnat on 9/19/14.
  */
-var FlagsApp = angular.module('FlagsApp', []);
+var FlagsApp = angular.module('FlagsApp', ['InkscopeCommons']);
 
 FlagsApp.controller("flagsCtrl", function ($scope, $http) {
     var apiURL = '/ceph-rest-api/';

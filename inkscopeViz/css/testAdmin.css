@@ -145,6 +145,10 @@ label {
 .health_status_HEALTH_WARN {background-color: darkorange}
 .health_status_HEALTH_ERR {background-color: red}
 .health_status_HEALTH_UNKNOWN {background-color: lightgrey}
+.text_health_status_HEALTH_OK {color: limegreen}
+.text_health_status_HEALTH_WARN {color: darkorange}
+.text_health_status_HEALTH_ERR {color: red}
+.text_health_status_HEALTH_UNKNOWN {color: lightgrey}
 
 .health_summary{
     font-size:20px;
