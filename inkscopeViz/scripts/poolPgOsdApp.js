@@ -119,6 +119,10 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $location) {
                                 if ( ($scope.selectedOsd != "") && ( $scope.selectedOsd != "osd."+osd ) )
                                     continue;
                                 // direct link from pool to osd
+                                if (typeof osdTab[osd] === "undefined"){
+                                    console.log("pg:"+pg.pgid+", osd:"+osd)
+                                    continue;
+                                }
                                 var link = {};
                                 link.source = poolTab[poolId].index;
                                 link.target = osdTab[osd].index;
