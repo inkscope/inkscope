@@ -2,12 +2,11 @@
  * Created by Alain Dechorgnat on 12/13/13.
  */
 
-var StatusApp = angular.module('StatusApp', ['D3Directives','ngCookies','ngAnimate'])
+var StatusApp = angular.module('StatusApp', ['D3Directives','ngCookies','ngAnimate','InkscopeCommons'])
     .filter('bytes', funcBytesFilter)
     .filter('duration', funcDurationFilter);
 
 StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
-    var apiURL = '/ceph-rest-api/';
     $scope.journal = [];
     $scope.osdControl =0;
 
@@ -74,7 +73,7 @@ StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
 
     function refreshPGData() {
         $scope.date = new Date();
-        $http({method: "get", url: apiURL + "pg/stat.json",timeout:8000})
+        $http({method: "get", url: cephRestApiURL + "pg/stat.json",timeout:8000})
             .success(function (data, status) {
                 var nodeUid = 0;
                 // fetching pg list and relation with osd
@@ -136,7 +135,7 @@ StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
     function refreshData() {
         //console.log("refreshing data...");
         $scope.date = new Date();
-        $http({method: "get", url: apiURL + "status.json",timeout:4000})
+        $http({method: "get", url: cephRestApiURL + "status.json",timeout:4000})
             .success(function (data) {
                 $scope.pgmap = data.output.pgmap;
                 if ( typeof  data.output.pgmap.degraded_objects === "undefined" ) $scope.pgmap.degraded_objects=0;
@@ -157,7 +156,6 @@ StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
 
                 $scope.health = {};
                 $scope.health.severity = data.output.health.overall_status;
-
                 // there may be several messages under data.output.health.summary
                 $scope.health.summary="";
                 var i = 0;

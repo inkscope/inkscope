@@ -48,7 +48,7 @@ function getMenu(){
 
 
 angular.module('InkscopeCommons', ['ngTable','dialogs','ui.bootstrap'])
-    .controller('statusCtrl', function ($scope,$http) {
+    .controller('overallStatusCtrl', function ($scope,$http) {
         refreshData();
         setInterval(function () {
             refreshData()
@@ -56,27 +56,27 @@ angular.module('InkscopeCommons', ['ngTable','dialogs','ui.bootstrap'])
         function refreshData(){
             $http({method: "get", url: cephRestApiURL + "status.json",timeout:4000})
             .success(function (data) {
-                $scope.health = {};
-                $scope.health.severity = data.output.health.overall_status;
-                $scope.health.summary="";
+                $scope.overallStatus = {};
+                $scope.overallStatus.severity = data.output.health.overall_status;
+                $scope.overallStatus.summary="";
                 var i = 0;
                 while(typeof data.output.health.summary[i] !== "undefined"){
-                    if ($scope.health.summary!="") $scope.health.summary+=" | ";
-                    $scope.health.summary += data.output.health.summary[i].summary;
+                    if ($scope.overallStatus.summary!="") $scope.overallStatus.summary+=" | ";
+                    $scope.overallStatus.summary += data.output.health.summary[i].summary;
                     i++;
                     }
-                if ($scope.health.summary==""){
+                if ($scope.overallStatus.summary==""){
                     if (data.output.health.detail[0])
-                    $scope.health.summary = data.output.health.detail[0];
+                    $scope.overallStatus.summary = data.output.health.detail[0];
                     else
                     //remove HEALTH_ in severity
-                    $scope.health.summary = $scope.health.severity.substring(7);
+                    $scope.overallStatus.summary = $scope.overallStatus.severity.substring(7);
                     }
                 })
             .error(function (data) {
-                $scope.health = {};
-                $scope.health.severity = "HEALTH_WARN";
-                $scope.health.summary = "Status not available";
+                $scope.overallStatus = {};
+                $scope.overallStatus.severity = "HEALTH_WARN";
+                $scope.overallStatus.summary = "Status not available";
                 });
         }
 });
