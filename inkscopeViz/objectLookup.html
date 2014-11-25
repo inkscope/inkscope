@@ -27,7 +27,9 @@
         <h2>Selection</h2>
         <br>
         Pool:
-        <input type="text" ng-model="pool" name="pool" placeholder="pool name">
+        <select id="pool" ng-model="pool" >
+            <option ng-repeat="pool in pools" value="{{ pool.name }}" >{{ pool.name }}</option>
+        </select>
         Object id:
         <input type="text" ng-model="objectId" name="objectId" placeholder="object id">
     </div>

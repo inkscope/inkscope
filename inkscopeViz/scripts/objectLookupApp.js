@@ -10,11 +10,28 @@ var ObjectLookupApp = angular.module('ObjectLookupApp', ['D3Directives','Inkscop
 ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $http) {
     $scope.pool = "";
 
+    getPoolsInfo();
+
     getOsdInfo();
     setInterval(function () {getOsdInfo()},10*1000);
 
     getObjectInfo();
     setInterval(function () {getObjectInfo()},5*1000);
+
+    function getPoolsInfo() {
+        $http({method: "get", url: cephRestApiURL + "df.json"}).
+            success(function (data, status) {
+                $scope.status = status;
+                $scope.date = new Date();
+                $scope.pools =  data.output.pools;
+            }).
+            error(function (data, status, headers) {
+                //alert("refresh pools failed with status "+status);
+                $scope.status = status;
+                $scope.date = new Date();
+                $scope.pools =  [];
+            });
+    }
 
     function getOsdInfo(){
         $http({method: "get", url: inkscopeCtrlURL + "ceph/osd?depth=2"}).
