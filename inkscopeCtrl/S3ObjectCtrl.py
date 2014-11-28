@@ -13,6 +13,7 @@ from model.S3Object import S3Object
 import requests
 import re
 from S3.user import  S3User
+import rados,sys
 
 def getCephRestApiUrl(request):
     # discover ceph-rest-api URL
@@ -29,6 +30,13 @@ class S3ObjectCtrl:
         if not self.radosgw_url.endswith('/'):
             self.radosgw_url += '/'
         self.url = self.radosgw_url + self.admin
+
+        self.cluster = rados.Rados(conffile='/etc/ceph/ceph.conf')
+        print "\nlibrados version: " + str(self.cluster.version())
+        print "Will attempt to connect to: " + str(self.cluster.conf_get('mon initial members'))
+
+        self.cluster.connect()
+        print "\nCluster ID: " + self.cluster.get_fsid()
         #print "config url: "+self.url
         #print "config admin: "+self.admin
         #print "config key: "+self.key
@@ -37,8 +45,6 @@ class S3ObjectCtrl:
 
     def getAdminConnection(self):
         return S3Bucket(self.admin, access_key=self.key, secret_key=self.secret , base_url= self.url)
-
-
 
     def getObjectStructure(self) :
         print("-Calling method getObjectStructure() begins <<")
@@ -53,19 +59,20 @@ class S3ObjectCtrl:
 
         #Log.debug("getS3Object(objectIdd="+str(objectIdd)+", bucketNamee= "+str(bucketnamee)+")")
         #Retrieve the bucketId using the bucket name
-        bucketId=self.getPoolnBucketId(bucketname)["bucketid"]
+
+        bucketId=self.getBucketInfo(bucketname)["bucketid"]
         #Get the pool name using the
-        poolname=self.getPoolnBucketId(bucketname)["poolname"]
+        poolname=self.getBucketInfo(bucketname)["poolname"]
 
         #Retrieve the pool id
         poolid=self.getPoolId(poolname)
         #poolname=getPoolName(bucketName)
         extended_objectId=bucketId+"_"+objectId
         #Retrieve the user.rgw.manifest that contains the chunks list for the object
-        usermnf=self.getUserRgwManifest(poolname,extended_objectId)
+        #usermnf=self.getUserRgwManifest(poolname,extended_objectId)
 
         #Retrieve the chunk base name in the user.rgw.manifest attribute
-        chunkbasename=self.getChunkBaseName(poolname,extended_objectId,usermnf)
+        chunkbasename=self.getChunkBaseName(poolname,extended_objectId)
 
         print '__Chunk base name: ', chunkbasename
         if  len(chunkbasename):#chek if there is chunk por not for the object
@@ -82,13 +89,18 @@ class S3ObjectCtrl:
         osds=[]
         osdids=[]
         pgids=[]
+        pgsids=[]
         for chunk in chunks :
                 if len(chunk) >0 :
+                    print 'Chunk= ',chunk
                     chunksize=self.getChunkSize(poolname,chunk)
                     pgid=self.getPgId(poolname,'  '+chunk)
-                    if pgids.count(pgid[1])==0:
-                        pgids.append(pgid[1])
                     c=Chunk(chunk,chunksize,pgid[0])
+                    if pgsids.count(pgid[1])==0:
+                        pgids.append(pgid[1])
+
+                    if pgsids.count(pgid[0])==0:
+                        pgsids.append(pgid[0])
                     #print(c.dump())
                     chunklist.append(c)
                     #Create the PG for this chunk
@@ -127,18 +139,18 @@ class S3ObjectCtrl:
                           pgs,
                           osds)
         print(s3object.dump())
-        Log.debug(" ___Calling method getObjectStructure() end >>")
+        Log.info('___Calling method getObjectStructure() end >')
         return s3object.dump()
 #This method returns the pool id of a given pool name
     def getPoolId(self,poolname):
-        Log.debug("___getPoolId(poolname="+str(poolname)+")")
+        Log.info("___getPoolId(poolname="+str(poolname)+")")
         outdata=self.executeCmd('ceph osd pool stats ', [poolname], [])
         poolid=outdata.strip().split('\n')[0].split(' id ')[1] #['pool .rgw.buckets', ' 16']
         return poolid
 
     # This method returns the pool type of a pool using the poolname and the pool id parameters
     def getPoolType(self, poolname, poolId):
-        Log.debug("___getPoolType(poolname=" + str(poolname) + ", poolId=" + str(poolId) + ")")
+        Log.info("___getPoolType(poolname=" + str(poolname) + ", poolId=" + str(poolId) + ")")
         outdata = self.executeCmd('ceph osd dump ', [], [poolname, ' ' + poolId])
         pooltype = outdata.strip().split(' ')[3]  #['pool', '26', "'.rgw.buckets'", 'replicated', 'size', '2', 'min_size', '1', 'crush_ruleset', '0', 'object_hash', 'rjenkins', 'pg_num', '8', 'pgp_num', '8', 'last_change', '408', 'stripe_width', '0']
         return pooltype
@@ -148,18 +160,17 @@ class S3ObjectCtrl:
         # objectId: the object id we want to compute the size
 
 
-    def getChunkSize(self, poolName, objectid):
-        Log.debug("___getChunkSize(poolName=" + str(poolName) + ", objectId=" + str(objectid) + ")")
-        outdata = self.executeCmd('rados --pool=', [poolName, ' stat ', objectid], [])
-        #'.rgw.buckets/default.4651.2__shadow__0cIEZvHYuHkJ6xyyh9lwX4pj5ZsHrFD_125 mtime 1391001418, size 4194304\n'
-        objectsize = outdata[outdata.index('size') + 5: outdata.index('\n')]
+    def getChunkSize(self, poolname,objectid):# Method OK
+        Log.info('___getChunkSize(poolName='+ str(poolname) + ', objectId='+ str(objectid) + ')')
+        ioctx = self.cluster.open_ioctx(poolname)
+        size=ioctx.stat(str(objectid))
 
-        return objectsize.rstrip()
+        return int(size[0])
 
 #This method returns the lists of osds for a given pgid
 # The following command is performed : ceph pg map 16.7  result= osdmap e11978 pg 16.7 (16.7) -> up [9,6] acting [9,6]
     def getUpActing(self,pgid):
-        Log.debug("___getUpActing(pgid="+str(pgid)+")")
+        Log.info("___getUpActing(pgid="+str(pgid)+")")
         outdata=self.executeCmd('ceph pg map ',[pgid], [])
         pgid=outdata.strip().split(' -> ',2)[1].split(' ',4) #'up' '[9,6]' 'acting' '[9,6]'
         osds={"up":pgid[1], "acting":pgid[3]}
@@ -168,7 +179,7 @@ class S3ObjectCtrl:
 # This method retrieves the information about the status of an osd: acting, up, primary_acting, primary_up
 # The PG id is used as an input argument
     def getOsdMapInfos(self,pgid):
-        Log.debug("___getOsdMapInfos(pgid="+str(pgid)+")")
+        Log.info("___getOsdMapInfos(pgid="+str(pgid)+")")
         cephRestApiUrl = getCephRestApiUrl(request)+'tell/'+pgid+'/query.json';
 
         Log.debug("____cephRestApiUrl Request="+cephRestApiUrl)
@@ -211,7 +222,7 @@ class S3ObjectCtrl:
         return osds
 
     def getOsdInfos(self,osds,osdid):
-        Log.debug("___getOsdInfos(osdid="+str(osdid)+")")
+        Log.info("___getOsdInfos(osdid="+str(osdid)+")")
         i=0
         osdnodename=''
         capacity=0
@@ -269,7 +280,7 @@ class S3ObjectCtrl:
 #This consist of the concatenation of the acting and the up array of the PG.
 # We careful with double entry whena dding the osd id, thanks to the list.count(x) method for the comparison
     def getOsdsListForPg(self,pgid):
-        Log.debug("____getOsdsListForPg(pgid="+str(pgid)+")")
+        Log.info("____getOsdsListForPg(pgid="+str(pgid)+")")
         cephRestApiUrl = getCephRestApiUrl(request)+'pg/map.json?pgid='+pgid
         data = requests.get(cephRestApiUrl)
         #r = data.json()
@@ -327,37 +338,33 @@ class S3ObjectCtrl:
   #    "owner": "cephfun",
   #    "creation_time": 1410342120,
   #    "linked": "true",
-   #   "has_bucket_info": "false"}}
-    def getPoolnBucketId(self,bucketname):
-        Log.debug("___getPoolPoolnBucketId(" + bucketname+")" )
 
-        outdata=self.executeCmd('radosgw-admin metadata get bucket:', [bucketname],[])
+    def getBucketInfo (self, bucket):
+        myargs = []
+        stats = request.form.get('stats', None)
+        if stats is not None:
+            myargs.append(("stats",stats))
+        if bucket is not None:
+            myargs.append(("bucket",bucket))
 
-        jsondata=json.loads(outdata)
-        poolname_bucketid={"poolname":jsondata["data"]["bucket"]["pool"],"bucketid": jsondata["data"]["bucket"]["bucket_id"]}
+        conn = self.getAdminConnection()
+        request2= conn.request(method="GET", key="bucket", args= myargs)
+        res = conn.send(request2)
+        info = res.read()
+        jsondata=json.loads(info)
+        print jsondata
+        poolname_bucketid={"poolname":jsondata['pool'],"bucketid": jsondata['id']}
         return poolname_bucketid
-
-# This method returns the list of chunks for a given S3 object(objId).
-# An exception is thrown if the object does not exist or there an issue
-    def getUserRgwManifest(self,poolname,objid) :
-        Log.debug("___getUserRgwManifest for the object="+str(objid) + " and the pool=" + str(poolname))
-        outdata=self.executeCmd('rados --pool=',[poolname,' listxattr ',objid],[])
-        #Check that the listxattr that is returned contains the 'user.rgw.manifest'
-
-        manifest=outdata.strip().split('\n') #['user.rgw.acl', 'user.rgw.cache_control', 'user.rgw.content_disposition', 'user.rgw.content_type', 'user.rgw.etag', 'user.rgw.idtag', 'user.rgw.manifest', '']
-        if manifest.index('user.rgw.manifest') :
-          return manifest[manifest.index('user.rgw.manifest')]
-        else:
-          return -1 #means the lisxattr does not contain the 'user.rgw.manifest'
 
 # This method returns the base name of the chunks that compose the object. The chunk base name is in the user.rgw.manifest attribute of the object
 # An exception is thrown if the object does not exist or there an issue
-    def getChunkBaseName(self,poolName, objId, manifest):
-        Log.debug("____Get the chunks list for the object [" + str(objId) + "] and the pool[ " + str(poolName) + "]")
-        outdata =self.executeCmd('rados --pool=', [poolName ,' getxattr ' , objId+' ' , manifest],[])
-
-        shadow = outdata.replace('\x00', '').replace('\x07', '').replace('\x01', '').replace('\x02', '').\
-                      replace('\x08','').replace('\x03', '').replace('\x11', '').replace('\x12','')
+    def getChunkBaseName(self,poolName, objectid):
+        Log.info("____Get the chunks list for the object [" + str(objectid) + "] and the pool[ " + str(poolName) + "]")
+        ioctx = self.cluster.open_ioctx(poolName)
+        xattr=ioctx.get_xattr(objectid,'user.rgw.manifest')
+        shadow = xattr.replace('\x00', '').replace('\x01', '').replace('\x02', '').replace('\x03', '').\
+                      replace('\x04','').replace('\x05', '').replace('\x06', '').replace('\x07','').replace('\x08','').replace('\x09','')\
+                      .replace('\x10','').replace('\x11', '').replace('\x12', '').replace('\x0e','').replace('\x0b','').replace('\x0c','')
                        # '.index\x08\x08!.a8IqjFd0B9KyTAxmOh77aJEAB8lhGUV_\x01\x02\x01 \x08@\x07\x03_\x07cephfun\x0c'
         #Log.debug("___Shadow: "+shadow)
         if shadow.count('shadow') > 0:
@@ -369,7 +376,8 @@ class S3ObjectCtrl:
         elif shadow.count('!.'):
           #shadow_motif = re.search('(?<=\!\.)\w+', shadow)
           #chunkname=shadow_motif.group(0)
-         chunkname = shadow[shadow.index('!.')+3:shadow.index('_ @')]
+          pos=shadow.index('!.')+3
+          chunkname = shadow[pos:pos+30] # The lenght of the shadow base name is 30!
         else :# The case the object has no chunk because it's not too large
             chunkname=''
         Log.debug("____Chunkbasename= "+chunkname)
@@ -379,7 +387,7 @@ class S3ObjectCtrl:
 # An exception is thrown if the object does not exist or there an issue
 
     def getChunks(self,bucketId, poolName,objectid,chunkBaseName) :
-         Log.debug( "____Get the chunks list using  that id is "+ str(bucketId)+" the poolName "+str(poolName)+" and the chunk base name "+str(chunkBaseName))
+         Log.info( "____Get the chunks list using  that id is "+ str(bucketId)+" the poolName "+str(poolName)+" and the chunk base name "+str(chunkBaseName))
          cmd='rados --pool='+ poolName+'   ls|grep '+ bucketId+'|grep shadow|sort|grep '+chunkBaseName
          if objectid==chunkBaseName:#The object has no chunk because it's smaller than 4Mo
                 cmd='rados --pool='+ poolName+'   ls|grep '+ bucketId+'|grep '+objectid
@@ -397,7 +405,7 @@ class S3ObjectCtrl:
 #This method retrieves the PG ID for a given pool and an object
 #The output looks like this : ['osdmap', 'e11978', 'pool', "'.rgw.buckets'", '(16)', 'object', "'default.4726.8_fileMaps/000001fd/9731af0ba5f8997929df14de6df583aff39ff94b'", '->', 'pg', '16.c1107af', '(16.7) -> up ([9,6], p9) acting ([9,6], p9)\n']
     def getPgId(self,poolName,objectId):
-        Log.debug("____getPgId(poolname=" + poolName + ", object= " + objectId + ")")
+        Log.info("____getPgId(poolname=" + poolName + ", object= " + objectId + ")")
         outdata = self.executeCmd('ceph osd map ', [poolName, ' '+objectId], [])
 
         pgids = [outdata.split(' -> ')[1].split('(')[0].split(' ')[1],
