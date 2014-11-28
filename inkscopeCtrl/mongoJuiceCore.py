@@ -39,7 +39,7 @@ def getClient(conf):
     '''
     mongodb_host = conf.get("mongodb_host", "127.0.0.1")
     mongodb_port = conf.get("mongodb_port", "27017")
-    mongodb_URL = "mongodb://"+mongodb_host+":"+mongodb_port
+    mongodb_URL = "mongodb://"+mongodb_host+":"+str(mongodb_port)
     #mongodb replication
     is_mongo_replicat = conf.get("is_mongo_replicat", 0)
     mongodb_set = "'"+conf.get("mongodb_set","")+"'"
