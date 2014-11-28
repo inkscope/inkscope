@@ -38,6 +38,11 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
 
             success(function (data, status) {
                 $rootScope.data = data;
+                data[-1]={};
+                data[-1].id=-1;
+                data[2147483647]={};
+                data[2147483647].id=-1;
+
                 for ( var i=0; i<data.length;i++){
                     data[i].id = data[i].node._id;
                     data[i].lastControl = ((+$rootScope.date)-data[0].stat.timestamp)/1000;
@@ -60,7 +65,15 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
 
             success(function (data, status) {
                 $scope.data = data.output;
+                $scope.acting_message ="";
+                $scope.up_message = "";
+                if ($scope.data.acting.contains("-1") || $scope.data.acting.contains("2147483647"))  $scope.acting_message = " - incomplete pg"
+                if ($scope.data.up.contains("-1") || $scope.data.up.contains("2147483647"))  $scope.up_message = " - incomplete pg"
+                $scope.data.acting = $scope.data.acting.replace(new RegExp("2147483647", 'g'),"-1");
+                $scope.data.up = $scope.data.up.replace(new RegExp("2147483647", 'g'),"-1");
                 $scope.acting = JSON.parse($scope.data.acting);
+                $scope.data.acting += $scope.acting_message;
+                $scope.data.up += $scope.up_message;
             }).
             error(function (data, status) {
                 $rootScope.status = status;
@@ -77,8 +90,12 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
     }
 
     $rootScope.osdClassForId = function (osdid){
-        var osdin = $rootScope.getOsd(osdid).stat.in;
-        var osdup = $rootScope.getOsd(osdid).stat.up;
+        var osdin = "out";
+        var osdup = "down";
+        if (osdid>=0){
+            osdin = $rootScope.getOsd(osdid).stat.in;
+            osdup = $rootScope.getOsd(osdid).stat.up;
+        }
         return $rootScope.osdClass(osdin,osdup);
     }
 
@@ -104,14 +121,14 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
     }
 
     $rootScope.getOsd = function (osd) {
-        //console.log("osd:"+osd);
+        console.log("osd:"+osd);
         for (var i=0 ;i<$rootScope.data.length;i++){
             if ($rootScope.data[i].node._id+"" == osd+"") {
                 //console.log("osd found "+$rootScope.data[i]);
                 return $rootScope.data[i];
             }
         }
-        //console.log("osd not found");
+        console.log("osd not found");
     }
 
 

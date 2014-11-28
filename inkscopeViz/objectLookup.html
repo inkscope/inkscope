@@ -46,9 +46,9 @@
     </table>
    <div id="osds">
         <h3>Acting OSD :</h3>
-        <div ng-repeat="osd in acting" class=" tooltips osd {{osdClassForId(osd)}}" >
+        <div ng-repeat="osd in acting track by $index" class=" tooltips osd {{osdClassForId(osd)}}" >
             {{osd}}
-            <div> <!-- tooltip -->
+            <div ng-hide="osd==-1"> <!-- tooltip -->
                 <span>
                     <strong>{{getOsd(osd).node.name}}</strong> {{osdState(getOsd(osd).stat.in,getOsd(osd).stat.up)}}<br>
                     last control : {{getOsd(osd).lastControl|duration}}<br><br>
