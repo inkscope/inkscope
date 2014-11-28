@@ -34,12 +34,12 @@
         .glyphicon-chevron-right:before {content: "\25B6";}
     </style>
 </head>
-<body>
+<body ng-controller="ListCtrl">
 
 
 <header id="header" ng-include src="'partials/header.html'" ng-init="pageTitle='Ceph pools management'"></header>
 
-<div ng-controller="ListCtrl">
+<div>
 <!--div id="status"  >{{status}}</div-->
     <div id="datePanel"><br>Date : {{date | date:'HH:mm:ss'}}</div>
 

@@ -52,8 +52,8 @@ function refreshPools($http, $scope, $templateCache) {
         });
 }
 
-function getRules($http, $scope, $templateCache) {
-    $http({method: "get", url: cephRestApiURL + "osd/crush/dump.json", cache: $templateCache}).
+function getRules($http, $scope) {
+    $http({method: "get", url: cephRestApiURL + "osd/crush/dump.json"}).
         success(function (data, status) {
             $scope.status = status;
             $scope.date = new Date();
@@ -111,8 +111,8 @@ function ListCtrl($scope,$http, $filter, ngTableParams, $location) {
     }, 10000);
     var data;
 
-    getRules($http,$scope)
-    getErasureProfiles($http,$scope)
+    getRules($http,$scope);
+    getErasureProfiles($http,$scope);
 
     $scope.showDetail = function (poolid) {
         $location.path('/detail/'+poolid);
@@ -266,7 +266,7 @@ function DetailCtrl($scope, $http, $routeParams, $route, $dialogs, ngTableParams
 
     /* transform function for parameters */
     $scope.getRulesetNameLabel=function(rulesetid){
-        if ( typeof $scope.rules === "undefined") return rulesetid;
+        if ( typeof $scope.rules === "undefined") return ""+rulesetid;
         for (var i in $scope.rules){
             if ($scope.rules[i].ruleset == rulesetid) return rulesetid+" ("+$scope.rules[i].rule_name+")";
         }
