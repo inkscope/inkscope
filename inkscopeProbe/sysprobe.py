@@ -474,13 +474,13 @@ def pickCephProcessesV2(hostname, db):
     
     for cephProc in cephProcs :
         print cephProc," " ,cephProc.cmdline()[1:]
-        options, remainder = getopt.getopt(cephProc.cmdline()[1:], 'i:f', ['cluster='])
+        options, remainder = getopt.getopt(cephProc.cmdline()[1:], 'ic:f', ['cluster=','id','config'])
         
         clust = None
         id = None
         
         for opt, arg in options:
-            if opt == '-i':
+            if opt in ("-i", "--id"):
                 id = arg
             elif opt in  '--cluster':
                 clust = arg
