@@ -14,6 +14,7 @@ import requests
 import re
 from S3.user import  S3User
 import rados,sys
+from datetime import  datetime
 
 def getCephRestApiUrl(request):
     # discover ceph-rest-api URL
@@ -47,7 +48,8 @@ class S3ObjectCtrl:
         return S3Bucket(self.admin, access_key=self.key, secret_key=self.secret , base_url= self.url)
 
     def getObjectStructure(self) :
-        print("-Calling method getObjectStructure() begins <<")
+        startdate=datetime.now()
+        print(str(startdate)+' -Calling method getObjectStructure() begins <<')
         print" __request", request
         objectId=request.args.get('objectId')
         bucketname=request.args.get('bucketName')
@@ -88,21 +90,20 @@ class S3ObjectCtrl:
         pgs= []
         osds=[]
         osdids=[]
-        pgids=[]
-        pgsids=[]
+        pgid4osd=[]
         for chunk in chunks :
                 if len(chunk) >0 :
                     print 'Chunk= ',chunk
                     chunksize=self.getChunkSize(poolname,chunk)
                     pgid=self.getPgId(poolname,'  '+chunk)
                     c=Chunk(chunk,chunksize,pgid[0])
-                    if pgsids.count(pgid[1])==0:
-                        pgids.append(pgid[1])
-
-                    if pgsids.count(pgid[0])==0:
-                        pgsids.append(pgid[0])
-                    #print(c.dump())
                     chunklist.append(c)
+                    if pgid4osd.count(pgid[1]) == 0:
+                        pgid4osd.append(pgid[1])
+
+                    if pgid4osd.count(pgid[0]) == 0:
+                        pgid4osd.append(pgid[0])
+
                     #Create the PG for this chunk
                     #ef __init__(self,pgid,state,acting, up, acting_primary, up_primary):
                     pginfos=self.getOsdMapInfos(pgid[1]);
@@ -114,9 +115,9 @@ class S3ObjectCtrl:
                    # print(pg.dump())
                     pgs.append(pg)#Append the PG in the pgs list
                    # print "____ OSD List for PG ", pgid[1],self.getOsdsListForPg(pgid[1])
-        for pgid in pgids:
+        for pgid in pgid4osd:
             for id in self.getOsdsListForPg(pgid):#sortir la boucle pour les pg
-                if osdids.count(id)==0:
+                if osdids.count(id) == 0:
                     osdids.append(id)#construct the list of the OSD to be displayed
 
 
@@ -139,7 +140,8 @@ class S3ObjectCtrl:
                           pgs,
                           osds)
         print(s3object.dump())
-        Log.info('___Calling method getObjectStructure() end >')
+        duration=datetime.now()-startdate
+        Log.info(str(datetime.now())+' ___Calling method getObjectStructure() end >> duration= '+str(duration.seconds))
         return s3object.dump()
 #This method returns the pool id of a given pool name
     def getPoolId(self,poolname):
