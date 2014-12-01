@@ -23,12 +23,12 @@ import psutil
 import pkg_resources
 psutil_version = pkg_resources.get_distribution("psutil").version.split(".")[0]
 
-
 # for ceph command call
 import subprocess
 
 import os
 import sys
+import traceback
 import getopt
 import socket
 from daemon import Daemon
@@ -467,12 +467,13 @@ def pickCpuStat(hostname, db):
 
 def pickCephProcessesV2(hostname, db):
     # Compatibility with psutil V2.x
-    print str(datetime.datetime.now()), "-- Pick Ceph Processes"
+    print str(datetime.datetime.now()), "-- Pick Ceph Processes V2"
     sys.stdout.flush()
     iterP = psutil.process_iter()
     cephProcs = [p for p in iterP if p.name().startswith('ceph-')]
     
     for cephProc in cephProcs :
+        print cephProc," " ,cephProc.cmdline()[1:]
         options, remainder = getopt.getopt(cephProc.cmdline()[1:], 'i:f', ['cluster='])
         
         clust = None
@@ -512,7 +513,7 @@ def pickCephProcessesV2(hostname, db):
 
 def pickCephProcesses(hostname, db):
     # Compatibility with psutil V1.x
-    print str(datetime.datetime.now()), "-- Pick Ceph Processes"
+    print str(datetime.datetime.now()), "-- Pick Ceph Processes V1"
     sys.stdout.flush()
     iterP = psutil.process_iter()
     cephProcs = [p for p in iterP if p.name.startswith('ceph-')]
@@ -582,11 +583,12 @@ class Repeater(Thread):
             try:
                 # call a function
                 self.function(*self.args)
-            except:
+            except Exception, e:
                 # try later
-                print str(datetime.datetime.now()), "-- WARNING : "+self.function.__name__ +" did not worked"
+                print str(datetime.datetime.now()), "-- WARNING : "+self.function.__name__ +" did not worked : ", e
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                traceback.print_exception(exc_type, exc_value, exc_traceback)
                 pass
-
 
 def ensure_dir(f):
     d = os.path.dirname(f)
@@ -699,6 +701,7 @@ class SysProbeDaemon(Daemon):
 
 	# end conf extraction
 
+        print "version psutil = ",psutil_version
         sys.stdout.flush()
         
         hostname = socket.gethostname() #platform.node()

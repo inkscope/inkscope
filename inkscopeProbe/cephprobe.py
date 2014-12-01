@@ -491,12 +491,12 @@ class Repeater(Thread):
             try:
                 # call a function
                 self.function(*self.args)
-            except:
-                # retry later
-                print str(datetime.datetime.now()), "-- WARNING : "+self.function.__name__ +" did not worked"
+            except Exception, e:
+                # try later
+                print str(datetime.datetime.now()), "-- WARNING : "+self.function.__name__ +" did not worked : ", e
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                traceback.print_exception(exc_type, exc_value, exc_traceback)
                 pass
-
-
 
 class Usage(Exception):
     def __init__(self, msg):
