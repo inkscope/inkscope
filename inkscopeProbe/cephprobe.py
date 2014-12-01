@@ -152,6 +152,7 @@ def processStatus(restapi, db):
     restapi.request("GET", "/api/v0.1/status.json")
     r1=restapi.getresponse()
     restapi.close()
+    #print ("processStatus : ",r1.status)
     if (r1.status == 200) :
         data1 = r1.read()
         io = StringIO(data1)
@@ -164,35 +165,39 @@ def processStatus(restapi, db):
        
         time_checks  = c_status['output']['health']['timechecks']
         timecheckmap = {}
-        for tc in time_checks["mons"]:
-            tc["time_health"] = tc["health"]
-            del tc["health"]
-            monname = tc["name"]
-            del tc["name"]
-            timecheckmap[monname] = tc
-            
+        try:
+            for tc in time_checks["mons"]:
+                tc["time_health"] = tc["health"]
+                del tc["health"]
+                monname = tc["name"]
+                del tc["name"]
+                timecheckmap[monname] = tc
+        except (RuntimeError, TypeError, NameError, KeyError):
+            pass
         
         
         # complete timecheck
-        
-        for health_service in health_services_list:
-            health_services_mons = health_service['mons']        
-            for monst in health_services_mons:
-                monstat = monst.copy()
-                monstat["mon"] =  DBRef( "mon", monst['name'])
-                monstat["_id"] = monst['name']+":"+monst["last_updated"]
-                monstat["capacity_health"] = monstat["health"] 
-                
-                #complete with timecheck
-                if monstat["name"] in timecheckmap:
-                    tc = timecheckmap[monstat["name"]]
-                    monstat.update(tc)
-                
-                monstat["health"] = worstHealth(monstat["capacity_health"], monstat["time_health"] )
-                del monstat["name"]
-                db.monstat.update({"_id" : monstat["_id"]}, monstat, upsert= True)
-                map_stat_mon[monst['name']] = monstat["_id"]
-        
+        try:
+            for health_service in health_services_list:
+                health_services_mons = health_service['mons']
+                for monst in health_services_mons:
+                    monstat = monst.copy()
+                    monstat["mon"] =  DBRef( "mon", monst['name'])
+                    monstat["_id"] = monst['name']+":"+monst["last_updated"]
+                    monstat["capacity_health"] = monstat["health"]
+
+                    #complete with timecheck
+                    if monstat["name"] in timecheckmap:
+                        tc = timecheckmap[monstat["name"]]
+                        monstat.update(tc)
+
+                    monstat["health"] = worstHealth(monstat["capacity_health"], monstat["time_health"] )
+                    del monstat["name"]
+                    db.monstat.update({"_id" : monstat["_id"]}, monstat, upsert= True)
+                    map_stat_mon[monst['name']] = monstat["_id"]
+        except (RuntimeError, TypeError, NameError, KeyError):
+            pass
+
         map_rk_name = {}
         
         for mon in monmap['mons'] :
