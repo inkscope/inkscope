@@ -65,15 +65,16 @@
 
 <header ng-include src="'partials/header.html'" ng-init="pageTitle='RGW object visualization'"></header>
 
-<form ng-submit="changePeriod()">
-    <div id="controlPanel">
+<div id="controlPanel">
+<form ng-submit="changePeriod()" style="margin:0">
         Refresh period
         <input type="number" ng-model="refreshPeriod" name="refreshPeriod" placeholder="infinite">
         <input type="submit" id="submit" value="update">
-    </div>
 </form>
+</div>
+
 <div id="datePanel">
-    Date : {{date | date:'HH:mm:ss'}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Date : {{date | date:'HH:mm:ss'}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-warning" ng-show="status != 200"><i class="icon-warning-sign"></i> {{status}}</span>
     Bucket: <select id="bucketName" ng-model="bucketName" ng-options="bucketName as bucketName for bucketName in buckets | orderBy:'toString()'" ng-change="getObjects(bucketName)"></select>
     Object: <select id="selectedObject" ng-model="selectedObject" ng-options="item.name for item in objects | orderBy:'name'"  ng-change="setObject()"></select>
     Size : {{ selectedObject.size | bytes:kB}} &nbsp;&nbsp;&nbsp;

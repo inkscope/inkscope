@@ -23,8 +23,8 @@
 <header ng-include src="'partials/header.html'" ng-init="pageTitle='RGW bucket management'"></header>
 
 <div>
-<!--div id="status"  >{{status}}</div-->
-<div id="list">
+    <div id="datePanel">Date : {{date | date:'HH:mm:ss'}}  <span class="text-warning" ng-show="status != 200"><i class="icon-warning-sign"></i> {{status}}</span></div>
+    <div id="list">
     <table>
         <tr>
             <th><input type="text" ng-model="search" class="search-query" placeholder="Search"></th>

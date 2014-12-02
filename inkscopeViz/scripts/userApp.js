@@ -19,17 +19,19 @@ angular.module('userApp', ['ngRoute','ngSanitize','InkscopeCommons'])
 
     });
 
-function refreshUsers($http, $rootScope, $templateCache) {
+function refreshUsers($http, $scope, $templateCache) {
     $http({method: "get", url: inkscopeCtrlURL + "S3/user", cache: $templateCache}).
         success(function (data, status) {
-            $rootScope.status = status;
-            $rootScope.users =  data;
-            $rootScope.tableParams.reload();
+            $scope.status = status;
+            $scope.date = new Date();
+            $scope.users =  data;
+            $scope.tableParams.reload();
         }).
         error(function (data, status, headers) {
             //alert("refresh users failed with status "+status);
-            $rootScope.status = status;
-            $rootScope.users =  data || "Request failed";
+            $scope.status = "Can't list users : error http "+status;
+            $scope.date = new Date();
+            $scope.users =  data || "Request failed";
         });
 }
 

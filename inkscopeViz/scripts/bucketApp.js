@@ -13,17 +13,19 @@ angular.module('bucketApp', ['ngRoute','ui.bootstrap','InkscopeCommons'])
             otherwise({redirectTo: '/'})
     });
 
-function refreshBuckets($http, $rootScope, $templateCache) {
-    $http({method: "get", url: inkscopeCtrlURL + "S3/bucket", data:"stats=False" ,cache: $templateCache}).
+function refreshBuckets($http, $scope) {
+    $http({method: "get", url: inkscopeCtrlURL + "S3/bucket", data:"stats=False"}).
         success(function (data, status) {
-            $rootScope.status = status;
-            $rootScope.buckets =  data;
-            $rootScope.tableParams.reload();
+            $scope.status = status;
+            $scope.date = new Date();
+            $scope.buckets =  data;
+            $scope.tableParams.reload();
         }).
         error(function (data, status, headers) {
             //alert("refresh buckets failed with status "+status);
-            $rootScope.status = status;
-            $rootScope.buckets =  data || "Request failed";
+            $scope.status = "Can't list buckets : error http "+status;
+            $scope.date = new Date();
+            $scope.buckets =  data || "Request failed";
         });
 }
 

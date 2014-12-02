@@ -23,13 +23,15 @@ RGWobjectVizApp.controller("RGWobjectVizCtrl", function ($scope, $http, $locatio
 
     $http({method: "get", url: inkscopeCtrlURL + "S3/bucket", data:"stats=False" }).
         success(function (data, status) {
+            $scope.date = new Date();
             $scope.status = status;
             $scope.buckets =  data;
         }).
         error(function (data, status, headers) {
             //alert("refresh buckets failed with status "+status);
-            $scope.status = status;
-            $scope.buckets =  data || "Request failed";
+            $scope.status = "Can't list buckets : error http "+status;
+            $scope.date = new Date();
+            $scope.buckets =  [];
         });
 
     $scope.getObjects = function(bucketName) {
