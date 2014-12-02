@@ -7,14 +7,8 @@
 
 from pymongo import MongoClient
 from pymongo import MongoReplicaSetClient
-from pymongo.read_preferences import ReadPreference
 
 import time
-
-import re
-
-#psutil to perform system command
-import psutil
 
 # for ceph command call
 import subprocess
@@ -24,7 +18,7 @@ import datetime
 import sys
 import traceback
 import os
-import getopt
+
 import socket
 from daemon import Daemon
  
@@ -47,8 +41,6 @@ runfile = "/var/run/cephprobe/cephprobe.pid"
 logfile = "/var/log/cephprobe.log"
 clusterName = "ceph"
 fsid = ""
-
-
 
 
 #load the conf (from json into file)

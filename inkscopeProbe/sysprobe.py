@@ -11,7 +11,6 @@
 
 from pymongo import MongoClient
 from pymongo import MongoReplicaSetClient
-from pymongo.read_preferences import ReadPreference
 
 import time
 import datetime
@@ -473,7 +472,7 @@ def pickCephProcessesV2(hostname, db):
     cephProcs = [p for p in iterP if p.name().startswith('ceph-')]
     
     for cephProc in cephProcs :
-        print cephProc," " ,cephProc.cmdline()[1:]
+        #print cephProc," " ,cephProc.cmdline()[1:]
         options, remainder = getopt.getopt(cephProc.cmdline()[1:], 'ic:f', ['cluster=','id','config'])
         
         clust = None
