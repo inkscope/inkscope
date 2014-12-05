@@ -64,7 +64,11 @@
 <body ng-controller="RGWobjectVizCtrl">
 
 <header ng-include src="'partials/header.html'" ng-init="pageTitle='RGW object visualization'"></header>
-
+<div id="waiting" ng-show="waiting" style="position:absolute;top:0;left:0;width:100%;height:100%; text-align:center; z-index: 1000;">
+    <div  style="height:90px;width:250px;margin:250px auto ;background-color: #fff;border:1px solid limegreen;text-align:center;padding: 1em;font-size: large">
+        <img src="img/ajax-loader.gif" style="margin: 1em"> fetching infos ....
+    </div>
+</div>
 <div id="controlPanel">
 <form ng-submit="changePeriod()" style="margin:0">
         Refresh period

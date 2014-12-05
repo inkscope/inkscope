@@ -7,6 +7,7 @@ var RGWobjectVizApp = angular.module('RGWobjectVizApp', ['ui.bootstrap','Inkscop
 
 RGWobjectVizApp.controller("RGWobjectVizCtrl", function ($scope, $http, $location, $dialogs) {
     var apiURL = '/ceph-rest-api/';
+    $scope.waiting = false;
 
     var w = window, d = document, e = d.documentElement, g = d.getElementsByTagName('body')[0];
     $scope.screenSize = {"x": w.innerWidth || e.clientWidth || g.clientWidth, "y": w.innerHeight || e.clientHeight || g.clientHeight};
@@ -76,12 +77,24 @@ RGWobjectVizApp.controller("RGWobjectVizCtrl", function ($scope, $http, $locatio
         trace($scope.network, "#chart");
     }
 
+    function waiting(){
+        document.body.style.cursor = 'wait';
+        $scope.waiting = true;
+    }
+    function idle(){
+        document.body.style.cursor = 'default';
+        $scope.waiting = false;
+    }
+
+
     $scope.showObject = function() {
+        waiting();
         $scope.network = {};
         $scope.date = new Date();
         var params = "bucketName="+$scope.bucketName+"&objectId="+$scope.selectedObject.name;
         $http({method: "get", url: inkscopeCtrlURL + "S3/object?"+ params , headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
             .success(function (data, status) {
+                idle();
                 var nodes = [];
                 for (var i=0; i < data.chunks.length;i++){
                     var node = {};
@@ -154,6 +167,7 @@ RGWobjectVizApp.controller("RGWobjectVizCtrl", function ($scope, $http, $locatio
 
                 })
             .error(function (data, status) {
+                idle();
                 $scope.status = status;
                 $dialogs.error("<h3>Can't load object details for <strong>"+$scope.selectedObject.name+"</strong> !</h3> <br>"+data);
             });
