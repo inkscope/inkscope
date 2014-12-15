@@ -28,6 +28,7 @@ class S3ObjectCtrl:
         self.secret = conf.get("radosgw_secret", "")
         self.conffile=conf.get("ceph_conf",'/etc/ceph/ceph.conf')
         self.radosgw_url = conf.get("radosgw_url", "127.0.0.1")
+        self.clusterName = conf.get("cluster", "ceph")
 
         if not self.radosgw_url.endswith('/'):
             self.radosgw_url += '/'
@@ -220,12 +221,12 @@ class S3ObjectCtrl:
  #                   occupation : 0.236
  #               },
 #This method returns the information for a given osd id that is passed in argument
-#The information of the osd is retrieved thanks to ceph-rest-api/ceph/osd?depth=2 REST URI
+#The information of the osd is retrieved thanks to mongoDB inkscopeCtrl/{clusterName}/osd?depth=2 REST URI
 
     def getOsdDump(self):
         Log.debug("___getOsdDump()")
         #print str(datetime.datetime.now()), "-- Process OSDDump"
-        cephRestUrl=request.url_root+'ceph/osd?depth=2'
+        cephRestUrl=request.url_root+self.clusterName+'/osd?depth=2'
         print(cephRestUrl)
         # Set HTTP credentials for url callback (requests.)
         data = requests.get(cephRestUrl)
