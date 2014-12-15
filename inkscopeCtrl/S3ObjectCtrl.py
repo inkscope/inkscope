@@ -33,7 +33,7 @@ class S3ObjectCtrl:
             self.radosgw_url += '/'
         self.url = self.radosgw_url + self.admin
 
-        self.cluster = rados.Rados(self.conffile)
+        self.cluster = rados.Rados(conffile=self.conffile)
         print "\nlibrados version: " + str(self.cluster.version())
         print "Will attempt to connect to: " + str(self.cluster.conf_get('mon initial members'))
 
