@@ -26,13 +26,14 @@ class S3ObjectCtrl:
         self.admin = conf.get("radosgw_admin", "admin")
         self.key = conf.get("radosgw_key", "")
         self.secret = conf.get("radosgw_secret", "")
+        self.conffile=conf.get("ceph_conf",'/etc/ceph/ceph.conf')
         self.radosgw_url = conf.get("radosgw_url", "127.0.0.1")
 
         if not self.radosgw_url.endswith('/'):
             self.radosgw_url += '/'
         self.url = self.radosgw_url + self.admin
 
-        self.cluster = rados.Rados(conffile='/etc/ceph/ceph.conf')
+        self.cluster = rados.Rados(self.conffile)
         print "\nlibrados version: " + str(self.cluster.version())
         print "Will attempt to connect to: " + str(self.cluster.conf_get('mon initial members'))
 
@@ -185,8 +186,18 @@ class S3ObjectCtrl:
         cephRestApiUrl = getCephRestApiUrl(request)+'tell/'+pgid+'/query.json';
 
         Log.debug("____cephRestApiUrl Request="+cephRestApiUrl)
+        osdmap=[]
         data = requests.get(cephRestApiUrl)
         r = data.content
+        if data.status_code != 200:
+                print 'Error '+str(data.status_code)+' on the request getting pools'
+                return osdmap
+        #print(r)
+
+        if len(r)>0:
+           osdmap = json.loads(r)
+        else:
+            Log.err('The getOsdMapInfos() method returns empty data')
         osdmap = json.loads(r)
         #osdmap=r.read()
        # Log.debug(osdmap)
@@ -216,11 +227,19 @@ class S3ObjectCtrl:
         #print str(datetime.datetime.now()), "-- Process OSDDump"
         cephRestUrl=request.url_root+'ceph/osd?depth=2'
         print(cephRestUrl)
+        # Set HTTP credentials for url callback (requests.)
         data = requests.get(cephRestUrl)
+       #
+        osds=[]
+        if data.status_code != 200:
+                print 'Error '+str(data.status_code)+' on the request getting osd'
+                return osds
         r = data.content
-       # print(r)
-        osds = json.loads(r)
 
+        if len(r)>0:
+           osds = json.loads(r)
+        else:
+            Log.err('The osd dump returns empty data')
         return osds
 
     def getOsdInfos(self,osds,osdid):
