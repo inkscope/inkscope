@@ -650,7 +650,7 @@ class SysProbeDaemon(Daemon):
         clusterName = data.get("cluster", "ceph")
         print "cluster = ", clusterName
         
-        cephConf = conf.get("ceph_conf", "/etc/ceph/ceph.conf")
+        cephConf = data.get("ceph_conf", "/etc/ceph/ceph.conf")
         print "cephConf = ", cephConf
         
         fsid =  ceph_conf_global(cephConf, 'fsid')
