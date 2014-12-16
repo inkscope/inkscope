@@ -61,6 +61,23 @@ def load_conf():
     return data
 
 
+# get a field value from global conf according to the specified ceph conf
+def ceph_conf_global(cephConfPath, field):
+    p = subprocess.Popen(
+        args=[
+            'ceph-conf',
+            '-c',
+            cephConfPath,
+            '--show-config-value',
+            field
+            ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE)
+    outdata, errdata = p.communicate()
+    if (len(errdata)):
+        raise RuntimeError('unable to get conf option %s: %s' % (field, errdata))
+    return outdata.rstrip()
+
 # mem
 
 def pickMem(hostname, db):
@@ -633,6 +650,12 @@ class SysProbeDaemon(Daemon):
         clusterName = data.get("cluster", "ceph")
         print "cluster = ", clusterName
         
+        cephConf = conf.get("ceph_conf", "/etc/ceph/ceph.conf")
+        print "cephConf = ", cephConf
+        
+        fsid =  ceph_conf_global(cephConf, 'fsid')
+        print "fsid = ", fsid
+        
         hb_refresh = data.get("hb_refresh", 5)
         print "hb_refresh = ", hb_refresh
         
@@ -716,7 +739,7 @@ class SysProbeDaemon(Daemon):
         else:
          print "no authentication" 
 
-        db = client[clusterName]
+        db = client[fsid]
         
         HWdisks, partitions, HWnets, HWcpus = initHost(hostname, db)
         

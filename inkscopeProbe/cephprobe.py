@@ -101,6 +101,24 @@ def ceph_conf_global(field):
         raise RuntimeError('unable to get conf option %s: %s' % (field, errdata))
     return outdata.rstrip()
 
+# get a field value from global conf according to the specified ceph conf
+def ceph_conf_global(cephConfPath, field):
+    p = subprocess.Popen(
+        args=[
+            'ceph-conf',
+            '-c',
+            cephConfPath,
+            '--show-config-value',
+            field
+            ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE)
+    outdata, errdata = p.communicate()
+    if (len(errdata)):
+        raise RuntimeError('unable to get conf option %s: %s' % (field, errdata))
+    return outdata.rstrip()
+
+
 
 # extract mons from conf and put them into mons
 def processConf():
@@ -512,6 +530,7 @@ class CephProbeDaemon(Daemon):
         #load conf
         conf = load_conf()
         global clusterName
+        global fsid
         
         clusterName = conf.get("cluster", "ceph")
         print "clusterName = ", clusterName
@@ -521,6 +540,9 @@ class CephProbeDaemon(Daemon):
         
         ceph_rest_api = conf.get("ceph_rest_api", '127.0.0.1:5000')
         print "ceph_rest_api = ", ceph_rest_api
+        
+        fsid =  ceph_conf_global(cephConf, 'fsid')
+        print "fsid = ", fsid
         
         hb_refresh = conf.get("hb_refresh", 5)
         print "hb_refresh = ", hb_refresh
@@ -591,7 +613,7 @@ class CephProbeDaemon(Daemon):
         else:
             print "no authentication"
 
-        db = client[clusterName]
+        db = client[fsid]
         
         
         restapi = httplib.HTTPConnection(ceph_rest_api)  
