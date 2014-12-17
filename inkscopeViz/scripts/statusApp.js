@@ -6,7 +6,7 @@ var StatusApp = angular.module('StatusApp', ['D3Directives','ngCookies','ngAnima
     .filter('bytes', funcBytesFilter)
     .filter('duration', funcDurationFilter);
 
-StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
+StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookieStore) {
     $scope.journal = [];
     $scope.osdControl =0;
 
@@ -58,16 +58,26 @@ StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
     //refresh data every x seconds
     refreshData();
     refreshPGData();
-    refreshOSDData();
     setInterval(function () {
         refreshData()
     }, 5 * 1000);
     setInterval(function () {
         refreshPGData()
     }, 10 * 1000);
-    setInterval(function () {
-        refreshOSDData()
-    }, 5 * 1000);
+
+
+    // start refreshOSDData when fsid is available
+    var waitForFsid = function ($rootScope, $http,$scope){
+        typeof $rootScope.fsid !== "undefined"? startRefresh($rootScope, $http,$scope) : setTimeout(function () {waitForFsid($rootScope, $http,$scope)}, 1000);
+        function startRefresh($rootScope, $http,$scope){
+            refreshOSDData();
+            setInterval(function () {
+                refreshOSDData()
+            }, 5 * 1000);
+        }
+    }
+    waitForFsid($rootScope, $http,$scope);
+
 
 
 
@@ -112,7 +122,7 @@ StatusApp.controller("statusCtrl", function ($scope, $http , $cookieStore) {
             }
 
         }
-        $http({method: "post", url: inkscopeCtrlURL + "ceph/osd", params :{"depth":1} ,data:filter,timeout:4000})
+        $http({method: "post", url: inkscopeCtrlURL + $rootScope.fsid+"/osd", params :{"depth":1} ,data:filter,timeout:4000})
             .success(function (data, status) {
                 $scope.osdControl = ((+$scope.date)-data[0].stat.timestamp)/1000 ;
                 $scope.osdsInUp = 0;

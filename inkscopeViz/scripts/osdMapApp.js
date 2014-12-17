@@ -4,16 +4,26 @@
 var osdMapApp = angular.module('osdMapApp', ['InkscopeCommons'])
     .filter('duration', funcDurationFilter);
 
-osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http, $location , $window, $dialogs) {
+osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http, $location , $window, $dialogs) {
     $scope.osds = [];
     $scope.dispoModes = ["up/down", "in/out" , "free space (%)"];
     $scope.dispoMode = "up/down";
     $scope.osdControl = 0;
     $scope.warningMessage = "";
     if ($location.absUrl().indexOf("dispoMode=space") > -1) $scope.dispoMode = "free space (%)";
+
+
     // get OSD info and refresh every 10s
-    getOsds();
-    setInterval(function () {getOsds()},10*1000);
+
+    // start refresh when fsid is available
+    var waitForFsid = function ($rootScope, $http,$scope){
+        typeof $rootScope.fsid !== "undefined"? startRefresh($rootScope, $http,$scope) : setTimeout(function () {waitForFsid($rootScope, $http,$scope)}, 1000);
+        function startRefresh($rootScope, $http,$scope){
+            getOsds();
+            setInterval(function () {getOsds()},10*1000);
+        }
+    }
+    waitForFsid($rootScope, $http,$scope);
 
     // Prepare OSD topology from crushmap
 
@@ -79,7 +89,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($scope, $http, $location 
     }
 
     function getOsds() {
-        $http({method: "get", url: inkscopeCtrlURL + "ceph/osd?depth=2"})
+        $http({method: "get", url: inkscopeCtrlURL + $rootScope.fsid+"/osd?depth=2"})
             .success(function (data, status) {
                 $scope.date = new Date();
                 $scope.status = status;

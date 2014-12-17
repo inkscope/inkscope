@@ -6,16 +6,24 @@
 var ProbesApp = angular.module('ProbesApp', ['InkscopeCommons'])
     .filter('duration', funcDurationFilter);
 
-ProbesApp.controller("ProbesCtrl", function ($scope, $http) {
-    getCephProbes();
-    setInterval(function () {getCephProbes()},10*1000);
-    getSysProbes();
-    setInterval(function () {getSysProbes()},10*1000);
+ProbesApp.controller("ProbesCtrl", function ($rootScope, $scope, $http) {
+
+    // start refresh when fsid is available
+    var waitForFsid = function ($rootScope, $http,$scope){
+        typeof $rootScope.fsid !== "undefined"? startRefresh($rootScope, $http,$scope) : setTimeout(function () {waitForFsid($rootScope, $http,$scope)}, 1000);
+        function startRefresh($rootScope, $http,$scope){
+            getCephProbes();
+            setInterval(function () {getCephProbes()},10*1000);
+            getSysProbes();
+            setInterval(function () {getSysProbes()},10*1000);
+        }
+    }
+    waitForFsid($rootScope, $http,$scope);
 
     function getCephProbes() {
         $scope.date = new Date();
 
-        $http({method: "get", url: inkscopeCtrlURL + "ceph/cephprobe"}).
+        $http({method: "get", url: inkscopeCtrlURL + $rootScope.fsid+"/cephprobe"}).
 
             success(function (data,status,headers,config ) {
                 $scope.cephprobes = data;
@@ -34,7 +42,7 @@ ProbesApp.controller("ProbesCtrl", function ($scope, $http) {
     function getSysProbes() {
         $scope.date = new Date();
 
-        $http({method: "get", url: inkscopeCtrlURL + "ceph/sysprobe"}).
+        $http({method: "get", url: inkscopeCtrlURL + $rootScope.fsid+"/sysprobe"}).
 
             success(function (data, status,headers) {
                 $scope.sysprobes = data;

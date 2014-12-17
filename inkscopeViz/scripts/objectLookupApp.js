@@ -10,10 +10,18 @@ var ObjectLookupApp = angular.module('ObjectLookupApp', ['D3Directives','Inkscop
 ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $http) {
     $scope.pool = "";
 
-    getPoolsInfo();
+    // start refresh when fsid is available
+    var waitForFsid = function ($rootScope, $http,$scope){
+        typeof $rootScope.fsid !== "undefined"? startRefresh($rootScope, $http,$scope) : setTimeout(function () {waitForFsid($rootScope, $http,$scope)}, 1000);
+        function startRefresh($rootScope, $http,$scope){
+            getOsdInfo();
+            setInterval(function () {getOsdInfo()},10*1000);
+        }
+    }
+    waitForFsid($rootScope, $http,$scope);
 
-    getOsdInfo();
-    setInterval(function () {getOsdInfo()},10*1000);
+
+    getPoolsInfo();
 
     getObjectInfo();
     setInterval(function () {getObjectInfo()},5*1000);
@@ -34,7 +42,7 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
     }
 
     function getOsdInfo(){
-        $http({method: "get", url: inkscopeCtrlURL + "ceph/osd?depth=2"}).
+        $http({method: "get", url: inkscopeCtrlURL + $rootScope.fsid+"/osd?depth=2"}).
 
             success(function (data, status) {
                 $rootScope.data = data;

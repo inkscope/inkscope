@@ -48,7 +48,7 @@ function getMenu(){
 
 
 angular.module('InkscopeCommons', ['ngTable','dialogs','ui.bootstrap'])
-    .controller('overallStatusCtrl', function ($scope,$http) {
+    .controller('overallStatusCtrl', function ($rootScope, $scope,$http) {
         refreshData();
         setInterval(function () {
             refreshData()
@@ -56,6 +56,7 @@ angular.module('InkscopeCommons', ['ngTable','dialogs','ui.bootstrap'])
         function refreshData(){
             $http({method: "get", url: cephRestApiURL + "status.json",timeout:4000})
             .success(function (data) {
+                $rootScope.fsid = data.output.fsid;
                 $scope.overallStatus = {};
                 $scope.overallStatus.severity = data.output.health.overall_status;
                 $scope.overallStatus.summary="";

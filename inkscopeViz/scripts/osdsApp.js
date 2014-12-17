@@ -8,15 +8,25 @@ var OsdsApp = angular.module('OsdsApp', ['D3Directives','InkscopeCommons'])
     .filter('duration', funcDurationFilter);
 
 
-OsdsApp.controller("OsdsCtrl", function ($scope, $http, $location ,$window) {
+OsdsApp.controller("OsdsCtrl", function ($rootScope, $scope, $http, $location ,$window) {
     $scope.dispoModes = ["state" , "used space (%)"];
     $scope.dispoMode = "used space (%)";
 
     $scope.count = 0;
     $scope.nbOsd = 0;
     $scope.filtered = false;
-    getOsds();
-    setInterval(function () {getOsds()},15*1000);
+
+
+    // start refresh when fsid is available
+    var waitForFsid = function ($rootScope, $http,$scope){
+        typeof $rootScope.fsid !== "undefined"? startRefresh($rootScope, $http,$scope) : setTimeout(function () {waitForFsid($rootScope, $http,$scope)}, 1000);
+        function startRefresh($rootScope, $http,$scope){
+            getOsds();
+            setInterval(function () {getOsds()},15*1000);
+        }
+    }
+    waitForFsid($rootScope, $http,$scope);
+
 
     function getOsds() {
         $scope.date = new Date();
@@ -29,7 +39,7 @@ OsdsApp.controller("OsdsCtrl", function ($scope, $http, $location ,$window) {
         $scope.upFilter = (stateFilter!="")? stateFilter.indexOf("up") > -1 : false;;
         $scope.downFilter = (stateFilter!="")? stateFilter.indexOf("down") > -1 : false;;
 
-        $http({method: "get", url: inkscopeCtrlURL + "ceph/osd?depth=2"}).
+        $http({method: "get", url: inkscopeCtrlURL + $rootScope.fsid+"/osd?depth=2"}).
 
             success(function (data, status) {
                 $scope.nbOsd = data.length;

@@ -11,8 +11,9 @@ angular.module('hostsApp', ['ngRoute','ngTable','D3Directives','ui.bootstrap','d
             otherwise({redirectTo: '/'})
     });
 
-function refreshHosts($http, $scope, $templateCache) {
-    $http({method: "get", url: inkscopeCtrlURL + "ceph/hosts", cache: $templateCache}).
+function refreshHosts($rootScope, $http, $scope, $templateCache) {
+    //while (typeof $rootScope.fsid === 'undefined')  ;
+    $http({method: "get", url: inkscopeCtrlURL + $rootScope.fsid + "/hosts", cache: $templateCache}).
         success(function (data, status) {
             $scope.status = status;
             $scope.hosts =  data;
@@ -25,7 +26,7 @@ function refreshHosts($http, $scope, $templateCache) {
         });
 }
 
-function ListCtrl($scope,$http, $filter, ngTableParams, $location) {
+function ListCtrl($rootScope, $scope,$http, $filter, ngTableParams, $location) {
     $scope.tableParams = new ngTableParams({
         page: 1,            // show first page
         count: 20,          // count per page
@@ -44,10 +45,17 @@ function ListCtrl($scope,$http, $filter, ngTableParams, $location) {
         }
     });
 
-    refreshHosts($http,$scope);
-    setInterval(function(){
-        refreshHosts($http, $scope)
-    }, 10000);
+    // start refresh when fsid is available
+    var waitForFsid = function ($rootScope, $http,$scope){
+        typeof $rootScope.fsid !== "undefined"? startRefreshHost($rootScope, $http,$scope) : setTimeout(function () {waitForFsid($rootScope, $http,$scope)}, 1000);
+    function startRefreshHost($rootScope, $http,$scope){}
+        refreshHosts($rootScope, $http,$scope);
+        setInterval(function(){
+            refreshHosts($rootScope,$http, $scope)
+        }, 10000);
+    }
+    waitForFsid($rootScope, $http,$scope);
+
     var data;
 
     $scope.showDetail = function (hostid) {
@@ -55,11 +63,11 @@ function ListCtrl($scope,$http, $filter, ngTableParams, $location) {
     }
 }
 
-function DetailCtrl($scope, $http, $routeParams, $dialogs) {
+function DetailCtrl($rootScope, $scope, $http, $routeParams, $dialogs) {
     $scope.detailedHost={};
     $scope.detailedHost._id = $routeParams.hostId;
     var data ={"_id" : $routeParams.hostId}
-    var uri = inkscopeCtrlURL + "ceph/hosts?depth=2";
+    var uri = inkscopeCtrlURL + $rootScope.fsid+"/hosts?depth=2";
     $http({method: "post", data: data, url: uri }).
         success(function (data, status) {
             $scope.detailedHost =  data[0];
