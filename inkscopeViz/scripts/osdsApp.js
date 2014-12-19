@@ -10,7 +10,7 @@ var OsdsApp = angular.module('OsdsApp', ['D3Directives','InkscopeCommons'])
 
 OsdsApp.controller("OsdsCtrl", function ($rootScope, $scope, $http, $location ,$window) {
     $scope.dispoModes = ["state" , "used space (%)"];
-    $scope.dispoMode = "used space (%)";
+    $scope.dispoMode = "state";
 
     $scope.count = 0;
     $scope.nbOsd = 0;
