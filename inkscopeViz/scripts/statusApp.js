@@ -54,7 +54,6 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
     yAxis.render();
     graph.render();
 
-
     //refresh data every x seconds
     refreshData();
     refreshPGData();
@@ -77,8 +76,6 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
         }
     }
     waitForFsid($rootScope, $http,$scope);
-
-
 
 
     function refreshPGData() {
@@ -181,7 +178,7 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
                         //remove HEALTH_ in severity
                         $scope.health.summary = $scope.health.severity.substring(7);
                 }
-
+                $rootScope.healthSeverity = $scope.health.severity;
                 historise();
 
                 $scope.mons = data.output.monmap.mons;
@@ -253,6 +250,7 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
     }
 
     $scope.getPgmapMessage=function(){
+        if (typeof  $scope.pgmap ==="undefined") return "";
         if ((typeof  $scope.pgmap.degraded_objects ==="undefined" )||($scope.pgmap.degraded_objects==0)) return "";
         return $scope.pgmap.degraded_objects +" objects degraded on "+$scope.pgmap.degraded_total +" ("+ $scope.pgmap.degraded_ratio +"%)";
     }
@@ -269,5 +267,44 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
         }
     }
 
+});
+
+StatusApp.controller('ModalDemoCtrl', function ($scope, $modal, $log) {
+    $scope.open = function (size) {
+
+        var modalInstance = $modal.open({
+            templateUrl: 'myModalContent.html',
+            controller: 'ModalInstanceCtrl',
+            size: size
+        });
+
+        modalInstance.result.then(function (selectedItem) {
+            $scope.selected = selectedItem;
+        }, function () {
+            $log.info('Modal dismissed at: ' + new Date());
+        });
+    };
+});
+
+// Please note that $modalInstance represents a modal window (instance) dependency.
+// It is not the same as the $modal service used above.
+
+StatusApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $http) {
+    $scope.refresh = function () {
+        $scope.details = ["fetching details ..."];
+        $http({method: "get", url: cephRestApiURL + "health.json?detail",timeout:8000})
+            .success(function (data, status) {
+                $scope.details = data.output.detail;
+            })
+            .error(function (data, status) {
+                $scope.details = ["details not available"];
+            }
+        );
+    };
+    $scope.refresh();
+
+    $scope.close = function () {
+        $modalInstance.dismiss('cancel');
+    };
 });
 

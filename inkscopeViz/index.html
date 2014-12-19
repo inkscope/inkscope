@@ -139,11 +139,32 @@
         Read : {{ read | bytes:kB }}/s , Write : {{ write | bytes:kB }} , Recovery : {{ recovery | bytes:kB }}/s
     </div>
     <h2>Cluster health at {{date | date:'HH:mm:ss'}}</h2>
-    <div class="health_summary health_status_{{health.severity}}">{{health.summary}}</div>
+    <div class="health_summary health_status_{{health.severity}}">
+        <!-- showing warn or error details -->
+        <i ng-controller="ModalDemoCtrl" class="icon-info-sign icon-white button" style="margin:5px" ng-click="open('lg')" ng-hide="healthSeverity =='HEALTH_OK'" title="show details">
+            <script type="text/ng-template" id="myModalContent.html">
+                <div class="modal-header">
+                    <h3 class="modal-title text_health_status_{{ healthSeverity }}">{{ healthSeverity }} details</h3>
+                </div>
+                <div class="modal-body">
+                    <ul>
+                        <li ng-repeat="item in details">
+                            {{ item }}
+                        </li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" ng-click="refresh()">refresh</button>
+                    <button class="btn btn-default" ng-click="close()">close</button>
+                </div>
+            </script>
+        </i>
+        {{health.summary}}</div>
     <div id="journal">
         <div ng-repeat="key in journal">{{key.date | date:'yyyy-MM-dd HH:mm:ss'}} : {{key.summary}}</div>
         <br>
     </div>
+
     <h3>history </h3>
 
 </div>
