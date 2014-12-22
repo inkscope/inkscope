@@ -21,22 +21,15 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="scripts/angular-misc/ng-table.min.css">
     <title>Ceph cluster hosts</title>
-    <script>
-        function resize(){
-        var header = document.querySelector("#header");
-        var height = window.innerHeight-200;
-        var control = document.querySelector("#control");
-        control.style.maxHeight = height+"px";
-        }
-    </script></head>
-<body ng-controller="ListCtrl">
+</head>
+<body ng-controller="ListCtrl" onresize="resizeBlocks(['#list','#control'])">
 
 
 <header id="header" ng-include src="'partials/header.html'" ng-init="pageTitle='Ceph cluster hosts'"></header>
 
 <div>
 <!--div id="status"  >{{status}}</div-->
-<div id="listhost">
+<div id="list">
     <table>
         <tr>
             <th><input type="text" ng-model="search._id" class="search-query" placeholder="Search name"></th>
@@ -54,9 +47,8 @@
 </div>
 <div ng-view id="control" ></div>
 
-<script>
-resize();
-</script>
+<script>resizeBlocks(['#list','#control']);</script>
+
 </body>
 
 </html>

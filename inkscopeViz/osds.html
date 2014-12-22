@@ -69,11 +69,11 @@
 </form>
 
 <div id="controlPanel1" ng-hide="count == 0">
-    <div class="osd  {{osdClass(osd.stat.in,osd.stat.up)}}" style="float:right">
+    <div class="osd  {{osdClass(osd)}}" style="float:right">
         {{osd.node._id}}
     </div>
     <h1>{{osd.node.name}}</h1>
-    <strong>{{osdState(osd.stat.in,osd.stat.up)}}</strong>
+    <strong>{{osdState(osd)}}</strong>
     <br><br>
     last control : {{osd.lastControl|duration}}<br>
     {{osd.partition._id}}<br>
@@ -105,19 +105,19 @@
 <div id="datePanel"><br>Date : {{date | date:'HH:mm:ss'}} - matching: {{count}} of {{nbOsd}} OSD
     <div ng-hide="osdControl<15 || count == 0">
         <a href="probes.html">
-            <p class="text-warning"> <i class="icon-warning-sign" ></i> osds not verified since {{osdControl|duration}}</p>
+            <p class="text-warning"> <i class="icon-warning-sign" ></i> last control for osds:  {{osdControl|duration}}</p>
         </a>
     </div>
 </div>
 
 
 <div id="osds" ng-show="dispoMode == 'state'">
-    <div ng-repeat="osd in data|orderBy:'id'" class=" tooltips osd {{osdClass(osd.stat.in,osd.stat.up)}}">
+    <div ng-repeat="osd in data|orderBy:'id'" class=" tooltips osd {{osdClass(osd)}}">
         <div ng-click="osdSelect(osd);">
             {{osd.id}}
             <div> <!-- tooltip -->
                 <span>
-                    <strong>{{osd.node.name}}</strong> {{osdState(osd.stat.in,osd.stat.up)}}<br>
+                    <strong>{{osd.node.name}}</strong> {{osdState(osd)}}<br>
                     last control : {{osd.lastControl|duration}}<br><br>
                     {{osd.partition._id}}<br>
                     {{osd.public_addr}}<br>
@@ -137,7 +137,7 @@
             <ad-gauge value="osd.partition.stat.used/osd.partition.stat.total" colormode="desc" width="120" type="plain" animated="false"></ad-gauge>
             <div> <!-- tooltip -->
                 <span>
-                    <strong>{{osd.node.name}}</strong> {{osdState(osd.stat.in,osd.stat.up)}}<br>
+                    <strong>{{osd.node.name}}</strong> {{osdState(osd)}}<br>
                     last control : {{osd.lastControl|duration}}<br><br>
                     {{osd.partition._id}}<br>
                     {{osd.public_addr}}<br>

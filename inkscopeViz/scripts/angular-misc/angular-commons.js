@@ -20,6 +20,7 @@ function funcBytesFilter () {
 
 function funcDurationFilter(){
     return function (duration){
+        if (duration == "-") return "not available"
         var sign= (duration >=0 ? "":"- ");
         duration = Math.abs(Math.floor(duration));
         var minutes = Math.floor(duration / 60);
@@ -32,6 +33,15 @@ function funcDurationFilter(){
         var str =hours-(24*days)+"h "+str;
         if (days==0) return sign+str;
         return sign+days+"d "+str;
+    }
+}
+
+function resizeBlocks(blockNames){
+    var height = window.innerHeight-250;
+    for(var i= 0; i < blockNames.length; i++){
+    var block = document.querySelector(blockNames[i]);
+    //console.log(blockNames[i]);
+    block.style.maxHeight = height+"px";
     }
 }
 

@@ -16,13 +16,13 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <title>Cluster general flags</title>
 </head>
-<body ng-controller="flagsCtrl">
+<body ng-controller="flagsCtrl" onresize="resizeBlocks(['#list','#control'])">
 
 
 <header id="header" ng-include src="'partials/header.html'" ng-init="pageTitle='Cluster general flags'"></header>
 
 
-<div id="listflags" style="margin: 2em 100px 0 200px; float:left">
+<div id="list" style="margin: 2em 150px; width:150px">
     <div ng-repeat="flag in flagList">
         <a ng-show="isSet(flag)" class="btn btn-warning"  style="width:100px" ng-click="unsetFlag(flag)" >{{ flag }} <i class="icon-white icon-remove"></i></a>
         <a ng-show="!isSet(flag)" class="btn btn-default"  style="width:100px" ng-click="setFlag(flag)" >{{ flag }} <i class="icon-check"></i></a><br><br>
@@ -51,6 +51,8 @@
             <strong>notieragent</strong> : This will pause tiering agent work
 
 </div>
+
+<script>resizeBlocks(['#list','#control']);</script>
 
 </body>
 </html>

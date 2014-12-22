@@ -21,20 +21,12 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="scripts/angular-misc/ng-table.min.css">
     <title>Ceph erasure profiles admin</title>
-    <script>
-        function resize(){
-        var header = document.querySelector("#header");
-        var height = window.innerHeight-250;
-        var control = document.querySelector("#control");
-        control.style.maxHeight = height+"px";
-        }
-    </script>
     <style>
         .glyphicon-chevron-down:before  {content: "\25BC";}
         .glyphicon-chevron-right:before {content: "\25B6";}
     </style>
 </head>
-<body ng-controller="ListCtrl">
+<body ng-controller="ListCtrl"  onresize="resizeBlocks(['#list','#control'])">
 
 
 <header id="header" ng-include src="'partials/header.html'" ng-init="pageTitle='Ceph erasure profiles management'"></header>
@@ -62,9 +54,9 @@
 </div>
 <div ng-view id="control" ></div>
 
-<script>
-resize();
-</script>
+
+<script>resizeBlocks(['#list','#control']);</script>
+
 </body>
 
 </html>

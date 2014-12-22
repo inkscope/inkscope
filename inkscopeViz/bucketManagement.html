@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="scripts/angular-misc/ng-table.min.css">
     <title>Ceph buckets admin</title>
 </head>
-<body ng-controller="ListCtrl">
+<body ng-controller="ListCtrl" onresize="resizeBlocks(['#list','#control'])">
 
 <header ng-include src="'partials/header.html'" ng-init="pageTitle='RGW bucket management'"></header>
 
@@ -43,6 +43,7 @@
 </div>
 <div ng-view id="control" ></div>
 
+<script>resizeBlocks(['#list','#control']);</script>
 
 </body>
 </html>

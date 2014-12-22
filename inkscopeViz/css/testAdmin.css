@@ -122,15 +122,16 @@ label {
     padding: 1em;
 }
 
-#list{
+#list, #listpool, #listhost {
      margin : 2em;
      float:left;
      width :350px;
      padding: 1em;
- }
+     overflow-x: hidden;
+     overflow-y: auto;
+}
+
 #listpool, #listhost{
-    margin : 2em;
-    float:left;
     width :450px;
     padding: 1em;
 }
@@ -490,6 +491,11 @@ text-align: center;
 
 .osd_down {
     background-color: red;
+}
+
+.osd_unknown {
+    border: solid 4px darkgrey;
+    background-color: lightgrey;
 }
 
 .probe {

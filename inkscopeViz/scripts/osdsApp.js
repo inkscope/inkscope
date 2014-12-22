@@ -16,6 +16,7 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $scope, $http, $location ,$
     $scope.nbOsd = 0;
     $scope.filtered = false;
 
+    $scope.osd = null;
 
     // start refresh when fsid is available
     var waitForFsid = function ($rootScope, $http,$scope){
@@ -57,7 +58,10 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $scope, $http, $location ,$
                 }
                 for ( var i=0; i<data.length;i++){
                     data[i].id = data[i].node._id;
-                    data[i].lastControl = ((+$scope.date)-data[0].stat.timestamp)/1000;
+                    if ( data[i].stat == null)
+                        data[i].lastControl = "-";
+                    else
+                        data[i].lastControl = ((+$scope.date)-data[i].stat.timestamp)/1000;
                 }
 
                 // search for selected osd, first one if none
@@ -84,14 +88,23 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $scope, $http, $location ,$
             });
     }
 
-    $scope.osdClass = function (osdin,osdup){
+    $scope.osdClass = function (osd){
+        if ( osd == null) return "osd_unknown";
+        if ( osd.stat == null) return "osd_unknown";
+        var osdin = osd.stat.in;
+        var osdup = osd.stat.up;
         var osdclass = (osdin == true) ? "osd_in " : "osd_out ";
         osdclass += (osdup == true) ? "osd_up" : "osd_down";
+        console.log(osdclass);
         return osdclass;
 
     }
 
-    $scope.osdState = function (osdin,osdup){
+    $scope.osdState = function (osd){
+        if ( osd == null) return "unknown state";
+        if ( osd.stat == null) return "unknown state";
+        var osdin = osd.stat.in;
+        var osdup = osd.stat.up;
         var osdstate = (osdin == true) ? "in / " : "out / ";
         osdstate += (osdup == true) ? "up" : "down";
         return osdstate;
