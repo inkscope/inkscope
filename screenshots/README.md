@@ -2,6 +2,7 @@ Some screenshots
 ================
 
 ![dashboard](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-Status.png)
+![dashboard3](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-Status3.png)
 ![dashboard2](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-Status2.png)
 ![osd map](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-OsdMap.png)
 ![pool management](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-PoolManagement.png)
