@@ -6,7 +6,7 @@ INKPATHBIN='/opt/inkscope/bin'
 
 mkdir -pv $INKPATHETC $INKPATHBIN
 
-cp inkscope.conf $INKPATHETC/inkscope-template.conf
+cp inkscope-template.conf $INKPATHETC/inkscope.conf
 cp inkscopeProbe/cephprobe.py $INKPATHBIN
 cp inkscopeProbe/sysprobe.py  $INKPATHBIN
 cp inkscopeProbe/daemon.py  $INKPATHBIN
