@@ -359,32 +359,34 @@
     <div id="mds_status_details">
         <table style="float: right">
             <tr>
-                <td>up</td>
+                <td style="text-align:left">up:in</td>
                 <td>
                     <div class={{badgeClass("OK",mdsmap.up)}}>
                         {{mdsmap.up}}
                     </div>
                 </td>
-
-            </tr>
-            <tr><td>in</td>
                 <td>
                     <div class={{badgeClass("OK",mdsmap.in)}} >
                         {{mdsmap.in}}
                     </div>
                 </td>
             </tr>
-            <tr>
-                <td>max</td>
+            <tr><td colspan=2 style="text-align:left">up:standby</td>
                 <td>
-                    <div class={{badgeClass("OK",mdsmap.max)}}>
+                    <div class={{badgeClass("OK",mdsmap.up_standby)}} >
+                        {{mdsmap.up_standby}}
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan=2 style="text-align:left">max</td>
+                <td>
+                    <div class={{badgeClass("UNKNOWN",mdsmap.max)}}>
                         {{mdsmap.max}}
                     </div>
                 </td>
             </tr>
         </table>
-
-
     </div>
 
 

@@ -149,6 +149,7 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
 
 
                 $scope.mdsmap = data.output.mdsmap;
+                $scope.mdsmap.up_standby = data.output.mdsmap["up:standby"];
                 $scope.percentUsed = $scope.pgmap.bytes_used / $scope.pgmap.bytes_total;
                 $scope.pgsByState = $scope.pgmap.pgs_by_state;
 
@@ -280,7 +281,7 @@ StatusApp.controller('ModalDemoCtrl', function ($scope, $modal, $log) {
 
         modalInstance.result.then(function (selectedItem) {
             $scope.selected = selectedItem;
-        }, function () {
+        }, function () {05s
             $log.info('Modal dismissed at: ' + new Date());
         });
     };
