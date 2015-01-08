@@ -50,6 +50,8 @@ function color4descPercent(percent) {
 
 function color4states(states){
     if (states.indexOf("unactive")>=0) return "red";
+    if (states.indexOf("inconsistent")>=0) return "red";
+    if (states.indexOf("down")>=0) return "red";
     if (states.indexOf("backfill_toofull")>=0) return "red";
     if (states.indexOf("degraded")>=0) return "darkorange";
     if (states.indexOf("unclean")>=0) return "darkorange";
