@@ -281,7 +281,7 @@ StatusApp.controller('ModalDemoCtrl', function ($scope, $modal, $log) {
 
         modalInstance.result.then(function (selectedItem) {
             $scope.selected = selectedItem;
-        }, function () {05s
+        }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
     };
