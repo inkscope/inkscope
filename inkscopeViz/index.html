@@ -145,10 +145,11 @@
             <script type="text/ng-template" id="myModalContent.html">
                 <div class="modal-header">
                     <h3 class="modal-title text_health_status_{{ healthSeverity }}">{{ healthSeverity }} details</h3>
+                    <div>Filter <input ng-model="search"></div>
                 </div>
                 <div class="modal-body">
                     <ul>
-                        <li ng-repeat="item in details">
+                        <li ng-repeat="item in details | filter: search">
                             {{ item }}
                         </li>
                     </ul>
