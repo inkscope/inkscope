@@ -95,7 +95,7 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $scope, $http, $location ,$
         var osdup = osd.stat.up;
         var osdclass = (osdin == true) ? "osd_in " : "osd_out ";
         osdclass += (osdup == true) ? "osd_up" : "osd_down";
-        console.log(osdclass);
+        //console.log(osdclass);
         return osdclass;
 
     }
