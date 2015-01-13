@@ -150,7 +150,7 @@
                 <div class="modal-body">
                     <ul>
                         <li ng-repeat="item in details | filter: search">
-                            {{ item }}
+                            <span ng-bind-html="item"></span>
                         </li>
                     </ul>
                 </div>
