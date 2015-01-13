@@ -108,6 +108,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
                         data[i].percent = data[i].free/data[i].total;
                     }
                     catch (e) {
+                        console.log("failed to retireve partition stat for osd "+i);
                         data[i].free = "N/A";
                         data[i].total = "N/A";
                         data[i].percent = -1;
@@ -133,27 +134,28 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
         if ($scope.dispoMode == "free space (%)") return (node.percent== -1 ? "N/A": node.percent);
     }
 
-    $scope.dispoOSD= function(nodeId) {
-        if (typeof nodeId === undefined) return {"value":0,"total":0};;
-        if ($scope.dispoMode == "up/down") return {"total":1,"value":$scope.osds[nodeId].stat.up ? 1.0 : 0.0};
-        if ($scope.dispoMode == "in/out") return {"total":1,"value":$scope.osds[nodeId].stat.in ? 1.0 : 0.2};
-        if ($scope.dispoMode == "free space (%)") return {"value":$scope.osds[nodeId].free,"total":$scope.osds[nodeId].total};
-    }
-
-    $scope.dispoOtherNode= function(nodeId) {
-        if (typeof nodeId === undefined) return -1;
+    $scope.dispoOfNode= function(nodeId) {
+        if (typeof nodeId === undefined) return {"value":0,"total":0};
+        if (nodeId<0) {
             var node = $scope.bucketsTab[nodeId];
             var value = 0 ;
             var total = 0 ;
             for (var i= 0; i< node.children.length;i++){
-                var res =  node.children[i].id<0? $scope.dispoOtherNode(node.children[i].id) : $scope.dispoOSD(node.children[i].id);
+                var res =  $scope.dispoOfNode(node.children[i].id) ;
                 value += res.value;
                 total += res.total;
             }
-        $scope.bucketsTab[nodeId].value= value;
-        $scope.bucketsTab[nodeId].total= total;
-        $scope.bucketsTab[nodeId].dispo= value/total;
-        return {"value":value,"total":total};
+            $scope.bucketsTab[nodeId].value= value;
+            $scope.bucketsTab[nodeId].total= total;
+            $scope.bucketsTab[nodeId].dispo= value/total;
+            return {"value":value,"total":total};
+        }
+        else {
+            if (typeof nodeId === undefined) return {"value":0,"total":0};;
+            if ($scope.dispoMode == "up/down") return {"total":1,"value":$scope.osds[nodeId].stat.up ? 1.0 : 0.0};
+            if ($scope.dispoMode == "in/out") return {"total":1,"value":$scope.osds[nodeId].stat.in ? 1.0 : 0.2};
+            if ($scope.dispoMode == "free space (%)") return {"value":$scope.osds[nodeId].free,"total":$scope.osds[nodeId].total};
+        }
     }
 
     $scope.findRoots = function (rawbuckets) {
@@ -196,7 +198,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
                 var path = d3.select("#osd" + $scope.osds[i].id);
                 path.style("fill", color4ascPercent($scope.dispo($scope.osds[i])));
             }
-            $scope.dispoOtherNode($scope.base);
+            $scope.dispoOfNode($scope.base);
             for (var bucketId in $scope.bucketsTab) {
                 //immediate update of sectors
                 var path = d3.select("#osd" + $scope.bucketsTab[bucketId].id);
@@ -214,7 +216,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
 
     $scope.changeBase = function (){
         $scope.buckets = $scope.computeBucketsTree($scope.rawbuckets , $scope.base);
-        $scope.dispoOtherNode($scope.base);
+        $scope.dispoOfNode($scope.base);
         $scope.refreshStatusDisplay();
     }
 
