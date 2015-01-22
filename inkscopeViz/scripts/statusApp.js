@@ -296,6 +296,15 @@ StatusApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $htt
         $http({method: "get", url: cephRestApiURL + "health.json?detail",timeout:8000})
             .success(function (data, status) {
                 $scope.details = data.output.detail;
+                for (var i=0;i<$scope.details.length;i++){
+                    var txt = $scope.details[i];
+                    /([0-9]+\.[0-9a-f]+)/.exec(txt);
+                    var pgid = RegExp.$1;
+                    if (pgid != null)
+                        //$scope.details[i] = txt.replace(pgid,"<a href='pg.html?pgid="+pgid+"'>"+pgid+"</a>");
+                        $scope.details[i] = txt.replace("pg "+pgid,"<a href='../ceph-rest-api/tell/"+pgid+"/query.json'>pg "+pgid+"</a>");
+                    // ceph-rest-api/tell/<pgid>/query.json
+                }
             })
             .error(function (data, status) {
                 $scope.details = ["details not available"];
