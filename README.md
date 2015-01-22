@@ -17,6 +17,8 @@ The main folders are:
 
 Manual installation is fully described in the [inkScope wiki](https://github.com/inkscope/inkscope/wiki)
 
+All modules have been packaged: see [inkScope packaging](https://github.com/inkscope/inkscope-packaging)
+
 Here is the dashboard screenshot and an object storage user management screenshot. Other screenshots can be found [there](https://github.com/inkscope/inkscope/tree/master/screenshots)
 
 ![dashboard](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-Status.png)
