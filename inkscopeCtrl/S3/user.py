@@ -127,6 +127,7 @@ class S3User:
         # suspended / Specify whether the user should be suspended / Boolean Example:	False [False] / not required
 
         self = S3User()
+        Log.debug("User modification input parameters : json="+jsonUserData)
         userData = json.loads(jsonUserData)
         self.uid = uid
         self.displayName = userData.get('display_name', None)
@@ -164,7 +165,7 @@ class S3User:
         if self.suspended is not None :
             myargs.append(("suspended",self.suspended))
 
-        Log.debug("Create user : "+myargs.__str__())
+        Log.debug("Modify user : "+myargs.__str__())
 
         request= conn.request(method="POST", key="user", args= myargs)
         res = conn.send(request)
