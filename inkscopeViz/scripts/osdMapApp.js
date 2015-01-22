@@ -98,7 +98,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
                 $scope.osdDown = 0;
                 $scope.warningMessage = "";
                 for (var i = 0; i < data.length; i++) {
-                    data[i].id = data[i].node._id;
+                    data[i].id = data[i]._id;
                     if (!data[i].stat.in) $scope.osdOut++;
                     if (!data[i].stat.up) $scope.osdDown++;
                     data[i].lastControl = ((+$scope.date) - data[0].stat.timestamp) / 1000;

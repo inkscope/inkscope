@@ -57,7 +57,7 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $scope, $http, $location ,$
                     data = filteredData;
                 }
                 for ( var i=0; i<data.length;i++){
-                    data[i].id = data[i].node._id;
+                    data[i].id = data[i]._id;
                     if ( data[i].stat == null)
                         data[i].lastControl = "-";
                     else
