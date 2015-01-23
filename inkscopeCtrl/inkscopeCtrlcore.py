@@ -23,7 +23,7 @@ from Log import Log
 
 #Added for S3 objects management
 
-from   S3ObjectCtrl  import *
+from S3ObjectCtrl import *
 
 
 # Load configuration from file
@@ -31,6 +31,7 @@ configfile = "/opt/inkscope/etc/inkscope.conf"
 datasource = open(configfile, "r")
 conf = json.load(datasource)
 datasource.close()
+
 
 try:
     minion = conf.get("minion")

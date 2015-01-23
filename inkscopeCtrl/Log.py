@@ -1,6 +1,18 @@
 __author__ = 'alain.dechorgnat@orange.com'
 
+import logging
+import sys
+
+
 class Log:
+
+    logger = logging.getLogger('')
+    logger.setLevel(logging.DEBUG)
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(levelname)-8s %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -10,23 +22,22 @@ class Log:
     ENDC = '\033[0m'
     BOLD = "\033[1m"
 
-    @staticmethod
-    def debug(msg):
-        print msg
+    @classmethod
+    def debug(cls, msg):
+         Log.logger.debug(msg)
 
-    @staticmethod
-    def infog(msg):
-        print Log.OKGREEN + msg + Log.ENDC
+    @classmethod
+    def infog(cls, msg):
+        Log.logger.info(msg)
 
+    @classmethod
+    def info(cls, msg):
+        Log.logger.info(msg)
 
-    @staticmethod
-    def info(msg):
-        print Log.OKBLUE + msg + Log.ENDC
+    @classmethod
+    def warn(cls, msg):
+        Log.logger.warn(msg)
 
-    @staticmethod
-    def warn(msg):
-        print Log.WARNING + msg + Log.ENDC
-
-    @staticmethod
-    def err(msg):
-        print Log.FAIL + msg + Log.ENDC
+    @classmethod
+    def err(cls, msg):
+        Log.logger.error(msg)
