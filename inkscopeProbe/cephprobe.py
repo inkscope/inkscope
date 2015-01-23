@@ -134,13 +134,13 @@ def process_conf():
         
 
 # cluster
-def init_cluster(restapi, db):
+def init_cluster(restapi, ceph_rest_api_subfolder, db):
     global fsid
-    fsid = process_status(restapi, db)
-    process_crushmap(restapi, db)
-    process_osd_dump(restapi, db)
-    process_pg_pump(restapi, db)
-    process_df(restapi, db)
+    fsid = process_status(restapi, ceph_rest_api_subfolder, db)
+    process_crushmap(restapi, ceph_rest_api_subfolder, db)
+    process_osd_dump(restapi, ceph_rest_api_subfolder, db)
+    process_pg_pump(restapi, ceph_rest_api_subfolder, db)
+    process_df(restapi, ceph_rest_api_subfolder, db)
    
 # health value
 healthCst = ["HEALTH_OK", "HEALTH_WARN", "HEALTH_ERROR"]
@@ -154,11 +154,11 @@ def worst_health(h1, h2):
 
 
 # uri : /api/v0.1/status.json
-def process_status(restapi, db):
+def process_status(restapi, ceph_rest_api_subfolder, db):
     print str(datetime.datetime.now()), "-- Process Status"  
     sys.stdout.flush()
     restapi.connect()
-    restapi.request("GET", "/api/v0.1/status.json")
+    restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/status.json")
     r1=restapi.getresponse()
     restapi.close()
     # print ("process_status : ",r1.status)
@@ -243,11 +243,11 @@ def process_status(restapi, db):
    
 
 # uri : /api/v0.1/osd/dump.json
-def process_osd_dump(restapi, db):   
+def process_osd_dump(restapi, ceph_rest_api_subfolder, db):
     print str(datetime.datetime.now()), "-- Process OSDDump"  
     sys.stdout.flush()
     restapi.connect()
-    restapi.request("GET", "/api/v0.1/osd/dump.json")
+    restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/osd/dump.json")
     r1=restapi.getresponse()
     restapi.close()
     if r1.status == 200:
@@ -324,11 +324,11 @@ def process_osd_dump(restapi, db):
 # osd host from conf : "host" : DBRef( "hosts", hostmap[i]),
 # "partition" : DBRef( "partitions", hostmap[i]+":/dev/sdc1"),
 # uri : /api/v0.1/pg/dump.json
-def process_pg_pump(restapi, db):
+def process_pg_pump(restapi, ceph_rest_api_subfolder, db):
     print str(datetime.datetime.now()), "-- Process PGDump"  
     sys.stdout.flush()
     restapi.connect()
-    restapi.request("GET", "/api/v0.1/pg/dump.json")
+    restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/pg/dump.json")
     r1 = restapi.getresponse()
     restapi.close()
     if r1.status == 200:
@@ -364,11 +364,11 @@ def process_pg_pump(restapi, db):
 
 
 # uri : /api/v0.1/osd/crush/dump.json
-def process_crushmap(restapi, db):
+def process_crushmap(restapi, ceph_rest_api_subfolder, db):
     print str(datetime.datetime.now()), "-- Process Crushmap"  
     sys.stdout.flush()
     restapi.connect()
-    restapi.request("GET", "/api/v0.1/osd/crush/dump.json")
+    restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/osd/crush/dump.json")
     r1=restapi.getresponse()
     restapi.close()
     if r1.status == 200:
@@ -441,11 +441,11 @@ def process_crushmap(restapi, db):
 
 
 # uri : /api/v0.1/df
-def process_df(restapi, db):
+def process_df(restapi, ceph_rest_api_subfolder, db):
     print str(datetime.datetime.now()), "-- Process DF"  
     sys.stdout.flush()
     restapi.connect()
-    restapi.request("GET", "/api/v0.1/df.json")
+    restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/df.json")
     r1=restapi.getresponse()
     restapi.close()
     if r1.status == 200:
@@ -541,7 +541,12 @@ class CephProbeDaemon(Daemon):
         
         ceph_rest_api = conf.get("ceph_rest_api", '127.0.0.1:5000')
         print "ceph_rest_api = ", ceph_rest_api
-        
+
+        ceph_rest_api_subfolder = conf.get("ceph_rest_api_subfolder", '')
+        if ceph_rest_api_subfolder!= '' and not ceph_rest_api_subfolder.startswith('/'):
+            ceph_rest_api_subfolder += '/' + ceph_rest_api_subfolder
+        print "ceph_rest_api_subfolder = ", ceph_rest_api_subfolder
+
         fsid = ceph_conf_global(ceph_conf_file, 'fsid')
         print "fsid = ", fsid
         
@@ -581,16 +586,22 @@ class CephProbeDaemon(Daemon):
         
         is_mongo_replicat = conf.get("is_mongo_replicat", 0)
         print "is_mongo_replicat = ", is_mongo_replicat
-        mongodb_set = "'"+conf.get("mongodb_set","")+"'"
+
+        mongodb_set = "'"+conf.get("mongodb_set", "")+"'"
         print "mongodb_set = ", mongodb_set
-        mongodb_replicaSet =conf.get("mongodb_replicaSet",None)
+
+        mongodb_replicaSet =conf.get("mongodb_replicaSet", None)
         print "mongodb_replicaSet = ",mongodb_replicaSet
-        mongodb_read_preference = conf.get("mongodb_read_preference",None)
+
+        mongodb_read_preference = conf.get("mongodb_read_preference", None)
         print "mongodb_read_preference = ", mongodb_read_preference
-        is_mongo_authenticate = conf.get("is_mongo_authenticate",0)
+
+        is_mongo_authenticate = conf.get("is_mongo_authenticate", 0)
         print "is_mongo_authenticate",is_mongo_authenticate
-        mongodb_user = conf.get("mongodb_user","cephdefault")
+
+        mongodb_user = conf.get("mongodb_user", "cephdefault")
         print "mongodb_user = ", mongodb_user
+
         mongodb_passwd = conf.get("mongodb_passwd", None)
         print "mongodb_passwd = ", mongodb_passwd
 
@@ -617,7 +628,7 @@ class CephProbeDaemon(Daemon):
         db = client[fsid]
         
         restapi = httplib.HTTPConnection(ceph_rest_api)  
-        init_cluster(restapi, db)
+        init_cluster(restapi, ceph_rest_api_subfolder, db)
                 
         conf["_id"] = hostname   
         db.cephprobe.remove({'_id': hostname})
@@ -631,31 +642,31 @@ class CephProbeDaemon(Daemon):
         status_thread = None
         if status_refresh > 0:
             restapi = httplib.HTTPConnection(ceph_rest_api)
-            status_thread = Repeater(evt, process_status, [restapi, db], status_refresh)
+            status_thread = Repeater(evt, process_status, [restapi, ceph_rest_api_subfolder, db], status_refresh)
             status_thread.start()
             
         osd_dump_thread = None
         if osd_dump_refresh > 0:
             restapi = httplib.HTTPConnection(ceph_rest_api)
-            osd_dump_thread = Repeater(evt, process_osd_dump, [restapi, db], osd_dump_refresh)
+            osd_dump_thread = Repeater(evt, process_osd_dump, [restapi, ceph_rest_api_subfolder, db], osd_dump_refresh)
             osd_dump_thread.start()
             
         pg_dump_thread = None
         if pg_dump_refresh > 0:
             restapi = httplib.HTTPConnection(ceph_rest_api)
-            pg_dump_thread = Repeater(evt, process_pg_pump, [restapi, db], pg_dump_refresh)
+            pg_dump_thread = Repeater(evt, process_pg_pump, [restapi, ceph_rest_api_subfolder, db], pg_dump_refresh)
             pg_dump_thread.start()
             
         crushmap_thread = None
         if crushmap_refresh > 0:
             restapi = httplib.HTTPConnection(ceph_rest_api)
-            crushmap_thread = Repeater(evt, process_crushmap, [restapi, db], crushmap_refresh)
+            crushmap_thread = Repeater(evt, process_crushmap, [restapi, ceph_rest_api_subfolder, db], crushmap_refresh)
             crushmap_thread.start()
             
         df_thread = None
         if df_refresh > 0:
             restapi = httplib.HTTPConnection(ceph_rest_api)
-            df_thread = Repeater(evt, process_df, [restapi, db], df_refresh)
+            df_thread = Repeater(evt, process_df, [restapi, ceph_rest_api_subfolder, db], df_refresh)
             df_thread.start()
             
             
