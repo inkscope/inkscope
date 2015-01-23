@@ -55,10 +55,13 @@ function color4states(states){
     if (states.indexOf("backfill_toofull")>=0) return "red";
     if (states.indexOf("degraded")>=0) return "darkorange";
     if (states.indexOf("unclean")>=0) return "darkorange";
+    if (states.indexOf("incomplete")>=0) return "darkorange";
     if (states.indexOf("stale")>=0) return "yellow";
     if (states.indexOf("remapped")>=0) return "darkgreen";
     if (states.indexOf("scrubbing")>=0) return "blue";
+    if (states.indexOf("creating")>=0) return "blue";
     if (states.indexOf("clean")>=0) return "limegreen";
+    console.log("no defined color for "+states);
     return "black";
 }
 
