@@ -7,6 +7,8 @@
 
 from pymongo import MongoClient
 from pymongo import MongoReplicaSetClient
+from pymongo.read_preferences import ReadPreference
+
 
 import time
 
