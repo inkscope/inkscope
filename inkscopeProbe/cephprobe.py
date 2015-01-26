@@ -139,7 +139,7 @@ def init_cluster(restapi, ceph_rest_api_subfolder, db):
     fsid = process_status(restapi, ceph_rest_api_subfolder, db)
     process_crushmap(restapi, ceph_rest_api_subfolder, db)
     process_osd_dump(restapi, ceph_rest_api_subfolder, db)
-    process_pg_pump(restapi, ceph_rest_api_subfolder, db)
+    process_pg_dump(restapi, ceph_rest_api_subfolder, db)
     process_df(restapi, ceph_rest_api_subfolder, db)
    
 # health value
@@ -160,13 +160,14 @@ def process_status(restapi, ceph_rest_api_subfolder, db):
     restapi.connect()
     restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/status.json")
     r1=restapi.getresponse()
-    restapi.close()
-    # print ("process_status : ",r1.status)
-    if r1.status == 200:
+    if r1.status != 200:
+        print str(datetime.datetime.now()), "-- error (Status) failed to connect to ceph rest api: ", r1.status, r1.reason
+        restapi.close()
+    else:
         data1 = r1.read()
-        io = StringIO(data1)
-        c_status = json.load(io)
-        
+        restapi.close()
+        c_status = json.loads(data1)
+
         monmap = c_status['output']['monmap']
         
         map_stat_mon = {}
@@ -249,12 +250,14 @@ def process_osd_dump(restapi, ceph_rest_api_subfolder, db):
     restapi.connect()
     restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/osd/dump.json")
     r1=restapi.getresponse()
-    restapi.close()
-    if r1.status == 200:
+    if r1.status != 200:
+        print str(datetime.datetime.now()), "-- error (OSDDump) failed to connect to ceph rest api: ", r1.status, r1.reason
+        restapi.close()
+    else:
         data1 = r1.read()
-        io = StringIO(data1)
-        osd_dump = json.load(io)
-        
+        restapi.close()
+        osd_dump = json.loads(data1)
+
         osdsxinfo_map = {}
         for xi in osd_dump['output']['osd_xinfo']:
             osdsxinfo_map[xi["osd"]] = xi
@@ -280,12 +283,14 @@ def process_osd_dump(restapi, ceph_rest_api_subfolder, db):
             hostaddr = osd["public_addr"].partition(':')[0]
             osdhost = db.hosts.find_one({"hostip": hostaddr})
             osdhostid = None
-            
-            if not osdhost:
+
+            if hostaddr == '': # the case if osd is declared but not completly configured
+                osdhostid = None
+            elif not osdhost:
                 osdneti = db.net.find_one({"$where":  "this.inet.addr === '"+hostaddr+"'"})
                 if osdneti:
                     osdhostid = osdneti["_id"].partition(":")[0]
-            else :
+            else:
                 osdhostid = osdhost["_id"]
             
             osddatapartitionid = None
@@ -319,22 +324,24 @@ def process_osd_dump(restapi, ceph_rest_api_subfolder, db):
             if p['auid'] : 
                 p['auid'] = str(p['auid'])
             db.pools.update({'_id': p["_id"]}, p, upsert=True)
-            
+
 
 # osd host from conf : "host" : DBRef( "hosts", hostmap[i]),
 # "partition" : DBRef( "partitions", hostmap[i]+":/dev/sdc1"),
 # uri : /api/v0.1/pg/dump.json
-def process_pg_pump(restapi, ceph_rest_api_subfolder, db):
+def process_pg_dump(restapi, ceph_rest_api_subfolder, db):
     print str(datetime.datetime.now()), "-- Process PGDump"  
     sys.stdout.flush()
     restapi.connect()
     restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/pg/dump.json")
     r1 = restapi.getresponse()
-    restapi.close()
-    if r1.status == 200:
+    if r1.status != 200:
+        print str(datetime.datetime.now()), "-- error (PGDump) failed to connect to ceph rest api: ", r1.status, r1.reason
+        restapi.close()
+    else:
         data1 = r1.read()
-        io = StringIO(data1)
-        pgdump = json.load(io)
+        restapi.close()
+        pgdump = json.loads(data1)
         for pg in pgdump["output"]["pg_stats"]:
             # db.pg.insert(pg)
             pg['_id'] = pg['pgid']
@@ -370,11 +377,13 @@ def process_crushmap(restapi, ceph_rest_api_subfolder, db):
     restapi.connect()
     restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/osd/crush/dump.json")
     r1=restapi.getresponse()
-    restapi.close()
-    if r1.status == 200:
+    if r1.status != 200:
+        print str(datetime.datetime.now()), "-- error (Crushmap) failed to connect to ceph rest api: ", r1.status, r1.reason
+        restapi.close()
+    else:
         data1 = r1.read()
-        io = StringIO(data1)
-        crush_dump = json.load(io)
+        restapi.close()
+        crush_dump = json.loads(data1)
         # types
         types = crush_dump['output']['types'] 
         types_ref = []
@@ -447,11 +456,13 @@ def process_df(restapi, ceph_rest_api_subfolder, db):
     restapi.connect()
     restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/df.json")
     r1=restapi.getresponse()
-    restapi.close()
-    if r1.status == 200:
+    if r1.status != 200:
+        print str(datetime.datetime.now()), "-- error (DF) failed to connect to ceph rest api: ", r1.status, r1.reason
+        restapi.close()
+    else:
         data1 = r1.read()
-        io = StringIO(data1)
-        df = json.load(io)
+        restapi.close()
+        df = json.loads(data1)
         # cluster stat
         clusterdf = df['output']['stats'] 
         stats = clusterdf.copy()
@@ -544,7 +555,7 @@ class CephProbeDaemon(Daemon):
 
         ceph_rest_api_subfolder = conf.get("ceph_rest_api_subfolder", '')
         if ceph_rest_api_subfolder!= '' and not ceph_rest_api_subfolder.startswith('/'):
-            ceph_rest_api_subfolder += '/' + ceph_rest_api_subfolder
+            ceph_rest_api_subfolder = '/' + ceph_rest_api_subfolder
         print "ceph_rest_api_subfolder = ", ceph_rest_api_subfolder
 
         fsid = ceph_conf_global(ceph_conf_file, 'fsid')
@@ -626,8 +637,7 @@ class CephProbeDaemon(Daemon):
             print "no authentication"
 
         db = client[fsid]
-        
-        restapi = httplib.HTTPConnection(ceph_rest_api)  
+        restapi = httplib.HTTPConnection(ceph_rest_api)
         init_cluster(restapi, ceph_rest_api_subfolder, db)
                 
         conf["_id"] = hostname   
@@ -654,7 +664,7 @@ class CephProbeDaemon(Daemon):
         pg_dump_thread = None
         if pg_dump_refresh > 0:
             restapi = httplib.HTTPConnection(ceph_rest_api)
-            pg_dump_thread = Repeater(evt, process_pg_pump, [restapi, ceph_rest_api_subfolder, db], pg_dump_refresh)
+            pg_dump_thread = Repeater(evt, process_pg_dump, [restapi, ceph_rest_api_subfolder, db], pg_dump_refresh)
             pg_dump_thread.start()
             
         crushmap_thread = None
