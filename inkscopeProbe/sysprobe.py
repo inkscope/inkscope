@@ -2,6 +2,7 @@
 
 # author Philippe Raipin
 # licence: apache v2
+# Alexis KOALLA: pymongo update for replicaset
 
 # need package python-dev: sudo apt-get install python-dev
 # need module psutil: download module tar.gz, unzip, python setup.py install
@@ -11,6 +12,7 @@
 
 from pymongo import MongoClient
 from pymongo import MongoReplicaSetClient
+from pymongo.read_preferences import ReadPreference
 
 import time
 import datetime
