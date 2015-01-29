@@ -23,7 +23,7 @@ datasource.close()
 ceph_config_file=inkscope_config.get("ceph_conf", "/etc/ceph/ceph.conf").encode('ascii', 'ignore')
 ceph_cluster_name="ceph"
 ceph_client_name=None
-ceph_client_id="admin"
+ceph_client_id="restapi"
 args=None
 
 application = ceph_rest_api.generate_app(ceph_config_file, ceph_cluster_name, ceph_client_name, ceph_client_id, args)
