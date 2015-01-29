@@ -91,7 +91,7 @@ RGWobjectVizApp.controller("RGWobjectVizCtrl", function ($scope, $http, $locatio
         waiting();
         $scope.network = {};
         $scope.date = new Date();
-        var params = "bucketName="+$scope.bucketName+"&objectId="+$scope.selectedObject.name;
+        var params = "bucketName="+encodeURIComponent($scope.bucketName)+"&objectId="+encodeURIComponent($scope.selectedObject.name);
         $http({method: "get", url: inkscopeCtrlURL + "S3/object?"+ params , headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
             .success(function (data, status) {
                 idle();
