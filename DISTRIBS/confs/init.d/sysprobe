@@ -21,8 +21,16 @@ case "$1" in
     echo "Stopping  sysprob daemon" 
     $PYTHONBIN /opt/inkscope/bin/sysprobe.py stop
     ;;
+  restart)
+    echo "Restarting  sysprob daemon" 
+    $PYTHONBIN /opt/inkscope/bin/sysprobe.py restart
+    ;;
+  status)
+    echo "Status  sysprob daemon" 
+    $PYTHONBIN /opt/inkscope/bin/sysprobe.py status
+    ;;
   *)
-    echo "Usage: /etc/init.d/sysprob {start|stop}"
+    echo "Usage: /etc/init.d/sysprob {start|stop|status|restart}"
     exit 1
     ;;
 esac
