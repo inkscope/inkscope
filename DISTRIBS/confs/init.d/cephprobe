@@ -14,15 +14,23 @@ PYTHONBIN=`which python`
 case "$1" in
   start)
     echo "Starting cephprob daemon"
-    $PYTHONBIN /opt/inkscope/bin/sysprobe.py start
+    $PYTHONBIN /opt/inkscope/bin/cephprobe.py start
     RETVAL=$?
     ;;
   stop)
     echo "Stopping  cephprob daemon" 
-    $PYTHONBIN /opt/inkscope/bin/sysprobe.py stop
+    $PYTHONBIN /opt/inkscope/bin/cephprobe.py stop
+    ;;
+  restart)
+    echo "restarting  cephprob daemon" 
+    $PYTHONBIN /opt/inkscope/bin/cephprobe.py restart
+    ;;
+  status)
+    echo "Status  cephprob daemon" 
+    $PYTHONBIN /opt/inkscope/bin/cephprobe.py status
     ;;
   *)
-    echo "Usage: /etc/init.d/cephprob {start|stop}"
+    echo "Usage: /etc/init.d/cephprob {start|stop|restart|status}"
     exit 1
     ;;
 esac

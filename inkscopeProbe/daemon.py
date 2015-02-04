@@ -3,7 +3,7 @@
 
 import sys, os, time, atexit
 import signal
-
+import psutil
 class Daemon:
     """
     A generic daemon class.
@@ -128,6 +128,27 @@ class Daemon:
         """
         self.stop()
         self.start()
+    
+    def status(self):
+        """
+         give the current status of  the process        
+        """
+        try:
+            pf = file(self.pidfile,'r')
+            pid = int(pf.read().strip())
+            pf.close()
+        except IOError:
+                sys.exit(2);
+                pid=None
+        except SystemExit:
+                sys.exit();
+                pid=None
+        if psutil.pid_exists(pid):
+                print "pid :",pid
+                sys.exit(0)
+        else:
+                print "no such process running"
+                sys.exit(2)
 
     def run(self):
         """
