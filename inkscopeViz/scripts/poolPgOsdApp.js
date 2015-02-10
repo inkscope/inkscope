@@ -4,8 +4,9 @@
 
 var PoolPgOsdApp = angular.module('PoolPgOsdApp', ['InkscopeCommons']);
 
-PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $location) {
+PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $location, $window) {
     var apiURL = '/ceph-rest-api/';
+    var myTimer;
 
     var w = window, d = document, e = d.documentElement, g = d.getElementsByTagName('body')[0];
     $scope.screenSize = {"x": w.innerWidth || e.clientWidth || g.clientWidth, "y": w.innerHeight || e.clientHeight || g.clientHeight};
@@ -16,24 +17,28 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $location) {
     else
         baseurl = $location.absUrl();
 
+    $scope.selectedPool = "" ;
+    $scope.selectedOsd = "" ;
+    if (i > -1){
+        parameters= $location.absUrl().substr(i+1);
+        j = parameters.indexOf("&");
+        p1 = parameters.substr(0,j);
+        p2 = parameters.substr(j+1);
+        if (p1.beginsWith("pool=")) $scope.selectedPool = p1.substring(5);
+        if (p2.beginsWith("pool=")) $scope.selectedPool = p2.substring(5);
+        if (p1.beginsWith("osd=")) $scope.selectedOsd = p1.substring(4);
+        if (p2.beginsWith("osd=")) $scope.selectedOsd = p2.substring(4);
+    }
+
+    getPoolsInfo();
+    getOsdsInfo();
+
+
     var svg = d3.select("#chart2")
         .attr("width", $scope.screenSize.x - 40)
         .attr("height", $scope.screenSize.y - 170);
 
-    i = $location.absUrl().indexOf("pool=");
-    if (i > -1)
-        $scope.selectedPool = $location.absUrl().substring(i+5) ;
-
-    i = $location.absUrl().indexOf("osd=");
-    $scope.selectedOsd="";
-    if (i > -1)
-        $scope.selectedOsd = $location.absUrl().substring(i+4) ;
-
-    refreshData();
-
-
-    //refresh data every x seconds
-    var myTimer;
+    if ($window.document.referrer.indexOf("poolspgsosds") > 0) refreshData();
 
     $scope.changePeriod = function(){
         console.log("new period : " + $scope.refreshPeriod);
@@ -47,6 +52,35 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $location) {
         }, $scope.refreshPeriod * 1000);
     }
 
+    function getPoolsInfo() {
+        $http({method: "get", url: cephRestApiURL + "df.json"}).
+            success(function (data, status) {
+                $scope.status = status;
+                $scope.date = new Date();
+                $scope.pools =  data.output.pools;
+            }).
+            error(function (data, status, headers) {
+                //alert("refresh pools failed with status "+status);
+                $scope.status = status;
+                $scope.date = new Date();
+                $scope.pools =  [];
+            });
+    }
+
+    function getOsdsInfo() {
+        $http({method: "get", url: cephRestApiURL + "osd/ls.json"}).
+            success(function (data, status) {
+                $scope.status = status;
+                $scope.date = new Date();
+                $scope.osds =  data.output;
+            }).
+            error(function (data, status, headers) {
+                //alert("refresh pools failed with status "+status);
+                $scope.status = status;
+                $scope.date = new Date();
+                $scope.osds =  [];
+            });
+    }
 
     function refreshData() {
         $scope.date = new Date();
@@ -68,13 +102,13 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $location) {
                         var poolTab = [];
                         for (var i = 0; i < pools.length; i++) {
                             var pool = pools[i];
-                            if (($scope.selectedPool != null)&& ($scope.selectedPool != pool.pool_name) )
+                            if (($scope.selectedPool != "")&& ($scope.selectedPool != pool.pool_name) )
                                 continue;
                             poolTab[pool.pool] = {};
                             poolTab[pool.pool].name = pool.pool_name;
                             poolTab[pool.pool].index = nodeUid;
                             poolTab[pool.pool].nbpg = 0;
-                            if ($scope.selectedPool != null) $scope.selectedPoolId =  pool.pool;
+                            if ($scope.selectedPool != "") $scope.selectedPoolId =  pool.pool;
 
                             network.nodes[nodeUid] = {};
                             network.nodes[nodeUid].id = pool.pool;
@@ -111,6 +145,7 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $location) {
 
                             if ( (typeof  $scope.selectedPoolId !=="undefined") && ( $scope.selectedPoolId != poolId))
                                 continue;
+
                             network.nodes[poolTab[poolId].index].nbpg++;
 
                             for (var j = 0; j < pg.acting.length; j++) {

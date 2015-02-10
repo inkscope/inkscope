@@ -309,6 +309,7 @@ text-align: center;
 
 #datePanel, #filters{
     margin:5px;
+    margin-top:0px;
     margin-left:10px;
     font-weight: bold;
     clear:both;
