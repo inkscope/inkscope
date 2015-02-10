@@ -4,7 +4,7 @@
     <meta charset=utf-8/>
     <title>Ceph status</title>
     <link rel="stylesheet" type="text/css" media="screen" href="css/testAdmin.css"/>
-    <link rel="stylesheet" type="text/css" media="screen" href="css/nv.d3.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/nv.d3.min.css"/>
     <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.min.css"/>
     <link rel="stylesheet" type="text/css" media="screen" href="css/rickshaw.min.css"/>
     <link rel="stylesheet" href="css/tooltip.css"/>
@@ -24,7 +24,7 @@
     <script src="scripts/bootstrap.min.js"></script>
     <script src="scripts/d3/colorbrewer.js"></script>
     <script src="scripts/d3/rickshaw.min.js"></script>
-    <script src="scripts/d3/nv.d3.js" charset="utf-8"></script>
+    <script src="scripts/d3/nv.d3.min.js" charset="utf-8"></script>
     <script src="scripts/statusApp.js"></script>
     <!--[if IE]>
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -273,6 +273,12 @@
         <p class="text-warning"><i class="icon-warning-sign" ></i> osds not verified<br>since {{osdControl|duration}}</p>
         </a>
     </div>
+    <div ng-hide="statOK">
+        <a href="probes.html">
+            <p class="text-warning"><i class="icon-warning-sign" ></i> some osd stats are missing</p>
+        </a>
+    </div>
+
 
     <div id="osd_status_details">
         <table>

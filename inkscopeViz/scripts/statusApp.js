@@ -9,6 +9,7 @@ var StatusApp = angular.module('StatusApp', ['D3Directives','ngCookies','ngAnima
 StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookieStore) {
     $scope.journal = [];
     $scope.osdControl =0;
+    $scope.statOK = true;
 
     $scope.viewControlPanel = false;
     $scope.viewMonitorModule = testAndSetCookie('viewMonitorModule',true);
@@ -121,21 +122,31 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
         }
         $http({method: "post", url: inkscopeCtrlURL + $rootScope.fsid+"/osd", params :{"depth":1} ,data:filter,timeout:4000})
             .success(function (data, status) {
-                $scope.osdControl = ((+$scope.date)-data[0].stat.timestamp)/1000 ;
+                if (data[0].stat == null)
+                    $scope.osdControl ="-";
+                else
+                    $scope.osdControl = ((+$scope.date)-data[0].stat.timestamp)/1000 ;
                 $scope.osdsInUp = 0;
                 $scope.osdsInDown = 0;
                 $scope.osdsOutUp = 0;
                 $scope.osdsOutDown = 0;
+                $scope.statOK = true;
                 for (var i = 0; i < data.length; i++) {
-                    if (data[i].stat.in) {
-                        if (data[i].stat.up) $scope.osdsInUp ++; else $scope.osdsInDown ++;
-                    }
+                    if (data[i].stat ==null)
+                        $scope.statOK = false;
                     else {
-                        if (data[i].stat.up) $scope.osdsOutUp ++; else $scope.osdsOutDown ++;
+                        if (data[i].stat.in) {
+                            if (data[i].stat.up) $scope.osdsInUp ++; else $scope.osdsInDown ++;
+                        }
+                        else {
+                            if (data[i].stat.up) $scope.osdsOutUp ++; else $scope.osdsOutDown ++;
+                        }
                     }
-
                 }
-        });
+        })
+            .error (function (data, status){
+                $scope.statOK = false;
+    });
     };
 
 
