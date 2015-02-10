@@ -1,0 +1,57 @@
+<!doctype html>
+<html ng-app="OsdPerf">
+<head>
+    <meta charset=utf-8 />
+    <script src="scripts/angular/angular.min.js"></script>
+    <script src="scripts/angular/angular-route.min.js"></script>
+    <script src="scripts/angular/angular-sanitize.min.js"></script>
+    <script src="scripts/angular-misc/ng-table.min.js"></script>
+    <script src="scripts/angular-misc/angular-commons.js"></script>
+    <script src="scripts/angular-misc/ui-bootstrap-tpls-0.10.0.min.js"></script>
+    <script src="scripts/angular-misc/dialogs.v2.min.js"></script>
+    <script src="scripts/osdPerfApp.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
+    <script src="scripts/angular-misc/D3Directives.js"></script>
+    <script src="scripts/d3/d3.v3.min.js"></script>
+    <script src="scripts/d3/common.js"></script>
+    <script src="scripts/d3/colorbrewer.js"></script>
+    <link rel="stylesheet" href="css/testAdmin.css" />
+    <link rel="stylesheet" href="css/tooltip.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="scripts/angular-misc/ng-table.min.css">
+    <title>Osd perf</title>
+</head>
+
+<body ng-controller="OsdPerfCtrl" onresize="resizeBlocks(['#list','#control'])">
+
+
+<header id="header" ng-include src="'partials/header.html'" ng-init="pageTitle='OSDs performance'"></header>
+
+<div>
+    <!--div id="status"  >{{status}}</div-->
+    <div id="datePanel"><br>Date : {{date | date:'HH:mm:ss'}}</div>
+
+    <div id="list">
+        <table>
+            <tr>
+                <th><input type="text" ng-model="search.name" class="search-query" placeholder="Search osd name"></th>
+                <th>&nbsp; &nbsp; </th>
+                <th></th>
+            </tr>
+        </table>
+        <br>
+        <table ng-table="tableParams" class="table table-condensed clickable">
+            <tr ng-repeat="osd in orderedData | filter:search:strict">
+                <td data-title="'Id'" sortable="'id'">osd.{{osd.id}}</td>
+                <td data-title="'Apply latency'" sortable="'perf_stats.apply_latency_ms'" style="text-align: right">{{ osd.perf_stats.apply_latency_ms }}</td>
+                <td data-title="'Commit latency'" sortable="'perf_stats.commit_latency_ms'" style="text-align: right">{{ osd.perf_stats.commit_latency_ms }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<!--div ng-view id="control" ></div-->
+
+<script>resizeBlocks(['#list','#control']);</script>
+</body>
+</html>
