@@ -13,8 +13,8 @@
 
 [D3js V3](http://d3js.org/) ([Custom license](https://raw.githubusercontent.com/mbostock/d3/master/LICENSE))
 
-[nvD3 1.1.15b](http://nvd3.org/) (Apache V2 License)
+[nvD3 1.7.1](http://nvd3.org/) (Apache V2 License)
 
-[Rickshaw 1.4.5](https://github.com/shutterstock/rickshaw) ([Custom licence](https://raw.githubusercontent.com/shutterstock/rickshaw/master/LICENSE))
+[Rickshaw 1.5.1](https://github.com/shutterstock/rickshaw) ([Custom licence](https://raw.githubusercontent.com/shutterstock/rickshaw/master/LICENSE))
 
 [mongoDB 2.4](http://www.mongodb.org/) (GNU AGPL v3.0 License)
