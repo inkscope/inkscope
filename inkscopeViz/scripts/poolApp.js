@@ -268,7 +268,9 @@ function DetailCtrl($scope, $http, $routeParams, $route, $dialogs, ngTableParams
     $scope.getRulesetNameLabel=function(rulesetid){
         if ( typeof $scope.rules === "undefined") return ""+rulesetid;
         for (var i in $scope.rules){
-            if ($scope.rules[i].ruleset == rulesetid) return rulesetid+" ("+$scope.rules[i].rule_name+")";
+            if ($scope.rules[i].ruleset == rulesetid) {
+                return rulesetid+" ("+$scope.rules[i].rule_name+")";
+            }
         }
         return rulesetid+" (unknown)";
     }
