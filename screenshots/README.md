@@ -6,7 +6,7 @@ Some screenshots
 ![dashboard2](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-Status2.png)
 ![osd map](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-OsdMap.png)
 ![pool management](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-PoolManagement.png)
-![Erasure code profiles management](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-ErasueProfile.png)
+![Erasure code profiles management](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-ErasureProfile.png)
 ![pg links to osd](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-Pg.png)
 ![osd status](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-OsdStatus.png)
 ![osd status space](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-OsdStatus2.png)
