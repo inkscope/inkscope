@@ -136,13 +136,15 @@ def process_conf():
         
 
 # cluster
-def init_cluster(restapi, ceph_rest_api_subfolder, db):
-    global fsid
-    fsid = process_status(restapi, ceph_rest_api_subfolder, db)
-    process_crushmap(restapi, ceph_rest_api_subfolder, db)
-    process_osd_dump(restapi, ceph_rest_api_subfolder, db)
-    process_pg_dump(restapi, ceph_rest_api_subfolder, db)
-    process_df(restapi, ceph_rest_api_subfolder, db)
+def init_cluster(restapi, ceph_rest_api_subfolder, db, hostname):
+    leader = leadership(db, hostname)
+    
+    if isLeader or leader == None :  
+        process_status(restapi, ceph_rest_api_subfolder, db)
+        process_crushmap(restapi, ceph_rest_api_subfolder, db)
+        process_osd_dump(restapi, ceph_rest_api_subfolder, db)
+        process_pg_dump(restapi, ceph_rest_api_subfolder, db)
+        process_df(restapi, ceph_rest_api_subfolder, db)
    
 # health value
 healthCst = ["HEALTH_OK", "HEALTH_WARN", "HEALTH_ERROR"]
@@ -154,9 +156,49 @@ for idx, h in enumerate(healthCst):
 def worst_health(h1, h2):
     return healthCst[max(healthMap[h1], healthMap[h2])]
 
+    
+def leadership(db, hostname):    
+    global isLeader
+    leaderfailed = False
+    cpleader = db.cephprobeleader.find_one()
+    if cpleader :
+        cp = db.cephprobe.find_one({"_id": cpleader["leader"]})
+        if cp["timestamp"] < int(round((time.time()- (hb_refresh*2))*1000)) : 
+            #leader failed !!
+            leaderfailed = True
+        else :
+            isLeader = (cpleader["leader"] == hostname) #ensure leadership
+            return cpleader["leader"]
+    else :
+        leaderfailed = True
+        cpleader = {}
+        
+    if leaderfailed :
+        isLeader = False
+        # I am the new leader ?
+        cephprobes = db.cephprobe.find( {"timestamp": {"$gt": int(round((time.time()- (hb_refresh*2)) * 1000))}})
+        if cephprobes :
+            cpids = [p["_id"] for p in cephprobes]
+            cpids.sort()
+            if cpids and (cpids[0] == hostname) : 
+                # yes I am the new leader
+                print "I'm the leader, then I work"
+                sys.stdout.flush()
+                cpleader["leader"] = hostname
+                db.cephprobeleader.update({}, cpleader, upsert=True)   
+                isLeader = True   
+                return hostname
+        else :
+            # no one !!
+            return None
+                  
+    
 
 # uri : /api/v0.1/status.json
 def process_status(restapi, ceph_rest_api_subfolder, db):
+    if not isLeader :
+        return
+         
     print str(datetime.datetime.now()), "-- Process Status"  
     sys.stdout.flush()
     restapi.connect()
@@ -165,12 +207,14 @@ def process_status(restapi, ceph_rest_api_subfolder, db):
     if r1.status != 200:
         print str(datetime.datetime.now()), "-- error (Status) failed to connect to ceph rest api: ", r1.status, r1.reason
         restapi.close()
+        return None
     else:
         data1 = r1.read()
         restapi.close()
         c_status = json.loads(data1)
 
         monmap = c_status['output']['monmap']
+        
         
         map_stat_mon = {}
         health_services_list = c_status['output']['health']['health']['health_services']
@@ -212,8 +256,28 @@ def process_status(restapi, ceph_rest_api_subfolder, db):
         map_rk_name = {}
         
         for mon in monmap['mons']:
+            
+            #find the mon host
+            hostaddr = mon['addr'].partition(':')[0]
+            monhostid = None
+            
+            
+            try :
+                monhostid = socket.gethostbyaddr(hostaddr)[0]
+            except:                       
+                monhost = db.hosts.find_one({"hostip": hostaddr})
+    
+                if hostaddr == '': # the case if mon is declared but not completly configured
+                    monhostid = None
+                elif not monhost:
+                    monneti = db.net.find_one({"$where":  "this.inet.addr === '"+hostaddr+"'"})
+                    if monneti:
+                        monhostid = monneti["_id"].partition(":")[0]
+                else:
+                    monhostid = monhost["_id"]
+            
             mondb = {"_id": mon['name'],
-                     "host": DBRef( "hosts", mon['name']),
+                     "host": DBRef( "hosts", monhostid), 
                      "addr": mon['addr'],
                      "rank": mon['rank'],
                     }
@@ -247,6 +311,9 @@ def process_status(restapi, ceph_rest_api_subfolder, db):
 
 # uri : /api/v0.1/osd/dump.json
 def process_osd_dump(restapi, ceph_rest_api_subfolder, db):
+    if not isLeader :
+        return
+    
     print str(datetime.datetime.now()), "-- Process OSDDump"  
     sys.stdout.flush()
     restapi.connect()
@@ -283,17 +350,24 @@ def process_osd_dump(restapi, ceph_rest_api_subfolder, db):
             
             
             hostaddr = osd["public_addr"].partition(':')[0]
-            osdhost = db.hosts.find_one({"hostip": hostaddr})
             osdhostid = None
-
-            if hostaddr == '': # the case if osd is declared but not completly configured
-                osdhostid = None
-            elif not osdhost:
-                osdneti = db.net.find_one({"$where":  "this.inet.addr === '"+hostaddr+"'"})
-                if osdneti:
-                    osdhostid = osdneti["_id"].partition(":")[0]
-            else:
-                osdhostid = osdhost["_id"]
+            
+            #find host name
+            try :
+                osdhostid = socket.gethostbyaddr(hostaddr)[0]
+            except:                       
+                osdhost = db.hosts.find_one({"hostip": hostaddr})
+    
+                if hostaddr == '': # the case if osd is declared but not completly configured
+                    osdhostid = None
+                elif not osdhost:
+                    osdneti = db.net.find_one({"$where":  "this.inet.addr === '"+hostaddr+"'"})
+                    if osdneti:
+                        osdhostid = osdneti["_id"].partition(":")[0]
+                else:
+                    osdhostid = osdhost["_id"]
+                    
+                    
             
             osddatapartitionid = None
             if osdhostid:
@@ -332,6 +406,9 @@ def process_osd_dump(restapi, ceph_rest_api_subfolder, db):
 # "partition" : DBRef( "partitions", hostmap[i]+":/dev/sdc1"),
 # uri : /api/v0.1/pg/dump.json
 def process_pg_dump(restapi, ceph_rest_api_subfolder, db):
+    if not isLeader :
+        return
+    
     print str(datetime.datetime.now()), "-- Process PGDump"  
     sys.stdout.flush()
     restapi.connect()
@@ -374,6 +451,9 @@ def process_pg_dump(restapi, ceph_rest_api_subfolder, db):
 
 # uri : /api/v0.1/osd/crush/dump.json
 def process_crushmap(restapi, ceph_rest_api_subfolder, db):
+    if not isLeader :
+        return
+    
     print str(datetime.datetime.now()), "-- Process Crushmap"  
     sys.stdout.flush()
     restapi.connect()
@@ -453,6 +533,9 @@ def process_crushmap(restapi, ceph_rest_api_subfolder, db):
 
 # uri : /api/v0.1/df
 def process_df(restapi, ceph_rest_api_subfolder, db):
+    if not isLeader :
+        return
+    
     print str(datetime.datetime.now()), "-- Process DF"  
     sys.stdout.flush()
     restapi.connect()
@@ -485,6 +568,9 @@ def process_df(restapi, ceph_rest_api_subfolder, db):
         
 # delete the oldest stats
 def drop_stat(db, collection, window):
+    if not isLeader :
+        return
+    
     before = int(round(time.time() * 1000)) - window
     print str(datetime.datetime.now()), "-- drop Stats :", collection, "before", before       
     db[collection].remove({"timestamp": {"$lt": before}})
@@ -492,13 +578,23 @@ def drop_stat(db, collection, window):
 
 def heart_beat(hostname, db):
     beat = {"timestamp": int(round(time.time() * 1000)), }
-    db.cephprobe.update({'_id': hostname}, {"$set": beat}, upsert=True)
+    db.cephprobe.update({'_id': hostname}, {"$set": beat}, upsert=True)   
+    #leadership
+    leadership(db, hostname)
 
 
 def ensure_dir(f):
     d = os.path.dirname(f)
     if not os.path.exists(d):
         os.makedirs(d)  
+        
+def get_local_mon_id(hostname, db):
+    monid = None
+    try :
+        monid = db.mon.find_one({"host.$id":hostname})["_id"]
+    except :
+        pass
+    return monid
 
 
 class Repeater(Thread):
@@ -545,6 +641,10 @@ class CephProbeDaemon(Daemon):
         conf = load_conf()
         global clusterName
         global fsid
+        global isLeader
+        global hb_refresh
+        
+        isLeader = False
         
         clusterName = conf.get("cluster", "ceph")
         print "clusterName = ", clusterName
@@ -617,6 +717,7 @@ class CephProbeDaemon(Daemon):
 
         mongodb_passwd = conf.get("mongodb_passwd", None)
         print "mongodb_passwd = ", mongodb_passwd
+        
 
         sys.stdout.flush()
         
@@ -638,16 +739,22 @@ class CephProbeDaemon(Daemon):
         else:
             print "no authentication"
 
+        sys.stdout.flush()
+
         db = client[fsid]
         restapi = httplib.HTTPConnection(ceph_rest_api)
-        init_cluster(restapi, ceph_rest_api_subfolder, db)
+        init_cluster(restapi, ceph_rest_api_subfolder, db, hostname)
                 
+    
+        db.cephprobe.update({'_id': hostname}, {"$set": conf}, upsert=True)   
         conf["_id"] = hostname   
-        db.cephprobe.remove({'_id': hostname})
-        db.cephprobe.insert(conf)
+        #db.cephprobe.remove({'_id': hostname})
+        #db.cephprobe.insert(conf)         
+        
         
         hb_thread = None
         if hb_refresh > 0:
+            restapi = httplib.HTTPConnection(ceph_rest_api)
             hb_thread = Repeater(evt, heart_beat, [hostname, db], hb_refresh)
             hb_thread.start()
         
@@ -704,6 +811,7 @@ class CephProbeDaemon(Daemon):
             evt.wait(600)
 
         print str(datetime.datetime.now()), "-- CephProbe stopped"
+        sys.stdout.flush()
     
 
 if __name__ == "__main__":   
