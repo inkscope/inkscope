@@ -11,13 +11,13 @@ if LIBPATH not in sys.path:
 from libmongojuice import *
 import sys
 
-res=check_nearfull()
-
+res,msg=sysprobeis_uptodate(600000)
 if  res == 0:
-    print "ceph is not near full ok"
+    print "process sysprobe is up to date ok ",msg
 elif res == 1:
-    print "warning  something  wrong ceph is nearfull: add new osd "
+    print "warning sysprobe "+ "check it on "+ msg
 else:
-    print "alert:  something really wrong add new osd !"
+    print "warning sysprobe "+ "check it on "+ msg
+
 sys.exit(res)
 
