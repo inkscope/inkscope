@@ -37,10 +37,17 @@ add follow line in nrpe.cfg:
 ------------
 
 check_ceph_cephprobe : check the process cephprobe
+
 check_ceph_df: check the ceph  using space
+
 check_ceph_full : check the ceph using space
+
 check_ceph_health : check the ceph  health
+
 check_ceph_mondf: check the ceph mon space df
+
 check_ceph_nearfull: check the nearfull ceph 
+
 check_ceph_osdup: check if all osd are up
+
 check_ceph_sysprobe: check sysprobe process
