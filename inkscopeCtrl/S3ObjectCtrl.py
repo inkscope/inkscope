@@ -234,7 +234,7 @@ class S3ObjectCtrl:
     def getOsdDump(self):
         Log.debug("___getOsdDump()")
         # print str(datetime.datetime.now()), "-- Process OSDDump"
-        cephRestUrl = request.url_root + self.clusterName + '/osd?depth=2'
+        cephRestUrl = request.url_root + self.cluster.get_fsid() + '/osd?depth=2'
         print(cephRestUrl)
         # Set HTTP credentials for url callback (requests.)
         data = requests.get(cephRestUrl)
@@ -245,7 +245,7 @@ class S3ObjectCtrl:
                 return osds
         r = data.content
 
-        if len(r) > 0:
+        if r != '[]':
            osds = json.loads(r)
         else:
             Log.err('The osd dump returns empty data')
