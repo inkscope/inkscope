@@ -11,13 +11,13 @@ if LIBPATH not in sys.path:
 from libmongojuice import *
 import sys
 
-res=check_nearfull()
+res=isallosd_up()
 
 if  res == 0:
-    print "ceph is not near full ok"
+    print "all osd are  okdk"
 elif res == 1:
-    print "warning  something  wrong ceph is nearfull: add new osd "
+    print "warning  something wrong check ceph -s to see more "
 else:
-    print "alert:  something really wrong add new osd !"
+    print "alert: an osd is failed check it with ceph osd tree cmd!"
 sys.exit(res)
 
