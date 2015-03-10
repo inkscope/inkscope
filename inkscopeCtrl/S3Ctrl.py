@@ -13,6 +13,7 @@ class S3Ctrl:
         self.key = conf.get("radosgw_key", "")
         self.secret = conf.get("radosgw_secret", "")
         self.radosgw_url = conf.get("radosgw_url", "127.0.0.1")
+        self.secure = self.radosgw_url.startswith("https://")
 
         if not self.radosgw_url.endswith('/'):
             self.radosgw_url += '/'
@@ -23,10 +24,10 @@ class S3Ctrl:
         #print "config secret: "+self.secret
 
     def getAdminConnection(self):
-        return S3Bucket(self.admin, access_key=self.key, secret_key=self.secret , base_url= self.url)
+        return S3Bucket(self.admin, access_key=self.key, secret_key=self.secret , base_url= self.url, secure= self.secure)
 
     def getBucket(self,bucketName):
-        return S3Bucket(bucketName, access_key=self.key, secret_key=self.secret , base_url= self.radosgw_url +bucketName)
+        return S3Bucket(bucketName, access_key=self.key, secret_key=self.secret , base_url= self.radosgw_url +bucketName, secure= self.secure)
 
     def listUsers(self):
         Log.debug( "list users from rgw api")
@@ -109,7 +110,7 @@ class S3Ctrl:
         #print secret_key
 
         print "\n--- create bucket for owner ---"
-        mybucket = S3Bucket(bucket, access_key=access_key, secret_key=secret_key , base_url= self.radosgw_url+bucket)
+        mybucket = S3Bucket(bucket, access_key=access_key, secret_key=secret_key , base_url= self.radosgw_url+bucket, secure= self.secure)
         res = mybucket.put_bucket()
         return 'OK'
 
@@ -155,7 +156,7 @@ class S3Ctrl:
         print keys
         access_key = keys[0].get('access_key')
         secret_key = keys[0].get('secret_key')
-        bucket = S3Bucket(bucketName, access_key=access_key, secret_key=secret_key , base_url= self.radosgw_url+bucketName)
+        bucket = S3Bucket(bucketName, access_key=access_key, secret_key=secret_key , base_url= self.radosgw_url+bucketName, secure= self.secure)
         list = []
         for (key, modify, etag, size) in bucket.listdir():
             obj = {}

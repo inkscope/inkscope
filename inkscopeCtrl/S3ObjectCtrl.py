@@ -29,6 +29,7 @@ class S3ObjectCtrl:
         self.conffile = conf.get("ceph_conf", '/etc/ceph/ceph.conf')
         self.radosgw_url = conf.get("radosgw_url", "127.0.0.1")
         self.clusterName = conf.get("cluster", "ceph")
+        self.secure = self.radosgw_url.startswith("https://")
 
         if not self.radosgw_url.endswith('/'):
             self.radosgw_url += '/'
@@ -47,7 +48,7 @@ class S3ObjectCtrl:
 
 
     def getAdminConnection(self):
-        return S3Bucket(self.admin, access_key=self.key, secret_key=self.secret , base_url=self.url)
+        return S3Bucket(self.admin, access_key=self.key, secret_key=self.secret , base_url=self.url, secure=self.secure)
 
     def getObjectStructure(self) :
         startdate = datetime.now()
