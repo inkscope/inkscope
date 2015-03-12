@@ -19,15 +19,16 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $location, $wi
 
     $scope.selectedPool = "" ;
     $scope.selectedOsd = "" ;
+    $scope.filterStatus = false;
     if (i > -1){
         parameters= $location.absUrl().substr(i+1);
-        j = parameters.indexOf("&");
-        p1 = parameters.substr(0,j);
-        p2 = parameters.substr(j+1);
-        if (p1.beginsWith("pool=")) $scope.selectedPool = p1.substring(5);
-        if (p2.beginsWith("pool=")) $scope.selectedPool = p2.substring(5);
-        if (p1.beginsWith("osd=")) $scope.selectedOsd = p1.substring(4);
-        if (p2.beginsWith("osd=")) $scope.selectedOsd = p2.substring(4);
+
+        var params = parameters.split("&");
+        for (var i=0; i< params.length;i++){
+            if (params[i].beginsWith("pool=")) $scope.selectedPool = params[i].substring(5);
+            if (params[i].beginsWith("osd=")) $scope.selectedOsd = params[i].substring(4);
+            if (params[i].beginsWith("filterStatus=")) $scope.filterStatus = true;;
+        }
     }
 
     getPoolsInfo();
@@ -145,6 +146,7 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $location, $wi
 
                             if ( (typeof  $scope.selectedPoolId !=="undefined") && ( $scope.selectedPoolId != poolId))
                                 continue;
+                            if (($scope.filterStatus) && (pg.state=="active+clean")) continue;
 
                             network.nodes[poolTab[poolId].index].nbpg++;
 
@@ -153,6 +155,7 @@ PoolPgOsdApp.controller("poolPgOsdCtrl", function ($scope, $http, $location, $wi
 
                                 if ( ($scope.selectedOsd != "") && ( $scope.selectedOsd != "osd."+osd ) )
                                     continue;
+
                                 // direct link from pool to osd
                                 if (typeof osdTab[osd] === "undefined"){
                                     console.log("pg:"+pg.pgid+", osd:"+osd)

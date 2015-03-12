@@ -94,6 +94,7 @@
             <option value="" ng-selected="{{ selectedOsd=='' }}">all osds</option>
             <option ng-repeat="osd in osds" value="osd.{{ osd }}" ng-selected="{{ 'osd.'+osd == selectedOsd }}">osd.{{ osd }}</option>
         </select>
+        only unhealthy pgs <input type="checkbox" id="filterStatus" ng-checked="filterStatus" name="filterStatus">
         <input type="submit" value="show">
         </div>
     </form>
