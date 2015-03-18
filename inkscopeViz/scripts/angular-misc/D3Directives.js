@@ -204,10 +204,13 @@ angular.module('D3Directives', [])
                             .call(chart);
 
                         nv.utils.windowResize(chart.update);
+
+
                         return chart;
                     });
+                    // link to view pg with state
                     var path = d3.selectAll("#" + attrs.id + " path")
-                        .on('click',function(d){document.location="poolspgsosds.html?state="+d.data.state_name;});
+                        .on('click',function(d){document.location="poolspgsosds.html?bystate="+d.data.state_name;});
                 });
             }
 

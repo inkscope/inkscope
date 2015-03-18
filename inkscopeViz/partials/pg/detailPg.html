@@ -1,0 +1,22 @@
+<h3>pg details for {{detailedPg.pgid}}</h3>
+<br>
+<div class="button-bar">
+     <a href="#/" class="btn btn-default">Close</a>
+</div>
+
+<table  class="table table-condensed" style="width:400px;align-self: center">
+    <tr><td>state</td><td>{{ detailedPg.state }}</td></tr>
+    <tr><td>acting</td><td>{{ detailedPg.acting }}</td></tr>
+    <tr><td>up</td><td>{{ detailedPg.up }}</td></tr>
+    <tr><td>created</td><td>{{ detailedPg.created }}</td></tr>
+    <tr><td>mapping epoch</td><td>{{ detailedPg.mapping_epoch }}</td></tr>
+    <tr><td>last epoch clean</td><td>{{ detailedPg.last_epoch_clean }}</td></tr>
+    <tr><td>reported epoch</td><td>{{ detailedPg.reported_epoch }}</td></tr>
+    <tr><td>last active</td><td>{{ detailedPg.last_active }}</td></tr>
+    <tr><td>last change</td><td>{{ detailedPg.last_change }}</td></tr>
+    <tr><td>last clean</td><td>{{ detailedPg.last_clean }}</td></tr>
+    <tr><td>last deep scrub stamp</td><td>{{ detailedPg.last_deep_scrub_stamp }}</td></tr>
+    <tr><td>last fresh</td><td>{{ detailedPg.last_fresh }}</td></tr>
+    <tr><td>last unstale</td><td>{{ detailedPg.last_unstale }}</td></tr>
+    <tr><td>last scrub stamp</td><td>{{ detailedPg.last_scrub_stamp }}</td></tr>
+</table>
