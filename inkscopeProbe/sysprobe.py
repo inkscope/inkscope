@@ -182,10 +182,11 @@ def get_hw_disk(hostname, hw):
     for disk in disks:
         if disk['id'].startswith('disk'): 
             logname = "NA"
-            if isinstance(disk['logicalname'], list):
-                logname = disk['logicalname'][0]
-            else:
-                logname = disk['logicalname']    
+            if "logicalname" in disk:
+                if isinstance(disk['logicalname'], list):
+                    logname = disk['logicalname'][0]
+                else:
+                    logname = disk['logicalname']
             description = "NA"
             if "description" in disk: 
                 description = disk["description"]          
