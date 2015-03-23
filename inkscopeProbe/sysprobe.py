@@ -450,25 +450,24 @@ def pick_net_stat(db, hw_nets):
                                       }
             network_interface_stat_id = db.netstat.insert(network_interface_stat)
             db.net.update({"_id": n["_id"]}, {"$set": {"stat": DBRef("netstat", network_interface_stat_id)}})
-           
+     
+# transform a set of object attributes to dict      
+def objToDict(obj, attrs):
+    dict_res = {}
+    for attr in attrs :
+        if hasattr(obj, attr) :
+            dict_res[attr] = getattr(obj, attr)
+    return dict_res
             
 # cpu stat
 def pick_cpu_stat(hostname, db):
     print str(datetime.datetime.now()), "-- Pick CPU Stats"  
     sys.stdout.flush()
     cputimes = psutil.cpu_times()
-    cpus_stat = {"timestamp": int(round(time.time() * 1000)),
-                 "host": DBRef("hosts",  hostname),
-                 "user": cputimes.user,
-                 "system": cputimes.system,
-                 "idle": cputimes.idle,
-                 "iowait": cputimes.iowait,
-                 "irq": cputimes.irq,
-                 "softirq":  cputimes.softirq,
-                 "steal": cputimes.steal,
-                 "guest": cputimes.guest,
-                 "guest_nice": cputimes.guest_nice
-                 }
+    cpus_stat = objToDict(cputimes, ["user", "system", "idle", "iowait", "irq", "softirq", "steal", "guest", "guest_nice"])
+    cpus_stat["timestamp"] = int(round(time.time() * 1000))
+    cpus_stat["host"] = DBRef("hosts",  hostname)
+                 
     cpus_stat_hostx_id = db.cpustat.insert(cpus_stat)
     db.hosts.update({"_id": hostname}, {"$set": {"stat": DBRef("cpus_stat", cpus_stat_hostx_id)}})
         
