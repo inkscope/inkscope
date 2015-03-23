@@ -187,6 +187,8 @@ def get_hw_disk(hostname, hw):
                     logname = disk['logicalname'][0]
                 else:
                     logname = disk['logicalname']
+            else :
+                continue
             description = "NA"
             if "description" in disk: 
                 description = disk["description"]          
