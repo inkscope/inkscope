@@ -1,0 +1,16 @@
+<h3>Pool Snapshot deletion</h3>
+<br />
+<form name="myForm">
+    <p>Are you sure you want to delete this pool snapshot ?</p>
+    <table style="padding: 20px">
+        <tr><td style="padding-left: 20px">Pool name</td><td style="padding-left: 20px"><strong>{{poolName}}</strong></td></tr>
+        <tr><td style="padding-left: 20px">Snapshot name</td><td style="padding-left: 20px">{{ snapshotName }}</td></tr>
+        <tr><td style="padding-left: 20px">Snapshot id</td><td style="padding-left: 20px">{{ snapshotNumber  }}</td></tr>
+        <tr><td style="padding-left: 20px">Snapshot timestamp</td><td style="padding-left: 20px">{{ snapshotStamp }}</td></tr>
+    </table>
+    <br>
+    <div class="button-bar">
+        <button ng-click="removeSnapshot()" class="btn btn-danger">Delete</button>
+        <a href="#/detail/{{poolNum}}" class="btn">Cancel</a>
+    </div>
+</form>
