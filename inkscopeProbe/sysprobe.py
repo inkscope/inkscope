@@ -727,13 +727,15 @@ class SysProbeDaemon(Daemon):
             print "no replicat set"
             client = MongoClient(mongodb_host, mongodb_port)
 
+        db = client[fsid]
+
         if is_mongo_authenticate == 1:
             print "authentication  to database"
-            client.ceph.authenticate(mongodb_user, mongodb_passwd)
+            db.authenticate(mongodb_user, mongodb_passwd)
         else:
             print "no authentication" 
 
-        db = client[fsid]
+        
         
         HWdisks, partitions, HWnets, HWcpus = init_host(hostname, db)
                 
