@@ -85,33 +85,29 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
 
     function refreshPGData() {
         $scope.date = new Date();
-        $http({method: "get", url: cephRestApiURL + "pg/stat.json",timeout:8000})
+        $http({method: "get", url: cephRestApiURL + "df.json",timeout:8000})
             .success(function (data, status) {
-                var nodeUid = 0;
-                // fetching pg list and relation with osd
-                var pg_stats = data.output.pg_stats;
-
-                var nbPools = data.output.pool_stats.length;
+                $scope.nbPools = data.output.pools.length;;
+            });
+        $http({method: "get", url: cephRestApiURL + "pg/dump_stuck.json",timeout:8000})
+            .success(function (data, status) {
+                // fetching stuck pg list
+                var pg_stats = data.output;
                 var pools = [];
-                for (var i = 0; i < nbPools; i++) {
-                    pools[data.output.pool_stats[i].poolid] = true;
-                }
                 for (var i = 0; i < pg_stats.length; i++) {
                     var pg = pg_stats[i];
                     //console.log(pg.pgid + " : " + pg.state)
-                    if (pg.state != "active+clean") {
-                        //console.log("unclean : " + pg.pgid + " : " + pg.state)
-                        var numPool = pg.pgid.split(".")[0];
-                        pools[numPool] = false;
+                    var numPool = pg.pgid.split(".")[0];
+                    pools[numPool] = false;
+                }
+                var cnt = 0;
+                for (var i = 0; i < pools.length; i++) {
+                    if (typeof pools[i] !== "undefined") {
+                        ++cnt;
                     }
                 }
-
-                $scope.cleanPools = 0;
-                for (var i in pools) {
-                    if (pools[i] == true) $scope.cleanPools++;
-                }
-                $scope.uncleanPools = nbPools - $scope.cleanPools;
-                $scope.pools = nbPools;
+                $scope.uncleanPools = cnt;
+                if (typeof $scope.nbPools !== "undefined") $scope.cleanPools = $scope.nbPools -cnt;
             });
     };
 
