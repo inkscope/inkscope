@@ -62,7 +62,7 @@ def load_conf():
     return data
 
 
-# get a field value from global conf according to the specified ceph conf
+# get a field value from global conf according to the specifpsutil_versionied ceph conf
 def ceph_conf_global(cephConfPath, field):
     p = subprocess.Popen(
         args=[
@@ -715,7 +715,11 @@ class SysProbeDaemon(Daemon):
         
         # end conf extraction
 
-        print "version psutil = ", psutil_version
+        print "version psutil = ", psutil_version, " (", psutil.__version__, ")"
+        if (psutil.__version__ < "1.2.1") :
+            print "ERROR : update your psutil to a earlier version (> 1.2.1)"
+            sys.exit(2)
+            
         sys.stdout.flush()
         
         hostname = socket.gethostname()
