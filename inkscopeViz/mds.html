@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html ng-app="MdsApp">
+<head>
+    <meta charset="UTF-8"/>
+    <script src="scripts/angular/angular.min.js"></script>
+    <script src="scripts/angular/angular-sanitize.min.js"></script>
+    <script src="scripts/angular-misc/ng-table.min.js"></script>
+    <script src="scripts/angular-misc/angular-commons.js"></script>
+    <script src="scripts/angular-misc/ui-bootstrap-tpls-0.10.0.min.js"></script>
+    <script src="scripts/angular-misc/dialogs.v2.min.js"></script>
+    <script src="scripts/mdsApp.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/tooltip.css"/>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/testAdmin.css">
+    <title>MDS status</title>
+</head>
+
+<body ng-controller="MdsCtrl">
+<header ng-include src="'partials/header.html'" ng-init="pageTitle='MDS status'"></header>
+<div id="datePanel"><br>Date : {{date | date:'HH:mm:ss'}}</div>
+
+<div id="mds" style="margin:1em">
+
+    <br>in {{ mdsmap.in }} / up {{ mdsmap.up }} / failed {{ mdsmap.failed }}
+    / stopped {{ mdsmap.stopped }}
+    <br>
+    <h2>file system : <strong>{{ mdsmap.fs_name }}</strong></h2>
+    max file size {{ mdsmap.max_file_size|bytes }}
+    <br>data pool : <span ng-bind-html="getPoolLabels(mdsmap.data_pools)"></span>
+    <br>metadata pool : <span ng-bind-html="getPoolLabel(mdsmap.metadata_pool)"></span>
+    <br>
+    <br>enabled : {{ mdsmap.enabled }}
+    <br>tableserver : {{ mdsmap.tableserver }}
+    <br>flags : {{ mdsmap.flags }}
+    <br>
+    <h2>mds server(s) : </h2>
+    <style>
+        .mdsInfo{
+            float:left;
+            margin:10px;
+            border:thin solid black;
+            padding: 5px;
+        }
+        .title{
+            color:white;
+            font-weight:bold;
+            background-color:#AAAAAA;
+        }
+        .active{
+            background-color:#00AA00;
+        }
+    </style>
+    <div class="mdsInfo" ng-repeat="(name, mds) in mdsmap.info">
+        <table>
+            <tr ng-class="{'title active': mds.state=='up:active' , 'title': mds.state!='up:active'}">
+                <td colspan="2" align="center"><strong>{{ name }}</strong></td>
+            </tr>
+            <tr ng-repeat="(key, value) in mds">
+                <td>{{ prettyPrintKey(key) }}</td>
+                <td>{{ value }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>
+
