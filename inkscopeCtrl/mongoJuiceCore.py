@@ -89,7 +89,7 @@ def _getObject(db, obj, depth, branch):
                 obj[key] = {'$oid': str(obj[key])}
             elif isinstance(obj[key], list):
                 obj[key] = _listObjects(db, obj[key], depth-1, branch)
-        return objcluster
+        return obj
     for key in obj :
         if isinstance(obj[key], DBRef):
             if (obj[key].collection+":"+str(obj[key].id) not in branch) :
@@ -118,7 +118,7 @@ def _listObjects(db, objs, depth, branch):
                 for key in obj :
                     if isinstance(obj[key], DBRef):
                         if isinstance(obj[key].id, ObjectId):
-                            obj[key] = {'$ref': obj[clusterkey].collection, '$id' : {'$oid': str(obj[key].id)}}
+                            obj[key] = {'$ref': obj[key].collection, '$id' : {'$oid': str(obj[key].id)}}
                         else : 
                             obj[key] = {'$ref': obj[key].collection, '$id' : obj[key].id}
                     elif isinstance(obj[key], ObjectId):
@@ -210,7 +210,7 @@ def execute(db, command, keyvalues):
     elif action == "aggregate":
         if "collection" not in command :
             return None
-        depth = command.get("dedbpth", 0)
+        depth = command.get("depth", 0)
         collection = command["collection"]
         pipeline = evaluate(command.get("pipeline", None), keyvalues)
         if not pipeline :
