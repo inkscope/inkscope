@@ -571,8 +571,8 @@ def drop_stat(db, collection, window):
     if not isLeader :
         return
     
-    before = int(round(time.time() * 1000)) - window
-    print str(datetime.datetime.now()), "-- drop Stats :", collection, "before", before       
+    before = int((time.time() - window) * 1000)
+    print str(datetime.datetime.now()), "-- drop Stats :", collection, "before", before
     db[collection].remove({"timestamp": {"$lt": before}})
 
 
