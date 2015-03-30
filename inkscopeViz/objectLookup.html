@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html ng-app="ObjectLookupApp">
 <head>
-    <meta charset=utf-8/>
+    <meta charset="UTF-8"/>
     <script src="scripts/angular/angular.min.js"></script>
     <script src="scripts/angular/angular-sanitize.min.js"></script>
     <script src="scripts/angular-misc/ng-table.min.js"></script>
@@ -46,11 +46,11 @@
     </table>
    <div id="osds">
         <h3>Acting OSD :</h3>
-        <div ng-repeat="osd in acting track by $index" class=" tooltips osd {{osdClassForId(osd)}}" >
+        <div ng-repeat="osd in acting track by $index" class=" tooltips osd {{ osdClassForId(osd) }}" >
             {{osd}}
             <div ng-hide="osd==-1"> <!-- tooltip -->
                 <span>
-                    <strong>{{getOsd(osd).node.name}}</strong> {{osdState(getOsd(osd).stat.in,getOsd(osd).stat.up)}}<br>
+                    <strong>{{getOsd(osd).node.name}}</strong> {{osdState(osd)}}<br>
                     last control : {{getOsd(osd).lastControl|duration}}<br><br>
                     {{getOsd(osd).partition._id}}<br>
                     {{getOsd(osd).public_addr}}<br>

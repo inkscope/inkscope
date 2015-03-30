@@ -42,19 +42,25 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
     }
 
     function getOsdInfo(){
+        $scope.date = new Date();
         $http({method: "get", url: inkscopeCtrlURL + $rootScope.fsid+"/osd?depth=2"}).
 
             success(function (data, status) {
                 $rootScope.data = data;
+                for ( var i=0; i<data.length;i++){
+                    data[i].id = data[i]._id;
+                    if ( data[i].stat == null)
+                        data[i].lastControl = "-";
+                    else
+                        data[i].lastControl = ((+$scope.date)-data[i].stat.timestamp)/1000;
+                }
                 data[-1]={};
                 data[-1].id=-1;
+                data[-1].stat=null;
                 data[2147483647]={};
                 data[2147483647].id=-1;
+                data[2147483647].stat=null;
 
-                for ( var i=0; i<data.length;i++){
-                    data[i].id = data[i].node._id;
-                    data[i].lastControl = ((+$rootScope.date)-data[0].stat.timestamp)/1000;
-                }
                 $scope.$apply();
             }).
             error(function (data, status) {
@@ -69,21 +75,38 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
         if ($scope.pool+"" =="undefined" || $scope.objectId+"" =="undefined") return;
 
         console.log(cephRestApiURL + "osd/map?pool="+ $scope.pool +"&object="+ $scope.objectId );
-        $http({method: "get", url: cephRestApiURL + "osd/map.json?pool="+$scope.pool+"&object="+$scope.objectId}).
+        $http({method: "get", url: cephRestApiURL + "osd/map.json?pool="+$scope.pool+"&object="+$scope.objectId})
 
-            success(function (data, status) {
+            .success(function (data, status) {
                 $scope.data = data.output;
+
+                // new format in Giant
+                if (typeof $scope.data.acting ==="string"){
+                    $scope.data.acting = $scope.data.acting.replace(new RegExp("2147483647", 'g'),"-1");
+                    $scope.data.acting = JSON.parse($scope.data.acting);
+                }
+                $scope.acting = $scope.data.acting;
+
+                // new format in Giant
+                if (typeof $scope.data.up ==="string"){
+                    $scope.data.up = $scope.data.up.replace(new RegExp("2147483647", 'g'),"-1");
+                    $scope.data.up = JSON.parse($scope.data.up);
+                }
+
                 $scope.acting_message ="";
                 $scope.up_message = "";
-                if ($scope.data.acting.contains("-1") || $scope.data.acting.contains("2147483647"))  $scope.acting_message = " - incomplete pg"
-                if ($scope.data.up.contains("-1") || $scope.data.up.contains("2147483647"))  $scope.up_message = " - incomplete pg"
-                $scope.data.acting = $scope.data.acting.replace(new RegExp("2147483647", 'g'),"-1");
-                $scope.data.up = $scope.data.up.replace(new RegExp("2147483647", 'g'),"-1");
-                $scope.acting = JSON.parse($scope.data.acting);
+
+                if ($scope.data.acting.indexOf(-1)>0 || $scope.data.acting.indexOf(2147483647)>0)  $scope.acting_message = " - incomplete pg"
+                if ($scope.data.up.indexOf(-1)>0 || $scope.data.up.indexOf(2147483647)>0)  $scope.up_message = " - incomplete pg"
+
+
+                $scope.acting = $scope.data.acting;
                 $scope.data.acting += $scope.acting_message;
                 $scope.data.up += $scope.up_message;
-            }).
-            error(function (data, status) {
+
+             })
+
+            .error(function (data, status) {
                 $rootScope.status = status;
                 $scope.data = {"pgid":"not found","acting":"","up":""};
             });
@@ -98,19 +121,30 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
     }
 
     $rootScope.osdClassForId = function (osdid){
-        var osdin = "out";
-        var osdup = "down";
-        if (osdid>=0){
+        if ((osdid>=0) &&($rootScope.getOsd(osdid).stat != null)){
             osdin = $rootScope.getOsd(osdid).stat.in;
             osdup = $rootScope.getOsd(osdid).stat.up;
+            return $rootScope.osdClass(osdin,osdup);
         }
-        return $rootScope.osdClass(osdin,osdup);
+        else {
+            if (($rootScope.getOsd(osdid)==null) ||($rootScope.getOsd(osdid).stat == null))
+                console.log("stat null for osd:"+osdid);
+            return ' osd_unknown ';
+        }
     }
 
-    $rootScope.osdState = function (osdin,osdup){
-        var osdstate = (osdin == true) ? "in / " : "out / ";
-        osdstate += (osdup == true) ? "up" : "down";
-        return osdstate;
+    $rootScope.osdState = function (osdid){
+        if ((osdid>=0) &&($rootScope.getOsd(osdid).stat != null)){
+            osdin = $rootScope.getOsd(osdid).stat.in;
+            osdup = $rootScope.getOsd(osdid).stat.up;
+            var osdstate = (osdin == true) ? "in / " : "out / ";
+            osdstate += (osdup == true) ? "up" : "down";
+            return osdstate;
+        }
+        else {
+            return 'unknown state';
+        }
+
 
     }
 
@@ -125,18 +159,20 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
 
     $rootScope.osdSelect = function (osd) {
         $rootScope.osd = osd;
-        $rootScope.selectedOsd = osd.node._id;
+        $rootScope.selectedOsd = osd.id;
     }
 
     $rootScope.getOsd = function (osd) {
-        console.log("osd:"+osd);
+        //console.log("search for osd:"+osd);
+        if (osd+"" =="-1") return null;
         for (var i=0 ;i<$rootScope.data.length;i++){
-            if ($rootScope.data[i].node._id+"" == osd+"") {
-                //console.log("osd found "+$rootScope.data[i]);
+            if ($rootScope.data[i].id+"" == osd+"") {
+                //console.log("osd found "+JSON.stringify($rootScope.data[i]));
                 return $rootScope.data[i];
             }
         }
-        console.log("osd not found");
+        //console.log("osd "+osd+" not found");
+        return null;
     }
 
 

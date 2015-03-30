@@ -9,6 +9,10 @@ var StatusApp = angular.module('StatusApp', ['D3Directives','ngCookies','ngAnima
 StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookieStore) {
     $scope.journal = [];
     $scope.osdControl =0;
+    $scope.statOK = true;
+
+    $scope.refreshPG = true;
+    $scope.refreshPGcontrolClass = "icon-pause";
 
     $scope.viewControlPanel = false;
     $scope.viewMonitorModule = testAndSetCookie('viewMonitorModule',true);
@@ -78,35 +82,32 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
     waitForFsid($rootScope, $http,$scope);
 
 
+
     function refreshPGData() {
         $scope.date = new Date();
-        $http({method: "get", url: cephRestApiURL + "pg/stat.json",timeout:8000})
+        $http({method: "get", url: cephRestApiURL + "df.json",timeout:8000})
             .success(function (data, status) {
-                var nodeUid = 0;
-                // fetching pg list and relation with osd
-                var pg_stats = data.output.pg_stats;
-
-                var nbPools = data.output.pool_stats.length;
+                $scope.nbPools = data.output.pools.length;;
+            });
+        $http({method: "get", url: cephRestApiURL + "pg/dump_stuck.json",timeout:8000})
+            .success(function (data, status) {
+                // fetching stuck pg list
+                var pg_stats = data.output;
                 var pools = [];
-                for (var i = 0; i < nbPools; i++) {
-                    pools[data.output.pool_stats[i].poolid] = true;
-                }
                 for (var i = 0; i < pg_stats.length; i++) {
                     var pg = pg_stats[i];
                     //console.log(pg.pgid + " : " + pg.state)
-                    if (pg.state != "active+clean") {
-                        //console.log("unclean : " + pg.pgid + " : " + pg.state)
-                        var numPool = pg.pgid.split(".")[0];
-                        pools[numPool] = false;
+                    var numPool = pg.pgid.split(".")[0];
+                    pools[numPool] = false;
+                }
+                var cnt = 0;
+                for (var i = 0; i < pools.length; i++) {
+                    if (typeof pools[i] !== "undefined") {
+                        ++cnt;
                     }
                 }
-
-                $scope.cleanPools = 0;
-                for (var i in pools) {
-                    if (pools[i] == true) $scope.cleanPools++;
-                }
-                $scope.uncleanPools = nbPools - $scope.cleanPools;
-                $scope.pools = nbPools;
+                $scope.uncleanPools = cnt;
+                if (typeof $scope.nbPools !== "undefined") $scope.cleanPools = $scope.nbPools -cnt;
             });
     };
 
@@ -121,21 +122,31 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
         }
         $http({method: "post", url: inkscopeCtrlURL + $rootScope.fsid+"/osd", params :{"depth":1} ,data:filter,timeout:4000})
             .success(function (data, status) {
-                $scope.osdControl = ((+$scope.date)-data[0].stat.timestamp)/1000 ;
+                if (data[0].stat == null)
+                    $scope.osdControl ="-";
+                else
+                    $scope.osdControl = ((+$scope.date)-data[0].stat.timestamp)/1000 ;
                 $scope.osdsInUp = 0;
                 $scope.osdsInDown = 0;
                 $scope.osdsOutUp = 0;
                 $scope.osdsOutDown = 0;
+                $scope.statOK = true;
                 for (var i = 0; i < data.length; i++) {
-                    if (data[i].stat.in) {
-                        if (data[i].stat.up) $scope.osdsInUp ++; else $scope.osdsInDown ++;
-                    }
+                    if (data[i].stat ==null)
+                        $scope.statOK = false;
                     else {
-                        if (data[i].stat.up) $scope.osdsOutUp ++; else $scope.osdsOutDown ++;
+                        if (data[i].stat.in) {
+                            if (data[i].stat.up) $scope.osdsInUp ++; else $scope.osdsInDown ++;
+                        }
+                        else {
+                            if (data[i].stat.up) $scope.osdsOutUp ++; else $scope.osdsOutDown ++;
+                        }
                     }
-
                 }
-        });
+        })
+            .error (function (data, status){
+                $scope.statOK = false;
+    });
     };
 
 
@@ -151,7 +162,9 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
                 $scope.mdsmap = data.output.mdsmap;
                 $scope.mdsmap.up_standby = data.output.mdsmap["up:standby"];
                 $scope.percentUsed = $scope.pgmap.bytes_used / $scope.pgmap.bytes_total;
-                $scope.pgsByState = $scope.pgmap.pgs_by_state;
+
+
+                if ($scope.refreshPG) $scope.pgsByState = $scope.pgmap.pgs_by_state;
 
                 $scope.read = (data.output.pgmap.read_bytes_sec ? data.output.pgmap.read_bytes_sec : 0);
                 $scope.write = (data.output.pgmap.write_bytes_sec ? data.output.pgmap.write_bytes_sec : 0);
@@ -236,6 +249,14 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
                 $scope.health.severity = "HEALTH_WARN";
                 $scope.health.summary = "Status not available";
             });
+    }
+
+    $scope.refreshPGcontrol = function(){
+        $scope.refreshPG = !$scope.refreshPG;
+        if ($scope.refreshPG)
+            $scope.refreshPGcontrolClass = "icon-pause";
+        else
+            $scope.refreshPGcontrolClass = "icon-play";
     }
 
     $scope.badgeClass = function (type, count) {

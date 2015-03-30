@@ -48,11 +48,12 @@ function ListCtrl($rootScope, $scope,$http, $filter, ngTableParams, $location) {
     // start refresh when fsid is available
     var waitForFsid = function ($rootScope, $http,$scope){
         typeof $rootScope.fsid !== "undefined"? startRefreshHost($rootScope, $http,$scope) : setTimeout(function () {waitForFsid($rootScope, $http,$scope)}, 1000);
-    function startRefreshHost($rootScope, $http,$scope){}
-        refreshHosts($rootScope, $http,$scope);
-        setInterval(function(){
-            refreshHosts($rootScope,$http, $scope)
-        }, 10000);
+        function startRefreshHost($rootScope, $http,$scope){
+            refreshHosts($rootScope, $http,$scope);
+            setInterval(function(){
+                refreshHosts($rootScope,$http, $scope)
+            }, 10000);
+        }
     }
     waitForFsid($rootScope, $http,$scope);
 

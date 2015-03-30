@@ -122,7 +122,7 @@ label {
     padding: 1em;
 }
 
-#list, #listpool, #listhost {
+#list, #listpool, #listhost, #listpg {
      margin : 2em;
      float:left;
      width :350px;
@@ -131,7 +131,7 @@ label {
      overflow-y: auto;
 }
 
-#listpool, #listhost{
+#listpool, #listhost, #listpg{
     width :450px;
     padding: 1em;
 }
@@ -309,6 +309,7 @@ text-align: center;
 
 #datePanel, #filters{
     margin:5px;
+    margin-top:0px;
     margin-left:10px;
     font-weight: bold;
     clear:both;

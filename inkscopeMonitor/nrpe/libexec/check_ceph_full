@@ -1,6 +1,13 @@
 #!/usr/bin/python
 #@author eric Mourgaya
 # check  ceph health
+# import  the libmonjuice  from /opt/inkscope/lib
+import os
+import sys
+LIBREP="/opt/inkscope/lib/"
+LIBPATH=os.path.dirname(LIBREP)
+if LIBPATH not in sys.path:
+    sys.path.append(LIBPATH)
 from libmongojuice import *
 import sys
 

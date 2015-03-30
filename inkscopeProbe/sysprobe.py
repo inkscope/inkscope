@@ -62,7 +62,7 @@ def load_conf():
     return data
 
 
-# get a field value from global conf according to the specified ceph conf
+# get a field value from global conf according to the specifpsutil_versionied ceph conf
 def ceph_conf_global(cephConfPath, field):
     p = subprocess.Popen(
         args=[
@@ -182,10 +182,13 @@ def get_hw_disk(hostname, hw):
     for disk in disks:
         if disk['id'].startswith('disk'): 
             logname = "NA"
-            if isinstance(disk['logicalname'], list):
-                logname = disk['logicalname'][0]
-            else:
-                logname = disk['logicalname']    
+            if "logicalname" in disk:
+                if isinstance(disk['logicalname'], list):
+                    logname = disk['logicalname'][0]
+                else:
+                    logname = disk['logicalname']
+            else :
+                continue
             description = "NA"
             if "description" in disk: 
                 description = disk["description"]          
@@ -447,25 +450,24 @@ def pick_net_stat(db, hw_nets):
                                       }
             network_interface_stat_id = db.netstat.insert(network_interface_stat)
             db.net.update({"_id": n["_id"]}, {"$set": {"stat": DBRef("netstat", network_interface_stat_id)}})
-           
+     
+# transform a set of object attributes to dict      
+def objToDict(obj, attrs):
+    dict_res = {}
+    for attr in attrs :
+        if hasattr(obj, attr) :
+            dict_res[attr] = getattr(obj, attr)
+    return dict_res
             
 # cpu stat
 def pick_cpu_stat(hostname, db):
     print str(datetime.datetime.now()), "-- Pick CPU Stats"  
     sys.stdout.flush()
     cputimes = psutil.cpu_times()
-    cpus_stat = {"timestamp": int(round(time.time() * 1000)),
-                 "host": DBRef("hosts",  hostname),
-                 "user": cputimes.user,
-                 "system": cputimes.system,
-                 "idle": cputimes.idle,
-                 "iowait": cputimes.iowait,
-                 "irq": cputimes.irq,
-                 "softirq":  cputimes.softirq,
-                 "steal": cputimes.steal,
-                 "guest": cputimes.guest,
-                 "guest_nice": cputimes.guest_nice
-                 }
+    cpus_stat = objToDict(cputimes, ["user", "system", "idle", "iowait", "irq", "softirq", "steal", "guest", "guest_nice"])
+    cpus_stat["timestamp"] = int(round(time.time() * 1000))
+    cpus_stat["host"] = DBRef("hosts",  hostname)
+                 
     cpus_stat_hostx_id = db.cpustat.insert(cpus_stat)
     db.hosts.update({"_id": hostname}, {"$set": {"stat": DBRef("cpus_stat", cpus_stat_hostx_id)}})
         
@@ -713,7 +715,11 @@ class SysProbeDaemon(Daemon):
         
         # end conf extraction
 
-        print "version psutil = ", psutil_version
+        print "version psutil = ", psutil_version, " (", psutil.__version__, ")"
+        if (psutil.__version__ < "1.2.1") :
+            print "ERROR : update your psutil to a earlier version (> 1.2.1)"
+            sys.exit(2)
+            
         sys.stdout.flush()
         
         hostname = socket.gethostname()
@@ -725,13 +731,15 @@ class SysProbeDaemon(Daemon):
             print "no replicat set"
             client = MongoClient(mongodb_host, mongodb_port)
 
+        db = client[fsid]
+
         if is_mongo_authenticate == 1:
             print "authentication  to database"
-            client.ceph.authenticate(mongodb_user, mongodb_passwd)
+            db.authenticate(mongodb_user, mongodb_passwd)
         else:
             print "no authentication" 
 
-        db = client[fsid]
+        
         
         HWdisks, partitions, HWnets, HWcpus = init_host(hostname, db)
                 

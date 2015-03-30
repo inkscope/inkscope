@@ -13,6 +13,7 @@ angular.module('poolApp', ['ngRoute','ngTable','D3Directives','ui.bootstrap','di
             when('/delete/:poolNum/:poolName', {controller: DeleteCtrl, templateUrl: 'partials/pools/deletePool.html'}).
             when('/delete/:poolNum', {controller: DeleteCtrl, templateUrl: 'partials/pools/deletePool.html'}).
             when('/snapshot/:poolNum/:poolName', {controller: SnapshotCtrl, templateUrl: 'partials/pools/snapshot.html'}).
+            when('/deletePoolSnapshot/:poolNum/:poolName/:snapshotName/:snapshotNumber/:snapshotStamp', {controller: SnapshotCtrl, templateUrl: 'partials/pools/deletePoolSnapshot.html'}).
             otherwise({redirectTo: '/'})
 
     });
@@ -122,9 +123,13 @@ function ListCtrl($scope,$http, $filter, ngTableParams, $location) {
 function SnapshotCtrl($scope, $http, $routeParams, $location, $dialogs) {
     $scope.poolNum = $routeParams.poolNum;
     $scope.poolName = $routeParams.poolName;
-    var uri = inkscopeCtrlURL + "pools/"+$scope.poolNum+"/snapshot" ;
+    $scope.snapshotName = $routeParams.snapshotName;
+    $scope.snapshotNumber = $routeParams.snapshotNumber;
+    $scope.snapshotStamp = $routeParams.snapshotStamp;
+
 
     $scope.submit = function () {
+        var uri = inkscopeCtrlURL + "pools/"+$scope.poolNum+"/snapshot" ;
         $scope.status = "en cours ...";
 
         $http({method: "post", url: uri, data: "json={\"snapshot_name\":\""+$scope.snap_name+"\"}", headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
@@ -139,7 +144,24 @@ function SnapshotCtrl($scope, $http, $routeParams, $location, $dialogs) {
                 $dialogs.error("<h3>Can't create snapshot for pool \""+ $scope.poolName+"\"</h3><br>"+$scope.data);
             });
     }
-}
+
+    /**/
+
+    $scope.removeSnapshot = function () {
+        var uri = inkscopeCtrlURL + "pools/"+$scope.poolNum+"/snapshot/"+$scope.snapshotName;
+        $scope.status = "en cours ...";
+        $http({method: "delete", url: uri}).
+            success(function (data, status) {
+                $scope.status = status;
+                $dialogs.notify("Snapshot deletion for pool \""+ $scope.poolName+"\"","Snapshot <strong>"+$scope.snapshotName+"</strong> was deleted");
+                $location.path('/detail/'+$scope.poolNum);
+            }).
+            error(function (data, status, headers) {
+                $scope.status = status;
+                $scope.data =  data || "Request failed";
+                $dialogs.error("<h3>Can't delete snapshot for pool \""+ $scope.poolName+"\"</h3><br>"+$scope.data);
+            });
+    }}
 
 function DetailCtrl($scope, $http, $routeParams, $route, $dialogs, ngTableParams , $filter) {
     i = 0;
@@ -268,7 +290,9 @@ function DetailCtrl($scope, $http, $routeParams, $route, $dialogs, ngTableParams
     $scope.getRulesetNameLabel=function(rulesetid){
         if ( typeof $scope.rules === "undefined") return ""+rulesetid;
         for (var i in $scope.rules){
-            if ($scope.rules[i].ruleset == rulesetid) return rulesetid+" ("+$scope.rules[i].rule_name+")";
+            if ($scope.rules[i].ruleset == rulesetid) {
+                return rulesetid+" ("+$scope.rules[i].rule_name+")";
+            }
         }
         return rulesetid+" (unknown)";
     }
@@ -303,27 +327,13 @@ function DetailCtrl($scope, $http, $routeParams, $route, $dialogs, ngTableParams
             var value = obj[i];
             $scope.snap_name = value["name"];
             if (label!="") label +="<br>";
-            label+="nr: "+value["snapid"]+", date: "+value["stamp"]+", name: "+value["name"];}
+            label+="nr: "+value["snapid"]+", name: "+value["name"]+", date: "+value["stamp"];
+            var urlForDelete = "#/deletePoolSnapshot/"+$scope.detailedPool.pool+"/"+$scope.detailedPool.pool_name+"/"+value["name"]+"/"+value["snapid"]+"/"+value["stamp"];
+            label+='&nbsp;<a  href="'+urlForDelete+'"><i class="icon-remove closeButton" alt="remove snapshot" title="remove snapshot"></i></a>';
+        }
         return label;
     }
 
-     /**/
-
-    $scope.removeSnapshot = function () {
-        var uri = inkscopeCtrlURL + "pools/"+$scope.detailedPool.pool+"/snapshot/"+$scope.snap_name ;
-        $scope.status = "en cours ...";
-        $http({method: "delete", url: uri}).
-            success(function (data, status) {
-                $scope.status = status;
-                $dialogs.notify("Snapshot deletion for pool \""+ $scope.detailedPool.pool_name+"\"","Snapshot <strong>"+$scope.snap_name+"</strong> was deleted");
-                $route.reload();
-            }).
-            error(function (data, status, headers) {
-                $scope.status = status;
-                $scope.data =  data || "Request failed";
-                $dialogs.error("<h3>Can't delete snapshot for pool \""+ $scope.detailedPool.pool_name+"\"</h3><br>"+$scope.data);
-            });
-    }
 }
 
 function DeleteCtrl($scope, $http, $templateCache, $routeParams, $location, $dialogs) {

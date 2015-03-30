@@ -7,6 +7,8 @@ Manual installation is fully described in the [inkScope wiki](https://github.com
 
 All modules have been packaged: see [inkScope packaging](https://github.com/inkscope/inkscope-packaging)
 
+![inkscope architecture](https://github.com/inkscope/inkscope/raw/master/documentation/inkscope-platform.png)
+
 The main folders are:
 
 **documentation** contains diagram of inkScope architecture, datamodel...

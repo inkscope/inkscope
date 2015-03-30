@@ -1,16 +1,23 @@
 #!/usr/bin/python
 #@author eric Mourgaya
 # check  ceph health
+# import  the libmonjuice  from /opt/inkscope/lib
+import os
+import sys
+LIBREP="/opt/inkscope/lib/"
+LIBPATH=os.path.dirname(LIBREP)
+if LIBPATH not in sys.path:
+    sys.path.append(LIBPATH)
 from libmongojuice import *
 import sys
 
 res=check_health()
 
 if  res == 0:
-    print "ceph health ok"
+    print "ceph heath is ok"
 elif res == 1:
-    print "warning  something  wrong : try 'ceph -s' command "
+    print "warning  something  wrong with ceph cluster: ceph -s to see more "
 else:
-    print "alert:  something really wrong on ceph  cluster!"
+    print "alert:  something really ceph -s to see more !"
 sys.exit(res)
 

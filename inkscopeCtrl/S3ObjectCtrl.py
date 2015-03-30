@@ -29,12 +29,13 @@ class S3ObjectCtrl:
         self.conffile = conf.get("ceph_conf", '/etc/ceph/ceph.conf')
         self.radosgw_url = conf.get("radosgw_url", "127.0.0.1")
         self.clusterName = conf.get("cluster", "ceph")
+        self.secure = self.radosgw_url.startswith("https://")
 
         if not self.radosgw_url.endswith('/'):
             self.radosgw_url += '/'
         self.url = self.radosgw_url + self.admin
 
-        self.cluster = rados.Rados(conffile=self.conffile)
+        self.cluster = rados.Rados(conffile=str(self.conffile))
         print "\nlibrados version: " + str(self.cluster.version())
         print "Will attempt to connect to: " + str(self.cluster.conf_get('mon initial members'))
 
@@ -47,7 +48,7 @@ class S3ObjectCtrl:
 
 
     def getAdminConnection(self):
-        return S3Bucket(self.admin, access_key=self.key, secret_key=self.secret , base_url=self.url)
+        return S3Bucket(self.admin, access_key=self.key, secret_key=self.secret , base_url=self.url, secure=self.secure)
 
     def getObjectStructure(self) :
         startdate = datetime.now()
@@ -174,7 +175,7 @@ class S3ObjectCtrl:
 
     def getChunkSize(self, poolname, objectid):  # Method OK
         Log.info('___getChunkSize(poolName=' + str(poolname) + ', objectId=' + str(objectid) + ')')
-        ioctx = self.cluster.open_ioctx(poolname)
+        ioctx = self.cluster.open_ioctx(str(poolname))
         size = ioctx.stat(str(objectid))
 
         return int(size[0])
@@ -234,7 +235,7 @@ class S3ObjectCtrl:
     def getOsdDump(self):
         Log.debug("___getOsdDump()")
         # print str(datetime.datetime.now()), "-- Process OSDDump"
-        cephRestUrl = request.url_root + self.clusterName + '/osd?depth=2'
+        cephRestUrl = request.url_root + self.cluster.get_fsid() + '/osd?depth=2'
         print(cephRestUrl)
         # Set HTTP credentials for url callback (requests.)
         data = requests.get(cephRestUrl)
@@ -245,7 +246,7 @@ class S3ObjectCtrl:
                 return osds
         r = data.content
 
-        if len(r) > 0:
+        if r != '[]':
            osds = json.loads(r)
         else:
             Log.err('The osd dump returns empty data')
@@ -390,7 +391,7 @@ class S3ObjectCtrl:
 # An exception is thrown if the object does not exist or there an issue
     def getChunkBaseName(self, poolName, objectid):
         Log.info("____Get the chunks list for the object [" + objectid + "] and the pool[ " + str(poolName) + "]")
-        ioctx = self.cluster.open_ioctx(poolName)
+        ioctx = self.cluster.open_ioctx(str(poolName))
         xattr = ioctx.get_xattr(objectid, 'user.rgw.manifest')
         shadow = xattr.replace('\x00', '').replace('\x01', '').replace('\x02', '').replace('\x03', '').\
                       replace('\x04', '').replace('\x05', '').replace('\x06', '').replace('\x07', '').replace('\x08', '').replace('\x09', '')\

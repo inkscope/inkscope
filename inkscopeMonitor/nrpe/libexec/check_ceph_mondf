@@ -11,13 +11,13 @@ if LIBPATH not in sys.path:
 from libmongojuice import *
 import sys
 
-res=check_nearfull()
+res,msg=mon_df()
 
 if  res == 0:
-    print "ceph is not near full ok"
+    print "ceph  mon space is not full ok"
 elif res == 1:
-    print "warning  something  wrong ceph is nearfull: add new osd "
+    print "warning  something  wrong ceph mon space is near full: see "+msg
 else:
-    print "alert:  something really wrong add new osd !"
+    print "alert  something  wrong ceph mon space is full: see "+msg
 sys.exit(res)
 

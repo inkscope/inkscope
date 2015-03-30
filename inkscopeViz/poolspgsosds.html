@@ -81,7 +81,23 @@
         <input type="submit" id="submit" value="update">
     </div>
 </form>
-<div id="datePanel">Date : {{date | date:'HH:mm:ss'}}</div>
+    <form action="poolspgsosds.html" style="margin:0">
+        <div id="datePanel">
+        Date : {{date | date:'HH:mm:ss'}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        Selection:&nbsp;&nbsp;pool
+        <select id="pool" name="pool" >
+            <option value="" ng-selected="{{ selectedPool=='' }}">all pools</option>
+            <option ng-repeat="pool in pools" value="{{ pool.name }}" ng-selected="{{ pool.name==selectedPool }}">{{ pool.name }}</option>
+        </select>
+        &nbsp;&nbsp;&nbsp;osd
+        <select id="osd" name="osd" >
+            <option value="" ng-selected="{{ selectedOsd=='' }}">all osds</option>
+            <option ng-repeat="osd in osds" value="osd.{{ osd }}" ng-selected="{{ 'osd.'+osd == selectedOsd }}">osd.{{ osd }}</option>
+        </select>
+        only unhealthy pgs <input type="checkbox" id="filterStatus" ng-checked="filterStatus" name="filterStatus">
+        <input type="submit" value="show">
+        </div>
+    </form>
 
 <p id="chart">
 

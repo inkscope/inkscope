@@ -1,0 +1,57 @@
+<!doctype html>
+<html ng-app="pgStucksApp">
+<head>
+    <meta charset=utf-8 />
+    <script src="scripts/angular/angular.min.js"></script>
+    <script src="scripts/angular/angular-route.min.js"></script>
+    <script src="scripts/angular/angular-sanitize.min.js"></script>
+    <script src="scripts/angular-misc/ng-table.min.js"></script>
+    <script src="scripts/angular-misc/angular-commons.js"></script>
+    <script src="scripts/angular-misc/ui-bootstrap-tpls-0.10.0.min.js"></script>
+    <script src="scripts/angular-misc/dialogs.v2.min.js"></script>
+    <script src="scripts/pgStucksApp.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
+    <script src="scripts/angular-misc/D3Directives.js"></script>
+    <script src="scripts/d3/d3.v3.min.js"></script>
+    <script src="scripts/d3/common.js"></script>
+    <script src="scripts/d3/colorbrewer.js"></script>
+    <link rel="stylesheet" href="css/testAdmin.css" />
+    <link rel="stylesheet" href="css/tooltip.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="scripts/angular-misc/ng-table.min.css">
+    <title>Ceph stuck pg list</title>
+    <style>
+        .glyphicon-chevron-down:before  {content: "\25BC";}
+        .glyphicon-chevron-right:before {content: "\25B6";}
+    </style>
+</head>
+<body ng-controller="ListCtrl" onresize="resizeBlocks(['#listpg','#control'])">
+
+
+<header id="header" ng-include src="'partials/header.html'" ng-init="pageTitle='Ceph stuck pg list'"></header>
+
+<div>
+<!--div id="status"  >{{status}}</div-->
+    <div id="datePanel"><br>Date : {{date | date:'HH:mm:ss'}}</div>
+
+    <div id="listpg">
+    <table>
+        <tr><th>Search pg id </th><th><input type="text" ng-model="search.pgid" class="search-query" placeholder="Search pg id"></th></tr>
+        <tr><th>Search pg state </th><th><input type="text" ng-model="search.state" class="search-query" placeholder="Search pg state"></th></tr>
+    </table>
+    <br>
+    <table ng-table="tableParams" class="table table-condensed clickable">
+        <tr ng-repeat="pg in orderedData | filter:search:strict" ng-click="showDetail(pg)">
+            <td data-title="'Id'" sortable="'pgid'">{{pg.pgid}}</td>
+            <td data-title="'State'" sortable="'state'">{{pg.state}}</td>
+        </tr>
+    </table>
+</div>
+</div>
+<div ng-view id="control" ></div>
+
+<script>resizeBlocks(['#listpg','#control']);</script>
+</body>
+
+</html>
