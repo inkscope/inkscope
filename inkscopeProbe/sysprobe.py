@@ -387,7 +387,7 @@ def init_host(hostname, db):
         db.cpus.update({'_id': c['_id']}, c, upsert=True)
             
     host__ = {'_id': hostname,
-              "hostip": socket.gethostbyname(hostname),
+              "hostip": socket.getfqdn(hostname), #socket.gethostbyname(hostname),
               "timestamp": int(round(time.time() * 1000)),
               "mem": None,
               "swap": None,
@@ -633,7 +633,7 @@ class SysProbeDaemon(Daemon):
         print "SysProbe loading"
         # load conf
         data = load_conf()
-        
+        name
         cluster_name = data.get("cluster", "ceph")
         print "cluster = ", cluster_name
         
@@ -724,7 +724,9 @@ class SysProbeDaemon(Daemon):
             
         sys.stdout.flush()
         
-        hostname = socket.gethostname()
+        #hostname = socket.gethostname()
+        hostname = socket.getfqdn()
+        print "hostname = ", hostname
     
         if is_mongo_replicat == 1:
             print "replicat set connexion"

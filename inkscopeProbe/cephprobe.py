@@ -49,7 +49,7 @@ fsid = ""
 def load_conf():
     datasource = open(configfile, "r")
     data = json.load(datasource)
-    
+    osdhostid
     datasource.close()
     return data
 
@@ -263,7 +263,8 @@ def process_status(restapi, ceph_rest_api_subfolder, db):
             
             
             try :
-                monhostid = socket.gethostbyaddr(hostaddr)[0]
+                #monhostid = socket.gethostbyaddr(hostaddr)[0]
+                monhostid = socket.getfqdn(hostaddr)
             except:                       
                 monhost = db.hosts.find_one({"hostip": hostaddr})
     
@@ -354,7 +355,8 @@ def process_osd_dump(restapi, ceph_rest_api_subfolder, db):
             
             #find host name
             try :
-                osdhostid = socket.gethostbyaddr(hostaddr)[0]
+                #osdhostid = socket.gethostbyaddr(hostaddr)[0]
+                osdhostid = socket.getfqdn(hostaddr)
             except:                       
                 osdhost = db.hosts.find_one({"hostip": hostaddr})
     
@@ -724,7 +726,8 @@ class CephProbeDaemon(Daemon):
         # end conf extraction
         
         
-        hostname = socket.gethostname() #platform.node()
+        #hostname = socket.gethostname() #platform.node()
+        hostname = socket.getfqdn()
         
         # take care with mongo set and authentication
         if is_mongo_replicat == 1:
