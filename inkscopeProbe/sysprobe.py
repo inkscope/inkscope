@@ -633,7 +633,6 @@ class SysProbeDaemon(Daemon):
         print "SysProbe loading"
         # load conf
         data = load_conf()
-        name
         cluster_name = data.get("cluster", "ceph")
         print "cluster = ", cluster_name
         

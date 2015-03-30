@@ -49,7 +49,6 @@ fsid = ""
 def load_conf():
     datasource = open(configfile, "r")
     data = json.load(datasource)
-    osdhostid
     datasource.close()
     return data
 
