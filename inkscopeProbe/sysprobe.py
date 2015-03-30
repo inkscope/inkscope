@@ -560,8 +560,9 @@ def pick_ceph_processes_v1(hostname, db):
 
 
 # delete the oldest stats
+#window in second
 def drop_stat(db, collection, window):
-    before = int(round(time.time() * 1000)) - window
+    before = int((time.time() - window) * 1000)
     print str(datetime.datetime.now()), "-- drop Stats:", collection, "before", before       
     db[collection].remove({"timestamp": {"$lt": before}})
 
@@ -572,6 +573,7 @@ def heart_beat(hostname, db):
     
 
 class Repeater(Thread):
+    #period in second
     def __init__(self, event, function, args=[], period=5.0):
         Thread.__init__(self)
         self.stopped = event
