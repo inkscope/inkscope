@@ -442,7 +442,7 @@ class S3ObjectCtrl:
 
     def getChunks(self, bucketId, poolName, objectid, chunkBaseName) :
          Log.info("____Get the chunks list using  that id is " + str(bucketId) + " the poolName " + str(poolName) + " and the chunk base name " + str(chunkBaseName))
-         cmd = 'rados --pool=' + poolName + '   ls|grep ' + bucketId + '|grep shadow|sort|grep ' + chunkBaseName.replace('-','\-')+'"'
+         cmd = 'rados --pool=' + poolName + '   ls|grep ' + bucketId + '|grep shadow|sort|grep ' + '"'+chunkBaseName.replace('-','\-')+'"'
          # on protege les caracteres speciaux en debut de shadow
          if objectid == chunkBaseName:  # The object has no chunk because it's smaller than 4Mo
                 cmd = 'rados --pool=' + poolName + '   ls|grep ' + bucketId + '|grep ' + '"'+objectid.replace('-','\-')+'"'
