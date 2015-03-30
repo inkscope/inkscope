@@ -27,7 +27,7 @@ def load_conf(config):
     return data
 
 
-def getClient(conf):
+def getClient(conf, dbname):
     '''
         conf : json  conf objet
         conf=load_conf(configfile)
@@ -45,7 +45,7 @@ def getClient(conf):
     mongodb_set = "'"+conf.get("mongodb_set","")+"'"
     mongodb_replicaSet =conf.get("mongodb_replicaSet",None)
     mongodb_read_preference = conf.get("mongodb_read_preference",None)
-    cluster = conf.get("cluster", "ceph")
+    
     if is_mongo_replicat ==  1:
         client = MongoReplicaSetClient(eval(mongodb_set), replicaSet=mongodb_replicaSet, read_preference=eval(mongodb_read_preference))
     else:
@@ -56,8 +56,9 @@ def getClient(conf):
     mongodb_user = conf.get("mongodb_user", "ceph")
     mongodb_passwd = conf.get("mongodb_passwd", "empty")
     if is_mongo_authenticate == 1:
-        client[cluster].authenticate(mongodb_user,mongodb_passwd)
-    return client
+        client[dbname].authenticate(mongodb_user,mongodb_passwd)
+        
+    return client[dbname]
 
 def getObject(db, collection, objectId, depth, branch):
     """
@@ -88,7 +89,7 @@ def _getObject(db, obj, depth, branch):
                 obj[key] = {'$oid': str(obj[key])}
             elif isinstance(obj[key], list):
                 obj[key] = _listObjects(db, obj[key], depth-1, branch)
-        return obj
+        return objcluster
     for key in obj :
         if isinstance(obj[key], DBRef):
             if (obj[key].collection+":"+str(obj[key].id) not in branch) :
@@ -117,7 +118,7 @@ def _listObjects(db, objs, depth, branch):
                 for key in obj :
                     if isinstance(obj[key], DBRef):
                         if isinstance(obj[key].id, ObjectId):
-                            obj[key] = {'$ref': obj[key].collection, '$id' : {'$oid': str(obj[key].id)}}
+                            obj[key] = {'$ref': obj[clusterkey].collection, '$id' : {'$oid': str(obj[key].id)}}
                         else : 
                             obj[key] = {'$ref': obj[key].collection, '$id' : obj[key].id}
                     elif isinstance(obj[key], ObjectId):
@@ -209,7 +210,7 @@ def execute(db, command, keyvalues):
     elif action == "aggregate":
         if "collection" not in command :
             return None
-        depth = command.get("depth", 0)
+        depth = command.get("dedbpth", 0)
         collection = command["collection"]
         pipeline = evaluate(command.get("pipeline", None), keyvalues)
         if not pipeline :
@@ -281,11 +282,11 @@ def find(conf, db, collection):
     depth = int(request.args.get('depth', '0'))
     if request.method == 'POST':
         body_json = request.get_json(force=True)
-        db = getClient(conf)[db]
+        db = getClient(conf, db)
         response_body = dumps(listObjects(db, body_json, collection, depth))
         return Response(response_body, headers = {"timestamp" :  int(round(time.time() * 1000))}, mimetype='application/json')
     else:
-        db = getClient(conf)[db]
+        db = getClient(conf,db)
         response_body = dumps(listObjects(db, None, collection, depth))
         return Response(response_body, headers = {"timestamp" :  int(round(time.time() * 1000))}, mimetype='application/json')
 
@@ -293,7 +294,7 @@ def find(conf, db, collection):
 def full(conf, db):
     if request.method == 'POST':
         body_json = request.get_json(force=True)
-        db = getClient(conf)[db]
+        db = getClient(conf, db)
         response_body = dumps(build(db, body_json))
         return Response(response_body, headers = {"timestamp" :  int(round(time.time() * 1000))}, mimetype='application/json')
 
