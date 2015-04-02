@@ -1,8 +1,8 @@
 Summary: inkscope
 Name: inkscope
-%define inkscope_version 1.1.0
+%define inkscope_version 1.2.0
 Version: %{inkscope_version} 
-Release: 1
+Release: 0
 License: Apache License
 Packager: Eric Mourgaya <eric.mourgaya@arkea.com>
 Distribution: Redhat
@@ -88,7 +88,7 @@ mkdir -p %{buildroot}/etc/httpd/conf.d/
 
 cd tmp/inkscope
 install -m 600 inkscopeProbe/sysprobe.py %{buildroot}/opt/inkscope/bin/
-install -m 600 inkscope.conf %{buildroot}/opt/inkscope/etc/
+install -m 600 inkscope-template.conf %{buildroot}/opt/inkscope/etc/
 install -m 600 inkscopeProbe/cephprobe.py %{buildroot}/opt/inkscope/bin/
 install -m 600 inkscopeProbe/daemon.py %{buildroot}/opt/inkscope/bin/
 install -m 700 DISTRIBS/confs/init.d/sysprobe %{buildroot}/etc/init.d/
@@ -113,7 +113,7 @@ install -m 644 inkscopeMonitor/lib/libmongojuice.py %{buildroot}/opt/inkscope/li
 
 for file in $(find inkscopeMonitor/nrpe/libexec -type f); do
 install -m 644 -D ${file}  %{buildroot}/opt/nrpe/libexec/${file#source/}
-
+done
 
 %clean
 rm -rf $RPM_BUILD_ROOT
