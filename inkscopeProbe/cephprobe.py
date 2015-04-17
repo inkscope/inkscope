@@ -336,6 +336,7 @@ def process_osd_dump(restapi, ceph_rest_api_subfolder, db):
         for osd in osds:
             osd_stat = {"osd": DBRef("osd", osd["osd"]),
                         "timestamp": int(round(time.time() * 1000)),
+                        "weight":  osd["weight"],
                         "up": osd["up"] == 1,
                         "in": osd["in"] == 1,
                         "last_clean_begin": osd["last_clean_begin"],
