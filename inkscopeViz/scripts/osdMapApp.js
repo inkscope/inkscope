@@ -99,8 +99,15 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
                 $scope.warningMessage = "";
                 for (var i = 0; i < data.length; i++) {
                     data[i].id = data[i]._id;
-                    if (!data[i].stat.in) $scope.osdOut++;
-                    if (!data[i].stat.up) $scope.osdDown++;
+                    try {
+                        if (!data[i].stat.in) $scope.osdOut++;
+                        if (!data[i].stat.up) $scope.osdDown++;
+                        data[i].reweight = data[i].stat.weight;
+                    }
+                    catch (e) {
+                        console.log("failed to retireve osd stat for osd "+i);
+                        data[i].reweight = "N/A";
+                    }
                     data[i].lastControl = ((+$scope.date) - data[0].stat.timestamp) / 1000;
                     try {
                         data[i].free = data[i].partition.stat.free;
@@ -262,6 +269,9 @@ osdMapApp.directive('myTopology', function () {
 
                 html += "id : " + d.id + "<br />"
                 html += "weight : " + d.weight + "<br />"
+                if (d.id >=0){
+                    html += "reweight : " + scope.osds[d.id].reweight + "<br />"
+                }
                 if (typeof d.hash !== "undefined") {
                     html += "hash : " + d.hash + "<br />"
                 }
