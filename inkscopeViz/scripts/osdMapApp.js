@@ -144,13 +144,16 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
     $scope.dispoOfNode= function(nodeId) {
         if (typeof nodeId === undefined) return {"value":0,"total":0};
         if (nodeId<0) {
+            // node other than OSD
             var node = $scope.bucketsTab[nodeId];
             var value = 0 ;
             var total = 0 ;
-            for (var i= 0; i< node.children.length;i++){
-                var res =  $scope.dispoOfNode(node.children[i].id) ;
-                value += res.value;
-                total += res.total;
+            if (typeof node.children !== "undefined"){
+                for (var i= 0; i< node.children.length;i++){
+                    var res =  $scope.dispoOfNode(node.children[i].id) ;
+                    value += res.value;
+                    total += res.total;
+                }
             }
             $scope.bucketsTab[nodeId].value= value;
             $scope.bucketsTab[nodeId].total= total;
@@ -158,6 +161,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
             return {"value":value,"total":total};
         }
         else {
+            // OSD node
             if (typeof nodeId === undefined) return {"value":0,"total":0};;
             if ($scope.dispoMode == "up/down") return {"total":1,"value":$scope.osds[nodeId].stat.up ? 1.0 : 0.0};
             if ($scope.dispoMode == "in/out") return {"total":1,"value":$scope.osds[nodeId].stat.in ? 1.0 : 0.2};
@@ -268,6 +272,7 @@ osdMapApp.directive('myTopology', function () {
                 html += "</h2>"
 
                 html += "id : " + d.id + "<br />"
+                // html += "value : " + d.value + "<br />"
                 html += "weight : " + d.weight + "<br />"
                 if (d.id >=0){
                     html += "reweight : " + scope.osds[d.id].reweight + "<br />"

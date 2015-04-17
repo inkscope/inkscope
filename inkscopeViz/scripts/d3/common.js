@@ -3,7 +3,7 @@ var colorsGnYlRd = ["#038a00","#05a001","#0ac800","#0ad600","#50d600","#92d600",
 /*---------------------0---------10---------20--------30--------40-------50---------60-------70--------80--------90-------100-------*/
 function color4ascPercent(percent) {
     //console.log("percent="+percent);
-    if ((percent == "N/A")||(percent<0)) return "#cccccc";
+    if ((percent == "N/A")||(isNaN(percent))||(percent >1)||(percent<0)) return "#cccccc";
     var index = parseInt(10-(percent*10));
     if (index == 10) return colorsGnYlRd[10];
     var delta = (10-(percent*10))-index;
@@ -25,7 +25,8 @@ function color4ascPercent(percent) {
 }
 
 function color4descPercent(percent) {
-    if (percent<0) return "#cccccc";
+    //console.log("percent="+percent);
+    if ((percent == "N/A")||(isNaN(percent))||(percent >1)||(percent<0)) return "#cccccc";
     var index = parseInt(percent*10);
     if (index == 10) return colorsGnYlRd[10];
     var delta = (percent*10) - index;
