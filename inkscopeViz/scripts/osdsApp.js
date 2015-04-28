@@ -176,7 +176,7 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $scope, $http, $location ,$
                 var chart = nv.models.lineChart()
                         .margin({left: 35,right:40})  //Adjust chart margins to give the x-axis some breathing room.
                         .useInteractiveGuideline(true)  //We want nice looking tooltips and a guideline!
-                        .transitionDuration(350)  //how fast do you want the lines to transition?
+                        //.transitionDuration(350)  //how fast do you want the lines to transition?
                         .showLegend(true)       //Show the legend, allowing users to turn on/off line series.
                         .showYAxis(true)        //Show the y-axis
                         .showXAxis(true)        //Show the x-axis
