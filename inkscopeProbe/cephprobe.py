@@ -524,7 +524,7 @@ def process_crushmap(restapi, ceph_rest_api_subfolder, db):
             
         tunables = crush_dump['output']['tunables']
         
-        crushmap = {"_id": clusterName,
+        crushmap = {"_id": fsid,
                     "types": types_ref,
                     "nodes": nodes_ref,
                     "rules": rules_ref,
