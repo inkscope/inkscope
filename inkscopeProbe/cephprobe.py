@@ -363,7 +363,7 @@ def process_osd_dump(restapi, ceph_rest_api_subfolder, db):
                 if hostaddr == '': # the case if osd is declared but not completly configured
                     osdhostid = None
                 elif not osdhost:
-                    osdneti = db.net.find_one({"$where":  "this.inet.addr === '"+hostaddr+"'"})
+                    osdneti = db.net.find_one({"$where":  "this.inet != null && this.inet.addr === '"+hostaddr+"'"})
                     if osdneti:
                         osdhostid = osdneti["_id"].partition(":")[0]
                 else:

@@ -386,7 +386,7 @@ def init_host(hostname, db):
     for c in hw_cpus:
         db.cpus.update({'_id': c['_id']}, c, upsert=True)
             
-    host__ = {'_id': hostname,
+    host__ = {'_id': hostname, #fqdn
               "hostip": socket.gethostbyname(hostname),
               "timestamp": int(round(time.time() * 1000)),
               "mem": None,
