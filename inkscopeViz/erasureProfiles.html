@@ -38,16 +38,16 @@
     <div id="list">
     <table>
         <tr>
-            <th><input type="text" ng-model="search.name" class="search-query" placeholder="Search erasure profile name"></th>
+            <th><input type="text" ng-model="search" class="search-query" placeholder="Search erasure profile name"></th>
             <th>&nbsp; &nbsp; </th>
-            <th>new erasure profile <a href="#/new"><i class="icon-plus-sign" alt="add a new erasure profile" title="add a new erasure profile"></i></a></th>
+            <th><a href="#/new">new erasure profile <i class="icon-plus-sign" alt="add a new erasure profile" title="add a new erasure profile"></i></a></th>
         </tr>
     </table>
     <br>
     <table ng-table="tableParams" class="table table-condensed clickable">
-        <tr ng-repeat="erasureProfile in orderedData | filter:search:strict" ng-click="showDetail(erasureProfile)">
-            <td data-title="'Id'" sortable="'id'">{{erasureProfile}}</td>
-            <td data-title="'View'" sortable="erasureProfile" style="text-align:center"><i class="icon-eye-open" alt="view details of {{erasureProfile}}" title="view details of {{erasureProfile}}"></i></td>
+        <tr ng-repeat="erasureProfile in orderedData | filter:search" ng-click="showDetail(erasureProfile)">
+            <td data-title="'Id'" sortable="'id'">{{erasureProfile.id}}</td>
+            <td data-title="'View'" style="text-align:center"><i class="icon-eye-open" alt="view details of {{erasureProfile.id}}" title="view details of {{erasureProfile.id}}"></i></td>
         </tr>
     </table>
 </div>

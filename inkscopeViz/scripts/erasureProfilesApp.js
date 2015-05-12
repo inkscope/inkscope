@@ -19,7 +19,10 @@ function refreshErasureProfiles($http, $scope) {
         success(function (data, status) {
             $scope.status = status;
             $scope.date = new Date();
-            $scope.erasureProfiles =  data.output;
+            $scope.erasureProfiles =  [];
+            for (i in data.output){
+                $scope.erasureProfiles.push({'id':data.output[i]});
+            }
             $scope.tableParams.reload();
         }).
         error(function (data, status, headers) {
@@ -34,7 +37,7 @@ function ListCtrl($scope,$http, $filter, ngTableParams, $location) {
         page: 1,            // show first page
         count: 20,          // count per page
         sorting: {
-            erasureProfile: 'asc'     // initial sorting
+            id: 'asc'     // initial sorting
         }
     }, {
         counts: [], // hide page counts control
