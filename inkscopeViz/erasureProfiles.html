@@ -45,7 +45,7 @@
     </table>
     <br>
     <table ng-table="tableParams" class="table table-condensed clickable">
-        <tr ng-repeat="erasureProfile in orderedData | filter:search" ng-click="showDetail(erasureProfile)">
+        <tr ng-repeat="erasureProfile in orderedData | filter:search" ng-click="showDetail(erasureProfile.id)">
             <td data-title="'Id'" sortable="'id'">{{erasureProfile.id}}</td>
             <td data-title="'View'" style="text-align:center"><i class="icon-eye-open" alt="view details of {{erasureProfile.id}}" title="view details of {{erasureProfile.id}}"></i></td>
         </tr>
