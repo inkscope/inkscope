@@ -105,7 +105,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
                         data[i].reweight = data[i].stat.weight;
                     }
                     catch (e) {
-                        console.log("failed to retireve osd stat for osd "+i);
+                        console.log("failed to retireve osd stat for osd "+data[i].id);
                         data[i].reweight = "N/A";
                     }
                     data[i].lastControl = ((+$scope.date) - data[0].stat.timestamp) / 1000;
@@ -115,7 +115,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
                         data[i].percent = data[i].free/data[i].total;
                     }
                     catch (e) {
-                        console.log("failed to retireve partition stat for osd "+i);
+                        console.log("failed to retireve partition stat for osd "+data[i].id);
                         data[i].free = "N/A";
                         data[i].total = "N/A";
                         data[i].percent = -1;
