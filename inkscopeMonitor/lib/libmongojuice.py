@@ -19,11 +19,13 @@ from bson import BSON
 from bson import json_util
 from bson.objectid import ObjectId
 
+# for ceph command call
+import subprocess
 
 configfile = "/opt/inkscope/etc/inkscope.conf"
 
 
-def load_conf(config):
+def load_conf():
     '''
         load the  configfile  an return  a json  objet
     '''
@@ -32,6 +34,39 @@ def load_conf(config):
     datasource.close
     return data
 
+
+# get a field value from global conf
+def ceph_conf_global(field):
+    p = subprocess.Popen(
+        args=[
+            'ceph-conf',
+            '--show-config-value',
+            field
+            ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE)
+    outdata, errdata = p.communicate()
+    if len(errdata):
+        raise RuntimeError('unable to get conf option %s: %s' % (field, errdata))
+    return outdata.rstrip()
+
+
+# get a field value from global conf according to the specified ceph conf
+def ceph_conf_global(cephConfPath, field):
+    p = subprocess.Popen(
+        args=[
+            'ceph-conf',
+            '-c',
+            cephConfPath,
+            '--show-config-value',
+            field
+            ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE)
+    outdata, errdata = p.communicate()
+    if len(errdata):
+        raise RuntimeError('unable to get conf option %s: %s' % (field, errdata))
+    return outdata.rstrip()
 
 
 def getClient(conf):
@@ -47,7 +82,7 @@ def getClient(conf):
     mongodb_set = "'"+conf.get("mongodb_set","")+"'"
     mongodb_replicaSet =conf.get("mongodb_replicaSet",None)
     mongodb_read_preference = conf.get("mongodb_read_preference",None)
-    cluster = conf.get("cluster", "ceph")
+    #cluster = conf.get("cluster", "ceph")
     if is_mongo_replicat ==  1:
         client = MongoReplicaSetClient(eval(mongodb_set), replicaSet=mongodb_replicaSet, read_preference=eval(mongodb_read_preference))
     else:
@@ -58,19 +93,28 @@ def getClient(conf):
     mongodb_user = conf.get("mongodb_user", "ceph")
     mongodb_passwd = conf.get("mongodb_passwd", "empty")
     if is_mongo_authenticate == 1:
-        client[cluster].authenticate(mongodb_user,mongodb_passwd)
+        client[fsid].authenticate(mongodb_user,mongodb_passwd)
     return client
              
+# load conf
+conf = load_conf()
+global fsid
+ceph_conf_file = conf.get("ceph_conf", "/etc/ceph/ceph.conf")
+print "ceph_conf = ", ceph_conf_file
+
+fsid = ceph_conf_global(ceph_conf_file, 'fsid')
+print "fsid = ", fsid
+
+client=getClient(conf)
+database=client[fsid]
+
 
 def getvalue(collection,item):
     '''
         get the item value of  database
         or return a json object if 
     '''
-    conf=load_conf(configfile)
-    client=getClient(conf)
-    dbname=conf.get("cluster","ceph")
-    database=client[dbname]
+
     coll=database[collection]
     cursor=coll.find_one()
     if isinstance(cursor[item], DBRef):
@@ -85,10 +129,7 @@ def getdbreftarget(dbref):
     '''
     return the target of a dbref item
     '''
-    conf=load_conf(configfile)
-    db=conf.get("cluster","ceph")
-    client=getClient(conf)
-    database=client[db]
+
     coll=database[dbref.collection]
     cursor=coll.find_one({"_id" : ObjectId(dbref.id)})
     return cursor
@@ -100,6 +141,7 @@ def check_health():
         collection: ceph
         item: health
     '''
+
     val = 0
     res=getvalue('cluster','health')
     if res == 'HEALTH_OK':
@@ -171,10 +213,7 @@ def sysprobeis_uptodate(tolerance):
         tolerance is an interger : for example 60000 for 1 minute
     '''
     val=0
-    conf=load_conf(configfile)
-    db=conf.get("cluster","ceph")
-    client=getClient(conf)
-    database=client[db]
+
     coll=database["sysprobe"]
     cursor=coll.find()
     curtim= int(round(time.time() * 1000))
@@ -194,10 +233,7 @@ def mon_df():
     '''
 	check  the  available space  for mon 
     '''
-    conf=load_conf(configfile)
-    db=conf.get("cluster","ceph")
-    client=getClient(conf)
-    database=client[db]
+    
     coll=database["mon"]
     cursor=coll.find()
     msg=""
@@ -219,10 +255,7 @@ def check_partition(seuil):
 	'''
 	check full partition  for all osd
 	'''
-	conf=load_conf(configfile)
-	db=conf.get("cluster","ceph")
-	client=getClient(conf)
-	database=client[db]
+	
 	coll=database["hosts"]
 	cursor=coll.find()
 	listpart={}
@@ -246,4 +279,3 @@ def check_partition(seuil):
 		for item in listpart:
 			print item	
 		return 2
-
