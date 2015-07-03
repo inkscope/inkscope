@@ -256,10 +256,13 @@ def get_hw_net(hostname, hw):
     for net in nets:
         if net['id'].startswith('network'): 
             logname = "NA"
-            if isinstance(net['logicalname'], list):
-                logname = net['logicalname'][0]
-            else:
-                logname = net['logicalname']    
+            if "logicalname" in net:
+              if isinstance(net['logicalname'], list):
+                  logname = net['logicalname'][0]
+              else:
+                  logname = net['logicalname']    
+            else :
+              continue
             description = "NA"
             if "description" in net: 
                 description = net["description"]          
