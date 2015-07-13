@@ -50,6 +50,19 @@ def full(db):
     return mongoJuiceCore.full(conf, db)
 
 #
+# global management
+#
+##
+
+@app.route('/conf.json', methods=['GET'])
+def conf_manage():
+    platform = conf.get("platform")
+    result = json.dumps({"platform":platform})
+    return Response(result, mimetype='application/json')
+
+
+
+#
 # Pools management
 #
 ## Ceph Rest API

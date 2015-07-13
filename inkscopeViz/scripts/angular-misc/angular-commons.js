@@ -59,6 +59,13 @@ function getMenu(){
 
 angular.module('InkscopeCommons', ['ngTable','dialogs','ui.bootstrap'])
     .controller('overallStatusCtrl', function ($rootScope, $scope,$http) {
+        $http({method: "get", url: inkscopeCtrlURL + "conf.json",timeout:4000})
+            .success(function (data) {
+                $scope.platform = data.platform;
+            })
+            .error(function(data){
+                console.log (data);
+            });
         refreshData();
         setInterval(function () {
             refreshData()

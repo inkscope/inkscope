@@ -16,17 +16,30 @@
     margin: 0px 5px;
 }
 #page_title {
-    position:relative;
-    margin-top: 20px;
-    margin-left: 100px;
+    position:absolute;
+    top: 20px;
+    left: 110px;
     font-size:45px;
     font-weight: bold;
     font-family:  "Helvetica", Helvetica, Arial, sans-serif;
 }
+
+#page_subtitle {
+    position:absolute;
+    top: 60px;
+    left: 115px;
+    font-size:20px;
+    font-weight: bold;
+    font-family:  "Helvetica", Helvetica, Arial, sans-serif;
+}
+
 #page_menu  {
-    position:relative;
+    /*position:relative;
     margin-top: 30px;
-    margin-left: 100px;
+    margin-left: 100px;*/
+    position: absolute;
+    top: 80px;
+    left: 100px;
 }
 
 input, textarea {
