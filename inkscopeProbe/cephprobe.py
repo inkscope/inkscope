@@ -437,8 +437,11 @@ def process_pg_dump(restapi, ceph_rest_api_subfolder, db):
             
             # Rename keys containing '.' in stat_cat_sum 
             # replace '.' by '_'
-            
-            scs = pg['stat_cat_sum']
+            if 'stat_cat_sum' in pg:
+                scs = pg['stat_cat_sum']
+            else:
+                scs = pg['stat_sum']
+
             for key in scs:
                 try:
                     idx = key.index('.')
