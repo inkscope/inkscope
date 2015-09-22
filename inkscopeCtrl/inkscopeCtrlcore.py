@@ -80,28 +80,6 @@ def makesnapshot(id):
 def removesnapshot(id, namesnapshot):
     return poolsCtrl.removesnapshot(id, namesnapshot)
 
-## Rest API with Salt
-try:
-    @app.route('/poolsalt/', methods=['GET','POST'])
-    @app.route('/poolsalt/<int:id>', methods=['GET','DELETE','PUT'])
-    def pool_manage_salt(id=None):
-       return poolsCtrlSalt.pool_manage_salt(id, minion)
-except:
-    pass
-
-try:
-    @app.route('/poolsalt/<int:id>/snapshot', methods=['POST'])
-    def makesnapshot_salt(id):
-       return poolsCtrl.makesnapshot(id, minion)
-except:
-    pass
-
-try:
-    @app.route('/poolsalt/<int:id>/snapshot/<namesnapshot>', methods=['DELETE'])
-    def removesnapshot_salt(id, namesnapshot):
-       return poolsCtrl.removesnapshot(id, namesnapshot, minion)
-except:
-    pass
 #
 # Osds management
 #
