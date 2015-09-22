@@ -1,25 +1,14 @@
 # Alpha O. Sall
 # 03/24/2014
 
-from flask import Flask, request, Response, render_template
+from flask import Flask, Response
+
 app = Flask(__name__)#,template_folder='/var/www/inkscope/inkscopeAdm/')
 
-import requests
-from array import *
-import sys
-from urllib2 import HTTPError
-import json
-from bson.json_util import dumps
-import time
 import mongoJuiceCore
 import poolsCtrl
-try:
-    import poolsCtrlSalt
-except:
-    pass
 import osdsCtrl
 from S3Ctrl import S3Ctrl, S3Error
-from Log import Log
 
 #Added for S3 objects management
 
@@ -32,11 +21,6 @@ datasource = open(configfile, "r")
 conf = json.load(datasource)
 datasource.close()
 
-
-try:
-    minion = conf.get("minion")
-except:
-    pass
 #
 # mongoDB query facility
 #
@@ -79,6 +63,23 @@ def makesnapshot(id):
 @app.route('/pools/<int:id>/snapshot/<namesnapshot>', methods=['DELETE'])
 def removesnapshot(id, namesnapshot):
     return poolsCtrl.removesnapshot(id, namesnapshot)
+
+#
+# RBD management
+#
+import rbdCtrl
+
+
+@app.route('/RBD/images', methods=['GET'])
+def getImagesList() :
+    Log.debug("Calling  rbdCtrl.listImages() method")
+    return Response(rbdCtrl.list_images(), mimetype='application/json')
+
+
+@app.route('/RBD/images/<string:image_name>', methods=['GET'])
+def getImagesInfo(image_name) :
+    Log.debug("Calling  rbdCtrl.listImages() method")
+    return Response(rbdCtrl.image_info(image_name), mimetype='application/json')
 
 #
 # Osds management

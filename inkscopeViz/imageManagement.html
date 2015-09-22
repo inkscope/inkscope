@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html ng-app="imageApp">
+<head>
+    <meta charset="UTF-8"/>
+    <script src="scripts/angular/angular.min.js"></script>
+    <script src="scripts/angular/angular-route.min.js"></script>
+    <script src="scripts/angular/angular-sanitize.min.js"></script>
+    <script src="scripts/angular-misc/ng-table.min.js"></script>
+    <script src="scripts/angular-misc/angular-commons.js"></script>
+    <script src="scripts/angular-misc/ui-bootstrap-tpls-0.10.0.min.js"></script>
+    <script src="scripts/angular-misc/dialogs.v2.min.js"></script>
+    <script src="scripts/imagesApp.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/tooltip.css"/>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/testAdmin.css">
+    <link rel="stylesheet" href="scripts/angular-misc/ng-table.min.css">
+    <title>Block device images</title>
+</head>
+
+<body ng-controller="ListCtrl" onresize="resizeBlocks(['#list','#control'])">
+<header ng-include src="'partials/header.html'" ng-init="pageTitle='Block device images'"></header>
+
+<div>
+    <div id="datePanel">Date : {{date | date:'HH:mm:ss'}}  <span class="text-warning" ng-show="status != 200"><i class="icon-warning-sign"></i> {{status}}</span></div>
+    <div id="list">
+        <table>
+            <tr>
+                <th><input type="text" ng-model="search" class="search-query" placeholder="Search"></th>
+                <th>&nbsp; &nbsp; </th>
+                <th>new image <a href="#/new"><i class="icon-plus-sign" alt="add a new image" title="add a new image"></i></a></th>
+            </tr>
+        </table>
+        <br>
+        <table ng-table="tableParams" class="table table-condensed table-hover clickable">
+            <tr ng-repeat="image in orderedData | filter:search" ng-click="showDetail(image)">
+                <td data-title="'Image'" sortable="''">{{image}}</td>
+                <td data-title="'View'" sortable="image" style="text-align:center"><i class="icon-eye-open" alt="view details of {{ image }}" title="view details of {{ image }}"></i></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div ng-view id="control" ></div>
+
+<script>resizeBlocks(['#list','#control']);</script>
+</body>
+</html>
+

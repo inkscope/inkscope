@@ -1,0 +1,42 @@
+<h3>Image details for {{detailedImage.name}}</h3>
+<br />
+
+<table  class="table table-condensed table-nohead">
+    <tbody>
+    <tr><td width="100px">Name</td> <td> {{ detailedImage.name }} </td></tr>
+    <tr><td>Size</td> <td> {{ detailedImage.size |bytes}} </td></tr>
+    <tr><td>Objects</td> <td> {{ detailedImage.objects }} </td></tr>
+    <tr><td>Object size</td> <td> {{ detailedImage.object_size|bytes }} </td></tr>
+    <tr><td>Order</td> <td> {{ detailedImage.order }} </td></tr>
+    <tr><td>Block name prefix</td> <td> {{ detailedImage.block_name_prefix }} </td></tr>
+    <tr><td>Format</td> <td> {{ detailedImage.format }} </td></tr>
+    <tr ng-show=" ''+detailedImage.features!='' ">
+        <td>Features</td>
+        <td>
+            <table  class="table table-condensed table-nohead">
+                <tr ng-repeat="key in detailedImage.features">
+                    <td width="150px"> {{key.replace('_',' ', 'gi')}} </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr ng-show=" ''+detailedImage.parent!='' ">
+        <td>Parent</td>
+        <td>
+            <table  class="table table-condensed table-nohead">
+                <tr><td>Image</td> <td><a ng-click="showDetail(detailedImage.parent.image)">{{ detailedImage.parent.image }}</a> </td></tr>
+                <tr><td>Overlap</td> <td>{{ detailedImage.parent.overlap |bytes}}</td></tr>
+                <tr><td>Pool</td> <td>{{ detailedImage.parent.pool }}</td></tr>
+                <tr><td>Snapshot</td> <td>{{ detailedImage.parent.snapshot }}</td></tr>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+
+<div class="button-bar">
+    <a href="#/delete/{{ detailedImage.name }}" class="btn btn-danger">Delete</a>
+    <a href="#/" class="btn btn-default">Close</a>
+</div>
