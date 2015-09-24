@@ -35,7 +35,8 @@
         <br>
         <table ng-table="tableParams" class="table table-condensed table-hover clickable">
             <tr ng-repeat="image in orderedData | filter:search" ng-click="showDetail(image)">
-                <td data-title="'Image'" sortable="''">{{image}}</td>
+                <td data-title="'Pool'" sortable="'pool'">{{image.pool}}</td>
+                <td data-title="'Image'" sortable="'image'">{{image.image}}</td>
                 <td data-title="'View'" sortable="image" style="text-align:center"><i class="icon-eye-open" alt="view details of {{ image }}" title="view details of {{ image }}"></i></td>
             </tr>
         </table>

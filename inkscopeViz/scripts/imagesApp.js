@@ -8,18 +8,20 @@ angular.module('imageApp', ['ngRoute','ui.bootstrap','InkscopeCommons'])
         $routeProvider.
             when('/', {controller: ListCtrl, templateUrl: 'partials/rbd/aboutImages.html'}).
             when('/new', {controller: CreateCtrl, templateUrl: 'partials/rbd/createImage.html'}).
-            when('/detail/:imageName', {controller: DetailCtrl, templateUrl: 'partials/rbd/detailImage.html'}).
-            when('/delete/:imageName', {controller: DeleteCtrl, templateUrl: 'partials/rbd/deleteImage.html'}).
+            when('/detail/:poolName/:imageName', {controller: DetailCtrl, templateUrl: 'partials/rbd/detailImage.html'}).
+            when('/resize/:poolName/:imageName/:oldSize', {controller: ResizeCtrl, templateUrl: 'partials/rbd/resizeImage.html'}).
+            when('/delete/:poolName/:imageName', {controller: DeleteCtrl, templateUrl: 'partials/rbd/deleteImage.html'}).
             otherwise({redirectTo: '/'})
     });
 
-function refreshImages($http, $scope) {
+function refreshImages(url, $http, $scope , $window) {
     $http({method: "get", url: inkscopeCtrlURL + "RBD/images"}).
         success(function (data, status) {
             $scope.status = status;
             $scope.date = new Date();
             $scope.images =  data;
             $scope.tableParams.reload();
+            if (url) $window.location.assign(url);
         }).
         error(function (data, status, headers) {
             //alert("refresh buckets failed with status "+status);
@@ -29,12 +31,12 @@ function refreshImages($http, $scope) {
         });
 }
 
-function ListCtrl($rootScope,$scope, $http, $filter, ngTableParams, $location) {
+function ListCtrl($rootScope,$scope, $http, $filter, ngTableParams, $window) {
     $rootScope.tableParams = new ngTableParams({
         page: 1,            // show first page
         count: 20,          // count per page
         sorting: {
-            image: 'asc'     // initial sorting
+            pool: 'asc'     // initial sorting
         }
     }, {
         counts: [], // hide page counts control
@@ -47,15 +49,15 @@ function ListCtrl($rootScope,$scope, $http, $filter, ngTableParams, $location) {
             $defer.resolve($rootScope.orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
         }
     });
-    refreshImages($http,$rootScope);
+    refreshImages(url=null,$http, $rootScope, $window);
 
     $scope.showDetail = function (image) {
-        $location.path('/detail/'+image);
+        $window.location.assign('#/detail/'+image.pool+"/"+image.image);
     }
 }
 
-function DetailCtrl($rootScope,$scope, $http, $routeParams, $location, $dialogs) {
-    var uri = inkscopeCtrlURL + "RBD/images/"+$routeParams.imageName ;
+function DetailCtrl($rootScope,$scope, $http, $routeParams, $window, $dialogs) {
+    var uri = inkscopeCtrlURL + "RBD/images/"+$routeParams.poolName +"/"+$routeParams.imageName ;
     $http({method: "get", url: uri }).
         success(function (data, status) {
             $rootScope.status = status;
@@ -64,72 +66,82 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $location, $dialogs)
         error(function (data, status, headers) {
             $rootScope.status = status;
             $rootScope.detailedImage =  {};
-            $dialogs.error("<h3>Can't display image named "+$routeParams.imageName+"</h3><br>"+$scope.data);
+            $dialogs.error("<h3>Can't display image named "+$routeParams.poolName +"/"+$routeParams.imageName+"</h3><br>"+$scope.data);
         });
 
     $scope.showDetail = function (image) {
-        $location.path('/detail/'+image);
+        $window.location.assign('#/detail/'+$routeParams.poolName +"/"+image);
     }
 }
 
-function DeleteCtrl($scope, $http, $routeParams, $location, $dialogs) {
-    $scope.bucketName = $routeParams.bucketName;
-    $scope.uri = inkscopeCtrlURL + "S3/bucket/" + $scope.bucketName  ;
+function DeleteCtrl($scope, $http, $routeParams, $window, $dialogs) {
+    $scope.poolName = $routeParams.poolName ;
+    $scope.imageName = $routeParams.imageName ;
+    $scope.uri = inkscopeCtrlURL + "RBD/images/"+$routeParams.poolName +"/"+$routeParams.imageName  ;
 
-    $scope.bucketDelete = function () {
+    $scope.imageDelete = function () {
         $scope.status = "en cours ...";
 
         $http({method: "delete", url: $scope.uri }).
             success(function (data, status) {
                 $scope.status = status;
                 $scope.data = data;
-                refreshImages($http, $scope);
-                $location.url('/');
+                refreshImages(url='#/',$http, $scope, $window);
             }).
             error(function (data, status) {
                 $scope.data = data || "Request failed";
                 $scope.status = status;
-                $dialogs.error("<h3>Cant' delete bucket named <strong>"+$scope.bucketName+"</strong> !</h3> <br>"+$scope.data);
+                $dialogs.error("<h3>Cant' delete image named <strong>"+$routeParams.poolName +"/"+$routeParams.imageName+"</strong> !</h3> <br>"+$scope.data);
             });
     }
 }
 
-function CreateCtrl($rootScope, $scope, $routeParams, $location, $http, $dialogs) {
+function CreateCtrl($rootScope, $scope, $routeParams, $location, $http, $dialogs, $window) {
+    // init
+    getPoolList($http, $scope);
+
+    $scope.create = function () {
+        var url = inkscopeCtrlURL + "RBD/images/"+$scope.image.pool.poolname+"/"+$scope.image.name;
+        data ="size="+$scope.image.size+"&format="+$scope.image.format;
+
+        $http({method: "PUT", url: url, data: data, headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
+            success(function (data, status) {
+                refreshImages(url="#/detail/"+$scope.image.pool.poolname+"/"+$scope.image.name,$http, $scope, $window);
+            }).
+            error(function (data, status) {
+                $scope.status = status;
+                $dialogs.error("<h3>Can't create image <strong>"+$scope.image.pool.poolname+"/"+$scope.image.name+"</strong> !</h3> <br>"+data);
+            });
+    };
 
     $scope.cancel = function(){
         $location.path("/");
     }
+}
 
-    $scope.create = function () {
-        $scope.code = "";
-        $scope.response = "";
-        $scope.uri = inkscopeCtrlURL + "S3/bucket";
-        data ="bucket="+$scope.bucket.name+"&owner="+$scope.bucket.owner.uid
 
-        $http({method: "PUT", url: $scope.uri, data: data, headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
+function ResizeCtrl($rootScope, $scope, $routeParams, $http, $dialogs, $window) {
+    // init
+    $scope.poolName = $routeParams.poolName ;
+    $scope.imageName = $routeParams.imageName ;
+    $scope.oldSize = $routeParams.oldSize ;
+
+    $scope.resize = function () {
+        var url = inkscopeCtrlURL + "RBD/images/"+$scope.poolName+"/"+$scope.imageName;
+        data ="size="+$scope.newSize;
+
+        $http({method: "POST", url: url, data: data, headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
             success(function (data, status) {
-                refreshImages($http, $scope);
-                $location.path("/");
+                refreshImages(url = "#/detail/"+$scope.poolName+"/"+$scope.imageName, $http, $scope, $window);
             }).
             error(function (data, status) {
-                $scope.data = data || "Request failed";
                 $scope.status = status;
-                $dialogs.error("<h3>Can't create bucket <strong>"+$scope.bucket.name+"</strong> !</h3> <br>"+$scope.data);
+                $dialogs.error("<h3>Can't resize image <strong>"+$scope.poolName+"/"+$scope.imageName+"</strong> !</h3> <br>"+data);
             });
     };
 
-    // init
-    uri = inkscopeCtrlURL + "S3/user";
-    $http({method: "get", url: uri }).
-        success(function (data, status) {
-            $rootScope.status = status;
-            $scope.users =  data;
-        }).
-        error(function (data, status, headers) {
-            $rootScope.status = status;
-            $dialogs.error("<h3>Can't find user list</h3><br>"+$scope.data);
-        });
-    $scope.bucket = {};
-    $scope.code = "";
-    $scope.response = "";
+    $scope.cancel = function(){
+        $window.location.assign("#/detail/"+$scope.poolName+"/"+$scope.imageName);
+    }
 }
+

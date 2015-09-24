@@ -98,3 +98,13 @@ angular.module('InkscopeCommons', ['ngTable','dialogs','ui.bootstrap'])
                 });
         }
 });
+
+function getPoolList($http, $scope) {
+    $http({method: "get", url: inkscopeCtrlURL + "poolList/"}).
+        success(function (data, status) {
+            $scope.poolList =  data;
+        }).
+        error(function (data, status) {
+            console.error("can't retrieve pool list")
+        });
+}

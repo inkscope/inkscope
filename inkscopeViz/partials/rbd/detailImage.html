@@ -1,10 +1,11 @@
-<h3>Image details for {{detailedImage.name}}</h3>
+<h3>Image details for {{detailedImage.pool}}/{{detailedImage.name}}</h3>
 <br />
 
 <table  class="table table-condensed table-nohead">
     <tbody>
     <tr><td width="100px">Name</td> <td> {{ detailedImage.name }} </td></tr>
-    <tr><td>Size</td> <td> {{ detailedImage.size |bytes}} </td></tr>
+    <tr><td>Pool</td> <td> {{ detailedImage.pool }} </td></tr>
+    <tr><td>Size</td> <td> {{ detailedImage.size |bytes }} </td></tr>
     <tr><td>Objects</td> <td> {{ detailedImage.objects }} </td></tr>
     <tr><td>Object size</td> <td> {{ detailedImage.object_size|bytes }} </td></tr>
     <tr><td>Order</td> <td> {{ detailedImage.order }} </td></tr>
@@ -24,9 +25,9 @@
         <td>Parent</td>
         <td>
             <table  class="table table-condensed table-nohead">
+                <tr><td>Pool</td> <td>{{ detailedImage.parent.pool }}</td></tr>
                 <tr><td>Image</td> <td><a ng-click="showDetail(detailedImage.parent.image)">{{ detailedImage.parent.image }}</a> </td></tr>
                 <tr><td>Overlap</td> <td>{{ detailedImage.parent.overlap |bytes}}</td></tr>
-                <tr><td>Pool</td> <td>{{ detailedImage.parent.pool }}</td></tr>
                 <tr><td>Snapshot</td> <td>{{ detailedImage.parent.snapshot }}</td></tr>
                 </tr>
             </table>
@@ -37,6 +38,7 @@
 
 
 <div class="button-bar">
-    <a href="#/delete/{{ detailedImage.name }}" class="btn btn-danger">Delete</a>
+    <a href="#/resize/{{ detailedImage.pool }}/{{ detailedImage.name }}/{{ detailedImage.size }}" class="btn btn-success">Resize</a>
+    <a href="#/delete/{{ detailedImage.pool }}/{{ detailedImage.name }}" class="btn btn-danger">Delete</a>
     <a href="#/" class="btn btn-default">Close</a>
 </div>

@@ -1,0 +1,37 @@
+<h3>Image creation</h3>
+<br />
+<form name="form" novalidate class="form-horizontal">
+    <div class="control-group">
+        <label for="image.name" class="col-sm-2 control-label">Image name :</label>
+        <div class="controls">
+            <input type=text id="image.name"  ng-model="image.name" placeholder="Image name" required/>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="image.pool" class="col-sm-2 control-label">Pool : </label>
+        <div class="controls">
+            <select id="image.pool" ng-model="image.pool" ng-options="value.poolname for value in poolList| orderBy:'poolname'"></select>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="image.size" class="col-sm-2 control-label">Image size (MB) :</label>
+        <div class="controls">
+            <input type=text id="image.size"  ng-model="image.size" placeholder="Image size" required/>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="image.format" class="col-sm-2 control-label">Image format :</label>
+        <div class="controls">
+            <select id="image.format" ng-model="image.format">
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+            </select>
+        </div>
+    </div>
+    <br/>
+    <br />
+    <div class="button-bar">
+        <button ng-click="create()" ng-disabled="form.$invalid" class="btn btn-success">Create</button>
+        <button ng-click="cancel()" class="btn btn-default">Cancel</button>
+    </div>
+</form>

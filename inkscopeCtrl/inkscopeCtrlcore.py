@@ -49,7 +49,13 @@ def conf_manage():
 #
 # Pools management
 #
-## Ceph Rest API
+#
+@app.route('/poolList/', methods=['GET'])
+def pool_list():
+    return  Response(poolsCtrl.pool_list(), mimetype='application/json')
+
+
+#  Ceph Rest API
 
 @app.route('/pools/', methods=['GET','POST'])
 @app.route('/pools/<int:id>', methods=['GET','DELETE','PUT'])
@@ -72,14 +78,33 @@ import rbdCtrl
 
 @app.route('/RBD/images', methods=['GET'])
 def getImagesList() :
-    Log.debug("Calling  rbdCtrl.listImages() method")
+    #Log.debug("Calling  rbdCtrl.listImages() method")
     return Response(rbdCtrl.list_images(), mimetype='application/json')
 
 
-@app.route('/RBD/images/<string:image_name>', methods=['GET'])
-def getImagesInfo(image_name) :
-    Log.debug("Calling  rbdCtrl.listImages() method")
-    return Response(rbdCtrl.image_info(image_name), mimetype='application/json')
+@app.route('/RBD/images/<string:pool_name>/<string:image_name>', methods=['GET'])
+def getImagesInfo(pool_name, image_name) :
+    #Log.debug("Calling  rbdCtrl.getImagesInfo() method")
+    return Response(rbdCtrl.image_info(pool_name, image_name), mimetype='application/json')
+
+
+@app.route('/RBD/images/<string:pool_name>/<string:image_name>', methods=['PUT'])
+def createImage(pool_name, image_name) :
+    #Log.debug("Calling  rbdCtrl.listImages() method")
+    return Response(rbdCtrl.create_image(pool_name, image_name), mimetype='application/json')
+
+
+@app.route('/RBD/images/<string:pool_name>/<string:image_name>', methods=['POST'])
+def modifyImage(pool_name, image_name) :
+    #Log.debug("Calling  rbdCtrl.modifyImages() method")
+    return Response(rbdCtrl.modify_image(pool_name, image_name), mimetype='application/json')
+
+
+@app.route('/RBD/images/<string:pool_name>/<string:image_name>', methods=['DELETE'])
+def deleteImage(pool_name, image_name) :
+    #Log.debug("Calling  rbdCtrl.deleteImage() method")
+    return Response(rbdCtrl.delete_image(pool_name, image_name), mimetype='application/json')
+
 
 #
 # Osds management
