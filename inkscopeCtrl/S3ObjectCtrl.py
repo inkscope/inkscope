@@ -21,7 +21,7 @@ def getCephRestApiUrl(request):
     return request.url_root.replace("inkscopeCtrl", "ceph-rest-api")
 
 class S3ObjectCtrl:
-    Log.debug("Entering in S3ObjectCtrl class <<")
+    #Log.debug("Entering in S3ObjectCtrl class <<")
     def __init__(self, conf):
         self.admin = conf.get("radosgw_admin", "admin")
         self.key = conf.get("radosgw_key", "")
