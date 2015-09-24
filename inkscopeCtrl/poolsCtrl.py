@@ -1,15 +1,17 @@
 # Alpha O. Sall
 # 03/24/2014
 
-from flask import Flask, request, Response
+from flask import request, Response
 import json
 import requests
 from array import *
-from Log import Log
+import subprocess
+from StringIO import StringIO
 
 def getCephRestApiUrl(request):
     # discover ceph-rest-api URL
     return request.url_root.replace("inkscopeCtrl","ceph-rest-api")
+
 
 class Pools:
     """docstring for pools"""
@@ -54,7 +56,6 @@ class Pools:
         # else:
 
 
-
 def getindice(id, jsondata):
     r = jsondata.content
     r = json.loads(r)
@@ -70,12 +71,14 @@ def getindice(id, jsondata):
                 id=i
         return id
 
+
 def getpoolname(ind, jsondata):
 
     r = jsondata.json()
     poolname = r['output']['pools'][ind]['pool_name']
 
     return str(poolname)
+
 
 def checkpool(pool_id, jsondata):
     skeleton = {'status':'','output':{}}
@@ -105,6 +108,7 @@ def checkpool(pool_id, jsondata):
             result = json.dumps(skeleton)
             return Response(result, mimetype='application/json')
 
+
 def geterrors(url, methods):
     try:
         if methods == 'GET':
@@ -115,6 +119,16 @@ def geterrors(url, methods):
         return 'Error '+str(r.status_code)
     else:
         return  'ok'
+
+
+def pool_list():
+    args = ['ceph',
+            'osd',
+            'lspools',
+            '--format=json']
+    output = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0]
+    output_io = StringIO(output)
+    return output_io
 
 
 # @app.route('/pools/', methods=['GET','POST'])
@@ -266,6 +280,7 @@ def pool_manage(id):
                     pass
             return str(r.status_code)
 
+
 # @app.route('/pools/<int:id>/snapshot', methods=['POST'])
 def makesnapshot(id):
     cephRestApiUrl = getCephRestApiUrl(request);
@@ -283,6 +298,7 @@ def makesnapshot(id):
     snap = jsondata['snapshot_name']
     r = requests.put(cephRestApiUrl+'osd/pool/mksnap?pool='+str(poolname)+'&snap='+str(snap))
     return str(r.status_code)
+
 
 # @app.route('/pools/<int:id>/snapshot/<namesnapshot>', methods=['DELETE'])
 def removesnapshot(id, namesnapshot):
