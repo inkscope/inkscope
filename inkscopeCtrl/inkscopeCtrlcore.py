@@ -2,16 +2,16 @@
 # 03/24/2014
 
 from flask import Flask, Response
-
-app = Flask(__name__)#,template_folder='/var/www/inkscope/inkscopeAdm/')
+from subprocess import CalledProcessError
+app = Flask(__name__)  # ,template_folder='/var/www/inkscope/inkscopeAdm/')
 
 import mongoJuiceCore
+
 import poolsCtrl
 import osdsCtrl
+import rbdCtrl
+
 from S3Ctrl import S3Ctrl, S3Error
-
-#Added for S3 objects management
-
 from S3ObjectCtrl import *
 
 
@@ -21,89 +21,128 @@ datasource = open(configfile, "r")
 conf = json.load(datasource)
 datasource.close()
 
+
 #
 # mongoDB query facility
 #
-
 @app.route('/<db>/<collection>', methods=['GET', 'POST'])
 def find(db, collection):
     return mongoJuiceCore.find(conf, db, collection)
+
 
 @app.route('/<db>', methods=['POST'])
 def full(db):
     return mongoJuiceCore.full(conf, db)
 
+
 #
 # global management
 #
-##
-
 @app.route('/conf.json', methods=['GET'])
 def conf_manage():
     platform = conf.get("platform")
-    result = json.dumps({"platform":platform})
+    result = json.dumps({"platform": platform})
     return Response(result, mimetype='application/json')
-
 
 
 #
 # Pools management
 #
-#
 @app.route('/poolList/', methods=['GET'])
 def pool_list():
-    return  Response(poolsCtrl.pool_list(), mimetype='application/json')
+    return Response(poolsCtrl.pool_list(), mimetype='application/json')
 
 
-#  Ceph Rest API
-
-@app.route('/pools/', methods=['GET','POST'])
-@app.route('/pools/<int:id>', methods=['GET','DELETE','PUT'])
+@app.route('/pools/', methods=['GET', 'POST'])
+@app.route('/pools/<int:id>', methods=['GET', 'DELETE', 'PUT'])
 def pool_manage(id=None):
     return poolsCtrl.pool_manage(id)
+
 
 @app.route('/pools/<int:id>/snapshot', methods=['POST'])
 def makesnapshot(id):
     return poolsCtrl.makesnapshot(id)
 
+
 @app.route('/pools/<int:id>/snapshot/<namesnapshot>', methods=['DELETE'])
 def removesnapshot(id, namesnapshot):
     return poolsCtrl.removesnapshot(id, namesnapshot)
 
+
 #
 # RBD management
 #
-import rbdCtrl
-
-
+#
+# Images
+#
 @app.route('/RBD/images', methods=['GET'])
-def getImagesList() :
-    #Log.debug("Calling  rbdCtrl.listImages() method")
+def getImagesList():
+    # Log.debug("Calling  rbdCtrl.listImages() method")
     return Response(rbdCtrl.list_images(), mimetype='application/json')
 
 
 @app.route('/RBD/images/<string:pool_name>/<string:image_name>', methods=['GET'])
-def getImagesInfo(pool_name, image_name) :
-    #Log.debug("Calling  rbdCtrl.getImagesInfo() method")
+def getImagesInfo(pool_name, image_name):
+    # Log.debug("Calling  rbdCtrl.getImagesInfo() method")
     return Response(rbdCtrl.image_info(pool_name, image_name), mimetype='application/json')
 
 
 @app.route('/RBD/images/<string:pool_name>/<string:image_name>', methods=['PUT'])
-def createImage(pool_name, image_name) :
-    #Log.debug("Calling  rbdCtrl.listImages() method")
+def createImage(pool_name, image_name):
+    # Log.debug("Calling  rbdCtrl.listImages() method")
     return Response(rbdCtrl.create_image(pool_name, image_name), mimetype='application/json')
 
 
 @app.route('/RBD/images/<string:pool_name>/<string:image_name>', methods=['POST'])
-def modifyImage(pool_name, image_name) :
-    #Log.debug("Calling  rbdCtrl.modifyImages() method")
+def modifyImage(pool_name, image_name):
+    # Log.debug("Calling  rbdCtrl.modifyImages() method")
     return Response(rbdCtrl.modify_image(pool_name, image_name), mimetype='application/json')
 
 
 @app.route('/RBD/images/<string:pool_name>/<string:image_name>', methods=['DELETE'])
-def deleteImage(pool_name, image_name) :
-    #Log.debug("Calling  rbdCtrl.deleteImage() method")
+def deleteImage(pool_name, image_name):
+    # Log.debug("Calling  rbdCtrl.deleteImage() method")
     return Response(rbdCtrl.delete_image(pool_name, image_name), mimetype='application/json')
+
+
+#
+# Snapshots
+#
+@app.route('/RBD/snapshots/<string:pool_name>/<string:image_name>/<string:snap_name>', methods=['GET'])
+def infoImageSnapshot(pool_name, image_name,snap_name):
+    # Log.debug("Calling  rbdCtrl.info_image_snapshot() method")
+    try:
+        return Response(rbdCtrl.info_image_snapshot(pool_name, image_name, snap_name), mimetype='application/json')
+    except CalledProcessError, e:
+        return Response(e.output, status=500)
+
+
+@app.route('/RBD/snapshots/<string:pool_name>/<string:image_name>/<string:snap_name>', methods=['PUT'])
+def createImageSnapshot(pool_name, image_name,snap_name):
+    # Log.debug("Calling  rbdCtrl.create_image_snapshot() method")
+    try:
+        return Response(rbdCtrl.create_image_snapshot(pool_name, image_name, snap_name), mimetype='application/json')
+    except CalledProcessError, e:
+        return Response(e.output, status=500)
+
+
+@app.route('/RBD/snapshots/<string:pool_name>/<string:image_name>/<string:snap_name>', methods=['DELETE'])
+def deleteImageSnapshot(pool_name, image_name,snap_name):
+    # Log.debug("Calling  rbdCtrl.delete_image_snapshot() method")
+    try:
+        return Response(rbdCtrl.delete_image_snapshot(pool_name, image_name, snap_name), mimetype='application/json')
+    except CalledProcessError, e:
+        return Response(e.output, status=500)
+
+
+@app.route('/RBD/snapshots/<string:pool_name>/<string:image_name>/<string:snap_name>/<string:action>', methods=['POST'])
+def actionOnImageSnapshot(pool_name, image_name,snap_name, action):
+    print "Calling  rbdCtrl.action_on_image_snapshot() method", action
+    try:
+        return Response(rbdCtrl.action_on_image_snapshot(pool_name, image_name, snap_name, action), mimetype='application/json')
+    except CalledProcessError, e:
+        print e , e.output
+        return Response(e.output, status=500)
 
 
 #
@@ -121,11 +160,11 @@ def osds_manage(id=None):
 # This method return a S3 Object that id is "objId".
 # An exception is trhown if the object does not exist or there an issue
 @app.route('/S3/object', methods=['GET'])
-def getObjectStructure() :
+def getObjectStructure():
     Log.debug("Calling  getObjectStructure() method")
-    try :
+    try:
         return Response(S3ObjectCtrl(conf).getObjectStructure(),mimetype='application/json')
-    except S3Error , e :
+    except S3Error , e:
         Log.err(e.__str__())
         return Response(e.reason, status=e.code)
 

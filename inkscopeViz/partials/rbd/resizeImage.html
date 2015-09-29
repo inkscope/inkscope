@@ -1,0 +1,23 @@
+<h3>Image resize for {{poolName}}/{{imageName}}</h3>
+<br />
+<form name="form" novalidate class="form-horizontal">
+    <div class="control-group">
+        <label class="col-sm-2 control-label">Old size :</label>
+        <div class="controls">
+            {{ oldSize|bytes }}
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="newSize" class="col-sm-2 control-label">New size (MB):</label>
+        <div class="controls">
+            <input type=text id="newSize"  ng-model="newSize" placeholder="size in MB" required/>
+        </div>
+    </div>
+
+    <br/>
+    <br />
+    <div class="button-bar">
+        <button ng-click="resize()" ng-disabled="form.$invalid" class="btn btn-success">Resize</button>
+        <button ng-click="cancel()" class="btn btn-default">Cancel</button>
+    </div>
+</form>

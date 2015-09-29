@@ -132,8 +132,10 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
                 $scope.osdsOutDown = 0;
                 $scope.statOK = true;
                 for (var i = 0; i < data.length; i++) {
-                    if (data[i].stat ==null)
+                    if (data[i].stat ==null){
+                        console.log("missing stat for OSD "+i);
                         $scope.statOK = false;
+                    }
                     else {
                         if (data[i].stat.in) {
                             if (data[i].stat.up) $scope.osdsInUp ++; else $scope.osdsInDown ++;

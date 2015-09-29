@@ -1,0 +1,22 @@
+<h3>Shapshot cloning for {{poolName}}/{{imageName}}@{{snapName}}</h3>
+<br />
+<form name="form" novalidate class="form-horizontal">
+    <div class="control-group">
+        <label for="clone.pool" class="col-sm-2 control-label">Pool : </label>
+        <div class="controls">
+            <select id="clone.pool" ng-model="clone.pool" ng-options="value.poolname for value in poolList| orderBy:'poolname'"></select>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="clone.image" class="col-sm-2 control-label">Image name :</label>
+        <div class="controls">
+            <input type=text id="clone.image"  ng-model="clone.image" placeholder="Image name" required/>
+        </div>
+    </div>
+    <br/>
+    <br />
+    <div class="button-bar">
+        <a ng-click="cloneImageSnapshot()" ng-disabled="form.$invalid" class="btn btn-success">Clone</a>
+        <a href="#/detail/{{poolName}}/{{imageName}}"  class="btn btn-default">Cancel</a>
+    </div>
+</form>

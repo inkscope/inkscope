@@ -108,3 +108,11 @@ function getPoolList($http, $scope) {
             console.error("can't retrieve pool list")
         });
 }
+
+function getPoolNum(poolName, $scope) {
+    for (var i in $scope.poolList){
+        var pool = $scope.poolList[i];
+        if (poolName == pool.poolname) return ''+pool.poolnum;
+    }
+    return '';
+}

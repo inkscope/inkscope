@@ -1,0 +1,10 @@
+<h3>Snapshot deletion</h3>
+<br />
+<form name="myForm">
+    <p>Are you sure you want to delete the snapshot named <strong>"{{ poolName }}/{{ imageName }}@{{ snapName }}"</strong> ?</p>
+    <br>
+    <div class="button-bar">
+        <button ng-click="deleteSnapshot()" class="btn btn-danger">Delete</button>
+        <a href="#/detail/{{ poolName }}/{{ imageName }}" class="btn">Cancel</a>
+    </div>
+</form>

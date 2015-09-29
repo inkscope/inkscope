@@ -30,14 +30,21 @@
                 <th><input type="text" ng-model="search" class="search-query" placeholder="Search"></th>
                 <th>&nbsp; &nbsp; </th>
                 <th>new image <a href="#/new"><i class="icon-plus-sign" alt="add a new image" title="add a new image"></i></a></th>
+                <th>&nbsp; &nbsp; </th>
+            </tr>
+            <tr>
+                <th>&nbsp; &nbsp; </th>
+                <th>&nbsp; &nbsp; </th>
+                <th>View snapshots <input type="checkbox" ng-value="true" ng-model="viewSnapshot"> </th>
             </tr>
         </table>
         <br>
         <table ng-table="tableParams" class="table table-condensed table-hover clickable">
-            <tr ng-repeat="image in orderedData | filter:search" ng-click="showDetail(image)">
-                <td data-title="'Pool'" sortable="'pool'">{{image.pool}}</td>
-                <td data-title="'Image'" sortable="'image'">{{image.image}}</td>
-                <td data-title="'View'" sortable="image" style="text-align:center"><i class="icon-eye-open" alt="view details of {{ image }}" title="view details of {{ image }}"></i></td>
+            <tr ng-repeat="pool_image in orderedData | filter:search"
+                ng-hide="!viewSnapshot && pool_image.image.snapshot">
+                <td ng-click="showDetail(pool_image)" data-title="'Pool'" sortable="'pool'">{{pool_image.pool}}</td>
+                <td ng-click="showDetail(pool_image)" data-title="'Image'" sortable="'image'">{{pool_image.image.image}}</td>
+                <td  ng-click="showSnapshotDetail(pool_image,pool_image.image.snapshot)" ng-show="viewSnapshot" data-title="'Snapshot'" sortable="'snapshot'">{{pool_image.image.snapshot}}</td>
             </tr>
         </table>
     </div>

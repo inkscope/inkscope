@@ -1,0 +1,20 @@
+<h3>Image snapshot for {{poolName}}/{{imageName}}</h3>
+<br />
+<form name="form" novalidate class="form-horizontal">
+    <div class="control-group">
+        <label for="snapName" class="col-sm-2 control-label">Snapshot name :</label>
+        <div class="controls">
+            <input type=text id="snapName"  ng-model="snapName" placeholder="snapshot name" required/>
+        </div>
+    </div>
+
+    <br/>
+    <br />
+
+    <div class="button-bar">
+        <button ng-click="createSnapshot()" ng-disabled="form.$invalid" class="btn btn-success">
+            Create
+        </button>
+        <a href="#/detail/{{poolName}}/{{imageName}}" class="btn btn-default">Cancel</a>
+    </div>
+</form>

@@ -4,7 +4,7 @@
 <table  class="table table-condensed table-nohead">
     <tbody>
     <tr><td width="100px">Name</td> <td> {{ detailedImage.name }} </td></tr>
-    <tr><td>Pool</td> <td> {{ detailedImage.pool }} </td></tr>
+    <tr><td>Pool</td> <td><a ng-click="showPoolDetail(detailedImage.pool)" class="clickable">{{ detailedImage.pool }}</a></td></tr>
     <tr><td>Size</td> <td> {{ detailedImage.size |bytes }} </td></tr>
     <tr><td>Objects</td> <td> {{ detailedImage.objects }} </td></tr>
     <tr><td>Object size</td> <td> {{ detailedImage.object_size|bytes }} </td></tr>
@@ -26,9 +26,21 @@
         <td>
             <table  class="table table-condensed table-nohead">
                 <tr><td>Pool</td> <td>{{ detailedImage.parent.pool }}</td></tr>
-                <tr><td>Image</td> <td><a ng-click="showDetail(detailedImage.parent.image)">{{ detailedImage.parent.image }}</a> </td></tr>
+                <tr><td>Image</td> <td><a ng-click="showImageDetail(detailedImage.parent.image)">{{ detailedImage.parent.image }}</a> </td></tr>
                 <tr><td>Overlap</td> <td>{{ detailedImage.parent.overlap |bytes}}</td></tr>
                 <tr><td>Snapshot</td> <td>{{ detailedImage.parent.snapshot }}</td></tr>
+            </table>
+        </td>
+    </tr>
+    <tr ng-show="detailedImage.snaps.length>0 ">
+        <td>Snapshots</td>
+        <td>
+            <table  class="table table-condensed">
+                <tr><td>Id</td><td>Name</td><td>Size</td></tr>
+                <tr ng-repeat="snapshot in detailedImage.snaps" ng-click="showSnapshotDetail(snapshot)" class="clickable">
+                    <td>{{ snapshot.id }}</td>
+                    <td>{{ snapshot.name }}</td>
+                    <td>{{ snapshot.size|bytes }}</td>
                 </tr>
             </table>
         </td>
@@ -38,6 +50,8 @@
 
 
 <div class="button-bar">
+    <a href="#/snapshot/create/{{detailedImage.pool}}/{{detailedImage.name}}" class="btn btn-info" style="float:left;margin-right: 5px"><i class="icon-white icon-camera"></i> make snapshot </a>
+    <a ng-show=" ''+detailedImage.parent!='' " href="#/snapshot/create/{{detailedImage.pool}}/{{detailedImage.name}}" class="btn btn-info" style="float:left;margin-right: 5px"> Flatten </a>
     <a href="#/resize/{{ detailedImage.pool }}/{{ detailedImage.name }}/{{ detailedImage.size }}" class="btn btn-success">Resize</a>
     <a href="#/delete/{{ detailedImage.pool }}/{{ detailedImage.name }}" class="btn btn-danger">Delete</a>
     <a href="#/" class="btn btn-default">Close</a>

@@ -1,0 +1,38 @@
+<h3>Snapshot details for {{poolName}}/{{imageName}}@{{snapName}}</h3>
+<br />
+
+<table  class="table table-condensed table-nohead">
+    <tbody>
+    <tr><td width="100px">Name</td> <td>{{poolName}}/{{imageName}}@{{snapName}}</td></tr>
+    <tr><td>Pool</td> <td><a ng-click="showPoolDetail(poolName)" class="clickable">{{ poolName }}</a></td></tr>
+    <tr><td>Image</td> <td><a ng-click="showImageDetail(imageName)" class="clickable">{{ imageName }}</a></td></tr>
+    <tr><td>Size</td> <td>{{ detailedSnap.size | bytes }}</a></td></tr>
+    <tr><td>Format</td> <td>{{ detailedSnap.format }}</a></td></tr>
+    <tr><td>Protected</td> <td>{{ detailedSnap.protected }}</a></td></tr>
+    <tr><td>Lock</td> <td>{{ detailedSnap.lock }}</a></td></tr>
+    <tr ng-show="''+detailedSnap.parent!=''">
+        <td>Parent</td>
+        <td><a href="#/snapshot/detail/{{ detailedSnap.parent.pool }}/{{ detailedSnap.parent.image }}/{{ detailedSnap.parent.snapshot }}">{{ detailedSnap.parent.pool }}/{{ detailedSnap.parent.image }}@{{ detailedSnap.parent.snapshot }}</a></td>
+    </tr>
+    <tr ng-show="''+detailedSnap.children!=''">
+        <td>Children</td>
+        <td>
+            <table  class="table table-condensed">
+                <tr ng-repeat="child in detailedSnap.children" ng-click="showSnapshotDetail(snapshot)" class="clickable">
+                    <td><a href="#/detail/{{ child.pool }}/{{ child.image }}">{{ child.pool }}/{{ child.image }}</a></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+
+<div class="button-bar">
+    <a ng-disabled="detailedSnap.format == 1 || detailedSnap.protected=='true'" ng-click="protectSnapshot()" class="btn btn-info" style="float:left;margin-right: 5px">Protect</a>
+    <a ng-disabled="detailedSnap.format == 1 || detailedSnap.protected=='false'" ng-click="unprotectSnapshot()" class="btn btn-info" style="float:left;margin-right: 5px">Unprotect</a>
+    <a ng-disabled="detailedSnap.format == 1 || detailedSnap.protected=='false'" href="#/snapshot/clone/{{poolName}}/{{imageName}}/{{snapName}}" class="btn btn-info" style="float:left;margin-right: 5px">Clone</a>
+    <a ng-click="rollbackSnapshot(snapName)" class="btn btn-info">Rollback</a>
+    <a ng-disabled="detailedSnap.protected=='true'" ng-click="showDeleteSnapshot()"  class="btn btn-danger">Delete</a>
+    <a href="#/detail/{{poolName}}/{{imageName}}" class="btn btn-default">Close</a>
+</div>
