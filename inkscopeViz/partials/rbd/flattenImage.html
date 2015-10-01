@@ -1,0 +1,9 @@
+<h3>Flatten image</h3>
+<br />
+<p>Cloned images retain a reference to the parent snapshot. When you remove the reference from the child clone to the parent snapshot, you effectively “flatten” the image by copying the information from the snapshot to the clone. The time it takes to flatten a clone increases with the size of the snapshot. To delete a snapshot, you must flatten the child images first.</p>
+<p>Are you sure you want to flatten the image named <strong>"{{ poolName }}/{{ imageName }}"</strong> ?</p>
+
+<div class="button-bar">
+    <button ng-click="flattenImage()" class="btn btn-danger">Flatten</button>
+    <a href="#/detail/{{ poolName }}/{{ imageName }}" class="btn">Cancel</a>
+</div>

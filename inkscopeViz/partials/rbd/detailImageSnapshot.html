@@ -29,10 +29,10 @@
 
 
 <div class="button-bar">
-    <a ng-disabled="detailedSnap.format == 1 || detailedSnap.protected=='true'" ng-click="protectSnapshot()" class="btn btn-info" style="float:left;margin-right: 5px">Protect</a>
-    <a ng-disabled="detailedSnap.format == 1 || detailedSnap.protected=='false'" ng-click="unprotectSnapshot()" class="btn btn-info" style="float:left;margin-right: 5px">Unprotect</a>
-    <a ng-disabled="detailedSnap.format == 1 || detailedSnap.protected=='false'" href="#/snapshot/clone/{{poolName}}/{{imageName}}/{{snapName}}" class="btn btn-info" style="float:left;margin-right: 5px">Clone</a>
-    <a ng-click="rollbackSnapshot(snapName)" class="btn btn-info">Rollback</a>
-    <a ng-disabled="detailedSnap.protected=='true'" ng-click="showDeleteSnapshot()"  class="btn btn-danger">Delete</a>
+    <button ng-disabled="detailedSnap.format == 1 || detailedSnap.protected=='true'" ng-click="protectSnapshot()" class="btn btn-info" style="float:left;margin-right: 5px">Protect</button>
+    <button ng-disabled="detailedSnap.format == 1 || detailedSnap.protected=='false'" ng-click="unprotectSnapshot()" class="btn btn-info" style="float:left;margin-right: 5px">Unprotect</button>
+    <button ng-disabled="detailedSnap.format == 1 || detailedSnap.protected=='false'" ng-click="showCloneImageSnapshot()" class="btn btn-info" style="float:left;margin-right: 5px">Clone</button>
+    <button ng-click="rollbackSnapshot()" class="btn btn-info">Rollback</button>
+    <button ng-disabled="detailedSnap.protected=='true'" ng-click="showDeleteSnapshot()"  class="btn btn-danger">Delete</button>
     <a href="#/detail/{{poolName}}/{{imageName}}" class="btn btn-default">Close</a>
 </div>

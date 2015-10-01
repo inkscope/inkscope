@@ -9,7 +9,10 @@ angular.module('imageApp', ['ngRoute','ui.bootstrap','InkscopeCommons'])
             when('/', {controller: ListCtrl, templateUrl: 'partials/rbd/aboutImages.html'}).
             when('/new', {controller: CreateCtrl, templateUrl: 'partials/rbd/createImage.html'}).
             when('/detail/:poolName/:imageName', {controller: DetailCtrl, templateUrl: 'partials/rbd/detailImage.html'}).
-            when('/resize/:poolName/:imageName/:oldSize', {controller: ResizeCtrl, templateUrl: 'partials/rbd/resizeImage.html'}).
+            when('/copy/:poolName/:imageName', {controller: DetailCtrl, templateUrl: 'partials/rbd/copyImage.html'}).
+            when('/flatten/:poolName/:imageName', {controller: DetailCtrl, templateUrl: 'partials/rbd/flattenImage.html'}).
+            when('/purge/:poolName/:imageName', {controller: DetailCtrl, templateUrl: 'partials/rbd/purgeImage.html'}).
+            when('/resize/:poolName/:imageName', {controller: DetailCtrl, templateUrl: 'partials/rbd/resizeImage.html'}).
             when('/delete/:poolName/:imageName', {controller: DeleteCtrl, templateUrl: 'partials/rbd/deleteImage.html'}).
             when('/snapshot/create/:poolName/:imageName', {controller: CreateSnapshotCtrl, templateUrl: 'partials/rbd/createImageSnapshot.html'}).
             when('/snapshot/clone/:poolName/:imageName/:snapName',  {controller: DetailCtrl, templateUrl: 'partials/rbd/cloneImageSnapshot.html'}).
@@ -111,15 +114,64 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $window, $dialogs) {
         $window.location.assign('#/snapshot/delete/'+$scope.poolName +"/"+$scope.imageName +"/"+$scope.snapName );
     }
 
+    $scope.flattenImage = function(){
+        $scope.uri = inkscopeCtrlURL + "RBD/images/"+$scope.poolName +"/"+$scope.imageName  +"/flatten" ;
+        $http({method: "post", url: $scope.uri }).
+            success(function (data, status) {
+                $window.location.assign("#/detail/"+$scope.poolName+"/"+$scope.imageName);
+            }).
+            error(function (data, status) {
+                $dialogs.error("<h3>Can't flatten image named <strong>"+$routeParams.poolName +"/"+$routeParams.imageName +"</strong> !</h3> <br>"+data);
+            });
+    }
+
+     $scope.purgeImage = function(){
+        $scope.uri = inkscopeCtrlURL + "RBD/images/"+$scope.poolName +"/"+$scope.imageName  +"/purge" ;
+        $http({method: "post", url: $scope.uri }).
+            success(function (data, status) {
+                refreshImages(url="#/detail/"+$scope.poolName+"/"+$scope.imageName,$http, $rootScope, $window);
+            }).
+            error(function (data, status) {
+                $dialogs.error("<h3>Can't purge image named <strong>"+$routeParams.poolName +"/"+$routeParams.imageName +"</strong> !</h3> <br>"+data);
+            });
+    }
+
+    $scope.copyImage = function () {
+        $scope.uri = inkscopeCtrlURL + "RBD/images/"+$scope.poolName +"/"+$scope.imageName  +"/copy" ;
+        var data = {'pool': $scope.copy.pool.poolname, 'image': $scope.copy.image};
+        $http({method: "post", url: $scope.uri ,data: data, headers:{'Content-Type':'application/json'} }).
+            success(function (data, status) {
+                $dialogs.notify("Image named "+$routeParams.poolName +"/"+$routeParams.imageName, "is copied to "+$scope.copy.pool.poolname +'/'+ $scope.copy.image);
+                refreshInfos();
+                refreshImages(url="#/detail/"+$scope.copy.pool.poolname +"/"+$scope.copy.image,$http, $rootScope, $window);
+            }).
+            error(function (data, status) {
+                $dialogs.error("<h3>Can't copy image named <strong>"+$routeParams.poolName +"/"+$routeParams.imageName +"</strong> !</h3> <br>"+data);
+            });
+    };
+
     $scope.deleteSnapshot = function () {
         if ($scope.detailedSnap.protected=='true') return;
         $scope.uri = inkscopeCtrlURL + "RBD/snapshots/"+$scope.poolName +"/"+$scope.imageName  +"/"+$scope.snapName  ;
         $http({method: "delete", url: $scope.uri }).
             success(function (data, status) {
-                $window.location.assign("#/detail/"+$scope.poolName+"/"+$scope.imageName);
+                refreshImages(url="#/detail/"+$scope.poolName+"/"+$scope.imageName,$http, $rootScope, $window);
             }).
             error(function (data, status) {
                 $dialogs.error("<h3>Can't delete snapshot named <strong>"+$routeParams.poolName +"/"+$routeParams.imageName +"@" + $scope.snapName+"</strong> !</h3> <br>"+data);
+            });
+
+    }
+
+    $scope.rollbackSnapshot = function () {
+        $scope.uri = inkscopeCtrlURL + "RBD/snapshots/"+$scope.poolName +"/"+$scope.imageName  +"/"+$scope.snapName +"/rollback"  ;
+        $http({method: "post", url: $scope.uri }).
+            success(function (data, status) {
+                $dialogs.notify("Snapshot named "+$routeParams.poolName +"/"+$routeParams.imageName +"@" + $scope.snapName, " has been rolled back");
+                refreshInfos();
+            }).
+            error(function (data, status) {
+                $dialogs.error("<h3>Can't roll back snapshot named <strong>"+$routeParams.poolName +"/"+$routeParams.imageName +"@" + $scope.snapName+"</strong> !</h3> <br>"+data);
             });
 
     }
@@ -141,6 +193,7 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $window, $dialogs) {
     $scope.unprotectSnapshot = function () {
         if ($scope.detailedSnap.format==1) return;
         if ($scope.detailedSnap.protected =='false') return;
+
         $scope.uri = inkscopeCtrlURL + "RBD/snapshots/"+$scope.poolName +"/"+$scope.imageName  +"/"+$scope.snapName +"/unprotect" ;
         $http({method: "post", url: $scope.uri }).
             success(function (data, status) {
@@ -150,6 +203,12 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $window, $dialogs) {
             error(function (data, status) {
                 $dialogs.error("<h3>Can't unprotect snapshot named <strong>"+$routeParams.poolName +"/"+$routeParams.imageName +"@" + $scope.snapName+"</strong> !</h3> <br>"+data);
             });
+    }
+
+    $scope.showCloneImageSnapshot = function () {
+        if ($scope.detailedSnap.format==1) return;
+        if ($scope.detailedSnap.protected =='false') return;
+        $window.location.assign('#/snapshot/clone/'+$scope.poolName +"/"+$scope.imageName +"/"+$scope.snapName );
     }
 
     $scope.cloneImageSnapshot = function () {
@@ -166,24 +225,37 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $window, $dialogs) {
             });
     };
 
+    $scope.resize = function () {
+        var url = inkscopeCtrlURL + "RBD/images/"+$scope.poolName+"/"+$scope.imageName +"/resize";
+        data ={size:$scope.newSize};
+
+        $http({method: "POST", url: url, data: data, headers: {'Content-Type': 'application/json'}}).
+            success(function (data, status) {
+                refreshImages(url = "#/detail/"+$scope.poolName+"/"+$scope.imageName, $http, $rootScope, $window);
+            }).
+            error(function (data, status) {
+                $scope.status = status;
+                $dialogs.error("<h3>Can't resize image <strong>"+$scope.poolName+"/"+$scope.imageName+"</strong> !</h3> <br>"+data);
+            });
+    };
+
+
     $scope.cancel = function(){
         $location.path("/");
     }
 }
 
-function DeleteCtrl($scope, $http, $routeParams, $window, $dialogs) {
+function DeleteCtrl($rootScope, $scope, $http, $routeParams, $window, $dialogs) {
     $scope.poolName = $routeParams.poolName ;
     $scope.imageName = $routeParams.imageName ;
-    $scope.uri = inkscopeCtrlURL + "RBD/images/"+$routeParams.poolName +"/"+$routeParams.imageName  ;
 
-    $scope.imageDelete = function () {
-        $scope.status = "en cours ...";
-
-        $http({method: "delete", url: $scope.uri }).
+    $scope.deleteImage = function () {
+        var url = inkscopeCtrlURL + "RBD/images/"+$routeParams.poolName +"/"+$routeParams.imageName  ;
+        $http({method: "delete", url: url }).
             success(function (data, status) {
                 $scope.status = status;
                 $scope.data = data;
-                refreshImages(url='#/',$http, $scope, $window);
+                refreshImages(url='#/',$http, $rootScope, $window);
             }).
             error(function (data, status) {
                 $dialogs.error("<h3>Cant' delete image named <strong>"+$routeParams.poolName +"/"+$routeParams.imageName+"</strong> !</h3> <br>"+data);
@@ -201,7 +273,7 @@ function CreateCtrl($rootScope, $scope, $routeParams, $location, $http, $dialogs
 
         $http({method: "PUT", url: url, data: data, headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
             success(function (data, status) {
-                refreshImages(url="#/detail/"+$scope.image.pool.poolname+"/"+$scope.image.name,$http, $scope, $window);
+                refreshImages(url="#/detail/"+$scope.image.pool.poolname+"/"+$scope.image.name,$http, $rootScope, $window);
             }).
             error(function (data, status) {
                 $scope.status = status;
@@ -224,7 +296,7 @@ function CreateSnapshotCtrl($rootScope, $scope, $routeParams, $location, $http, 
 
         $http({method: "PUT", url: url}).
             success(function (data, status) {
-                refreshImages(url="#/detail/"+$scope.poolName+"/"+$scope.imageName,$http, $scope, $window);
+                refreshImages(url="#/detail/"+$scope.poolName+"/"+$scope.imageName,$http, $rootScope, $window);
             }).
             error(function (data, status) {
                 $scope.status = status;
@@ -237,29 +309,4 @@ function CreateSnapshotCtrl($rootScope, $scope, $routeParams, $location, $http, 
     }
 }
 
-
-function ResizeCtrl($rootScope, $scope, $routeParams, $http, $dialogs, $window) {
-    // init
-    $scope.poolName = $routeParams.poolName ;
-    $scope.imageName = $routeParams.imageName ;
-    $scope.oldSize = $routeParams.oldSize ;
-
-    $scope.resize = function () {
-        var url = inkscopeCtrlURL + "RBD/images/"+$scope.poolName+"/"+$scope.imageName;
-        data ="size="+$scope.newSize;
-
-        $http({method: "POST", url: url, data: data, headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
-            success(function (data, status) {
-                refreshImages(url = "#/detail/"+$scope.poolName+"/"+$scope.imageName, $http, $scope, $window);
-            }).
-            error(function (data, status) {
-                $scope.status = status;
-                $dialogs.error("<h3>Can't resize image <strong>"+$scope.poolName+"/"+$scope.imageName+"</strong> !</h3> <br>"+data);
-            });
-    };
-
-    $scope.cancel = function(){
-        $window.location.assign("#/detail/"+$scope.poolName+"/"+$scope.imageName);
-    }
-}
 

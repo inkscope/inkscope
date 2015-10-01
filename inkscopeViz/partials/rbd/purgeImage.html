@@ -1,0 +1,9 @@
+<h3>Purge image</h3>
+<br />
+<p>All snapshots of this image will be deleted.</p>
+<p>Are you sure you want to purge the image named <strong>"{{ poolName }}/{{ imageName }}"</strong> ?</p>
+
+<div class="button-bar">
+    <button ng-click="purgeImage()" class="btn btn-danger">Purge</button>
+    <a href="#/detail/{{ poolName }}/{{ imageName }}" class="btn">Cancel</a>
+</div>

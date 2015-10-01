@@ -31,7 +31,10 @@ def image_info(pool_name, image_name):
             'info',
             pool_name+"/"+image_name,
             '--format=json']
-    output = subprocess.check_output(args)
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, error = p.communicate()
+    if p.returncode != 0:
+        raise subprocess.CalledProcessError(p.returncode, "", error)
     image=json.load(StringIO(output))
     # add pool name
     image['pool'] = pool_name
@@ -41,7 +44,10 @@ def image_info(pool_name, image_name):
             'ls',
             pool_name+"/"+image_name,
             '--format=json']
-    output = subprocess.check_output(args)
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, error = p.communicate()
+    if p.returncode != 0:
+        raise subprocess.CalledProcessError(p.returncode, "", error)
     image['snaps']=json.load(StringIO(output))
 
     return json.dumps(image)
@@ -57,27 +63,49 @@ def create_image(pool_name, image_name):
             size,
             "--image-format",
             format]
-    output = subprocess.check_output(args)
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, error = p.communicate()
+    if p.returncode != 0:
+        raise subprocess.CalledProcessError(p.returncode, "", error)
     return StringIO(output)
 
 
-def modify_image(pool_name, image_name):
-    size = request.form['size']
+def modify_image(pool_name, image_name, action):
+    if action == 'resize':
+        return resize_image(pool_name, image_name)
+    elif action == 'flatten':
+        return flatten_image(pool_name, image_name)
+    elif action == 'purge':
+        return purge_image(pool_name, image_name)
+    elif action == 'rename':
+        return rename_image(pool_name, image_name)
+    elif action == 'copy':
+        return copy_image(pool_name, image_name)
+
+
+def resize_image(pool_name, image_name):
+    data = json.loads(request.data)
+    size = data['size']
     args = ['rbd',
             'resize',
             pool_name+"/"+image_name,
             '--size',
             size]
-    output = subprocess.check_output(args)
-    output_io = StringIO(output)
-    return output_io
-
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, error = p.communicate()
+    if p.returncode != 0:
+        raise subprocess.CalledProcessError(p.returncode, "", error)
+    return StringIO(output)
 
 def delete_image(pool_name, image_name):
     args = ['rbd',
             'rm',
             pool_name+"/"+image_name]
-    return subprocess.check_output(args)
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, error = p.communicate()
+    if p.returncode != 0:
+        raise subprocess.CalledProcessError(p.returncode, "", error)
+    return StringIO(output)
 
 
 def purge_image(pool_name, image_name):
@@ -85,14 +113,49 @@ def purge_image(pool_name, image_name):
             'snap',
             'purge',
             pool_name+"/"+image_name]
-    return subprocess.check_output(args)
-
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, error = p.communicate()
+    if p.returncode != 0:
+        raise subprocess.CalledProcessError(p.returncode, "", error)
+    return StringIO(output)
 
 def flatten_image(pool_name, image_name):
     args = ['rbd',
             'flatten',
             pool_name+"/"+image_name]
-    return subprocess.check_output(args)
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, error = p.communicate()
+    if p.returncode != 0:
+        raise subprocess.CalledProcessError(p.returncode, "", error)
+    return StringIO(output)
+
+def rename_image(pool_name, image_name):
+    # TODO
+    # args = ['rbd',
+    #        'rm',
+    #        pool_name+"/"+image_name]
+    args = []
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, error = p.communicate()
+    if p.returncode != 0:
+        raise subprocess.CalledProcessError(p.returncode, "", error)
+    return StringIO(output)
+
+def copy_image(pool_name, image_name):
+    copy = json.loads(request.data)
+    print copy
+    dest_pool_name = copy['pool']
+    dest_image_name = copy['image']
+    args = ['rbd',
+            'copy',
+            pool_name+"/"+image_name,
+            dest_pool_name+"/"+dest_image_name
+            ]
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, error = p.communicate()
+    if p.returncode != 0:
+        raise subprocess.CalledProcessError(p.returncode, "", error)
+    return StringIO(output)
 
 
 #
@@ -104,8 +167,11 @@ def create_image_snapshot(pool_name, image_name, snap_name):
             'snap',
             'create',
             pool_name+"/"+image_name+"@"+snap_name]
-    return subprocess.check_output(args, stderr=subprocess.STDOUT)
-
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, error = p.communicate()
+    if p.returncode != 0:
+        raise subprocess.CalledProcessError(p.returncode, "", error)
+    return StringIO(output)
 
 def delete_image_snapshot(pool_name, image_name, snap_name):
     args = ['rbd',
@@ -158,8 +224,11 @@ def rollback_image_snapshot(pool_name, image_name, snap_name):
             'snap',
             'rollback',
             pool_name+"/"+image_name+"@"+snap_name]
-    return subprocess.check_output(args, stderr=subprocess.STDOUT)
-
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, error = p.communicate()
+    if p.returncode != 0:
+        raise subprocess.CalledProcessError(p.returncode, "", error)
+    return StringIO(output)
 
 def clone_image_snapshot(pool_name, image_name, snap_name):
     clone = json.loads(request.data)
@@ -171,8 +240,11 @@ def clone_image_snapshot(pool_name, image_name, snap_name):
             pool_name+"/"+image_name+"@"+snap_name,
             dest_pool_name+"/"+dest_image_name
             ]
-    return subprocess.check_output(args, stderr=subprocess.STDOUT)
-
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, error = p.communicate()
+    if p.returncode != 0:
+        raise subprocess.CalledProcessError(p.returncode, "", error)
+    return StringIO(output)
 
 def protect_image_snapshot(pool_name, image_name, snap_name):
     print "Calling  protect_image_snapshot() method"
@@ -192,13 +264,18 @@ def unprotect_image_snapshot(pool_name, image_name, snap_name):
             'snap',
             'unprotect',
             pool_name+"/"+image_name+"@"+snap_name]
-    return subprocess.check_output(args, stderr=subprocess.STDOUT)
-
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, error = p.communicate()
+    if p.returncode != 0:
+        raise subprocess.CalledProcessError(p.returncode, "", error)
+    return StringIO(output)
 
 def children_image_snapshot(pool_name, image_name, snap_name):
     args = ['rbd',
             'children',
             pool_name+"/"+image_name+"@"+snap_name]
-    output = subprocess.check_output(args, stderr=subprocess.STDOUT)
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, error = p.communicate()
+    if p.returncode != 0:
+        raise subprocess.CalledProcessError(p.returncode, "", error)
     return StringIO(output)
-

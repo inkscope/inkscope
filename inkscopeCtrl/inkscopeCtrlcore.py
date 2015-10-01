@@ -78,31 +78,44 @@ def removesnapshot(id, namesnapshot):
 @app.route('/RBD/images', methods=['GET'])
 def getImagesList():
     # Log.debug("Calling  rbdCtrl.listImages() method")
-    return Response(rbdCtrl.list_images(), mimetype='application/json')
-
+    try:
+        return Response(rbdCtrl.list_images(), mimetype='application/json')
+    except CalledProcessError, e:
+        return Response(e.output, status=500)
 
 @app.route('/RBD/images/<string:pool_name>/<string:image_name>', methods=['GET'])
 def getImagesInfo(pool_name, image_name):
     # Log.debug("Calling  rbdCtrl.getImagesInfo() method")
-    return Response(rbdCtrl.image_info(pool_name, image_name), mimetype='application/json')
-
+    try:
+        return Response(rbdCtrl.image_info(pool_name, image_name), mimetype='application/json')
+    except CalledProcessError, e:
+        return Response(e.output, status=500)
 
 @app.route('/RBD/images/<string:pool_name>/<string:image_name>', methods=['PUT'])
 def createImage(pool_name, image_name):
     # Log.debug("Calling  rbdCtrl.listImages() method")
-    return Response(rbdCtrl.create_image(pool_name, image_name), mimetype='application/json')
+    try:
+        return Response(rbdCtrl.create_image(pool_name, image_name), mimetype='application/json')
+    except CalledProcessError, e:
+        return Response(e.output, status=500)
 
 
-@app.route('/RBD/images/<string:pool_name>/<string:image_name>', methods=['POST'])
-def modifyImage(pool_name, image_name):
+@app.route('/RBD/images/<string:pool_name>/<string:image_name>/<string:action>', methods=['POST'])
+def modifyImage(pool_name, image_name , action):
     # Log.debug("Calling  rbdCtrl.modifyImages() method")
-    return Response(rbdCtrl.modify_image(pool_name, image_name), mimetype='application/json')
+    try:
+        return Response(rbdCtrl.modify_image(pool_name, image_name, action), mimetype='application/json')
+    except CalledProcessError, e:
+        return Response(e.output, status=500)
 
 
 @app.route('/RBD/images/<string:pool_name>/<string:image_name>', methods=['DELETE'])
 def deleteImage(pool_name, image_name):
     # Log.debug("Calling  rbdCtrl.deleteImage() method")
-    return Response(rbdCtrl.delete_image(pool_name, image_name), mimetype='application/json')
+    try:
+        return Response(rbdCtrl.delete_image(pool_name, image_name), mimetype='application/json')
+    except CalledProcessError, e:
+        return Response(e.output, status=500)
 
 
 #

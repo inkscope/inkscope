@@ -1,0 +1,22 @@
+<h3>Image copy of {{poolName}}/{{imageName}}</h3>
+<br />
+<form name="form" novalidate class="form-horizontal">
+    <div class="control-group">
+        <label for="copy.pool" class="col-sm-2 control-label">Destination pool : </label>
+        <div class="controls">
+            <select id="copy.pool" ng-model="copy.pool" ng-options="value.poolname for value in poolList| orderBy:'poolname'"></select>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="copy.image" class="col-sm-2 control-label">Image name :</label>
+        <div class="controls">
+            <input type=text id="copy.image"  ng-model="copy.image" placeholder="Image name" required/>
+        </div>
+    </div>
+    <br/>
+    <br />
+    <div class="button-bar">
+        <a ng-click="copyImage()" ng-disabled="form.$invalid" class="btn btn-success">Copy</a>
+        <a href="#/snapshot/detail/{{poolName}}/{{imageName}}/{{snapName}}"  class="btn btn-default">Cancel</a>
+    </div>
+</form>

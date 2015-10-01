@@ -28,7 +28,7 @@
                 <tr><td>Pool</td> <td>{{ detailedImage.parent.pool }}</td></tr>
                 <tr><td>Image</td> <td><a ng-click="showImageDetail(detailedImage.parent.image)">{{ detailedImage.parent.image }}</a> </td></tr>
                 <tr><td>Overlap</td> <td>{{ detailedImage.parent.overlap |bytes}}</td></tr>
-                <tr><td>Snapshot</td> <td>{{ detailedImage.parent.snapshot }}</td></tr>
+                <tr><td>Snapshot</td> <td><a href="#/snapshot/detail/{{detailedImage.parent.pool}}/{{detailedImage.parent.image}}/{{ detailedImage.parent.snapshot }}">{{ detailedImage.parent.snapshot }}</a></td></tr>
             </table>
         </td>
     </tr>
@@ -39,7 +39,7 @@
                 <tr><td>Id</td><td>Name</td><td>Size</td></tr>
                 <tr ng-repeat="snapshot in detailedImage.snaps" ng-click="showSnapshotDetail(snapshot)" class="clickable">
                     <td>{{ snapshot.id }}</td>
-                    <td>{{ snapshot.name }}</td>
+                    <td><a href="#/snapshot/detail/{{detailedImage.pool}}/{{detailedImage.name}}/{{ snapshot.name }}">{{ snapshot.name }}</a></td>
                     <td>{{ snapshot.size|bytes }}</td>
                 </tr>
             </table>
@@ -51,8 +51,10 @@
 
 <div class="button-bar">
     <a href="#/snapshot/create/{{detailedImage.pool}}/{{detailedImage.name}}" class="btn btn-info" style="float:left;margin-right: 5px"><i class="icon-white icon-camera"></i> make snapshot </a>
-    <a ng-show=" ''+detailedImage.parent!='' " href="#/snapshot/create/{{detailedImage.pool}}/{{detailedImage.name}}" class="btn btn-info" style="float:left;margin-right: 5px"> Flatten </a>
-    <a href="#/resize/{{ detailedImage.pool }}/{{ detailedImage.name }}/{{ detailedImage.size }}" class="btn btn-success">Resize</a>
-    <a href="#/delete/{{ detailedImage.pool }}/{{ detailedImage.name }}" class="btn btn-danger">Delete</a>
+    <a ng-show=" ''+detailedImage.parent!='' " href="#/flatten/{{detailedImage.pool}}/{{detailedImage.name}}" class="btn btn-info" style="float:left;margin-right: 5px"> Flatten </a>
+    <a ng-show=" ''+detailedImage.snaps!='' " href="#/purge/{{detailedImage.pool}}/{{detailedImage.name}}" class="btn btn-info" style="float:left;margin-right: 5px"> Purge </a>
+    <a href="#/copy/{{ detailedImage.pool }}/{{ detailedImage.name }}" class="btn btn-success">Copy</a>
+    <a href="#/resize/{{ detailedImage.pool }}/{{ detailedImage.name }}" class="btn btn-success">Resize</a>
+    <button ng-disabled=" ''+detailedImage.snaps!='' "href="#/delete/{{ detailedImage.pool }}/{{ detailedImage.name }}" class="btn btn-danger">Delete</button>
     <a href="#/" class="btn btn-default">Close</a>
 </div>

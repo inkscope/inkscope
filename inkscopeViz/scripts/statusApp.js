@@ -133,7 +133,7 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
                 $scope.statOK = true;
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].stat ==null){
-                        console.log("missing stat for OSD "+i);
+                        console.error("missing stat for "+data[i].node.name);
                         $scope.statOK = false;
                     }
                     else {
@@ -147,6 +147,7 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
                 }
         })
             .error (function (data, status){
+                console.error("can't fetch osd info in mongo");
                 $scope.statOK = false;
     });
     };
