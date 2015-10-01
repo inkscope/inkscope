@@ -1,4 +1,5 @@
 # Alpha O. Sall
+# Alain Dechorgnat
 # 03/24/2014
 
 from flask import Flask, Response
@@ -150,11 +151,10 @@ def deleteImageSnapshot(pool_name, image_name,snap_name):
 
 @app.route('/RBD/snapshots/<string:pool_name>/<string:image_name>/<string:snap_name>/<string:action>', methods=['POST'])
 def actionOnImageSnapshot(pool_name, image_name,snap_name, action):
-    print "Calling  rbdCtrl.action_on_image_snapshot() method", action
+    # print "Calling  rbdCtrl.action_on_image_snapshot() method", action
     try:
         return Response(rbdCtrl.action_on_image_snapshot(pool_name, image_name, snap_name, action), mimetype='application/json')
     except CalledProcessError, e:
-        print e , e.output
         return Response(e.output, status=500)
 
 

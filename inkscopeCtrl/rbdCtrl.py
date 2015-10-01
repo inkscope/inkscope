@@ -4,9 +4,6 @@ from flask import request
 import subprocess
 from StringIO import StringIO
 import json
-import Log
-
-
 
 
 def list_images():
@@ -131,9 +128,6 @@ def flatten_image(pool_name, image_name):
 
 def rename_image(pool_name, image_name):
     # TODO
-    # args = ['rbd',
-    #        'rm',
-    #        pool_name+"/"+image_name]
     args = []
     p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = p.communicate()
@@ -143,7 +137,7 @@ def rename_image(pool_name, image_name):
 
 def copy_image(pool_name, image_name):
     copy = json.loads(request.data)
-    print copy
+    # print copy
     dest_pool_name = copy['pool']
     dest_image_name = copy['image']
     args = ['rbd',
@@ -194,9 +188,9 @@ def info_image_snapshot(pool_name, image_name, snap_name):
     output = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0]
     pool_images=json.load(StringIO(output))
     for pool_image in pool_images:
-        print pool_image
+        # print pool_image
         if 'image' in pool_image and  pool_image['image'] == image_name :
-            print pool_image['image']
+            # print pool_image['image']
             if 'snapshot' in pool_image and  pool_image['snapshot'] == snap_name :
                 pool_image['pool'] = pool_name
                 pool_image['children'] = children
@@ -205,7 +199,7 @@ def info_image_snapshot(pool_name, image_name, snap_name):
 
 
 def action_on_image_snapshot(pool_name, image_name, snap_name, action):
-    print "Calling  action_on_image_snapshot() method ", action
+    # print "Calling  action_on_image_snapshot() method ", action
     try:
         if action == 'rollback':
             return rollback_image_snapshot(pool_name, image_name, snap_name)
@@ -232,7 +226,7 @@ def rollback_image_snapshot(pool_name, image_name, snap_name):
 
 def clone_image_snapshot(pool_name, image_name, snap_name):
     clone = json.loads(request.data)
-    print clone
+    # print clone
     dest_pool_name = clone['pool']
     dest_image_name = clone['image']
     args = ['rbd',
@@ -247,7 +241,7 @@ def clone_image_snapshot(pool_name, image_name, snap_name):
     return StringIO(output)
 
 def protect_image_snapshot(pool_name, image_name, snap_name):
-    print "Calling  protect_image_snapshot() method"
+    # print "Calling  protect_image_snapshot() method"
     args = ['rbd',
             'snap',
             'protect',
