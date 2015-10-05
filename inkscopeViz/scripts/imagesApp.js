@@ -109,6 +109,10 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $window, $dialogs) {
         if (poolNum!='') $window.location.assign('/inkscopeViz/poolManagement.html#/detail/'+poolNum);
     }
 
+    $scope.showDeleteImage = function () {
+        $window.location.assign('#/delete/'+$scope.poolName +"/"+$scope.imageName  );
+    }
+
     $scope.showDeleteSnapshot = function () {
         if ($scope.detailedSnap.protected=='true') return;
         $window.location.assign('#/snapshot/delete/'+$scope.poolName +"/"+$scope.imageName +"/"+$scope.snapName );

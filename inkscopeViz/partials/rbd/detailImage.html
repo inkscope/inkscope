@@ -55,6 +55,6 @@
     <a ng-show=" ''+detailedImage.snaps!='' " href="#/purge/{{detailedImage.pool}}/{{detailedImage.name}}" class="btn btn-info" style="float:left;margin-right: 5px"> Purge </a>
     <a href="#/copy/{{ detailedImage.pool }}/{{ detailedImage.name }}" class="btn btn-success">Copy</a>
     <a href="#/resize/{{ detailedImage.pool }}/{{ detailedImage.name }}" class="btn btn-success">Resize</a>
-    <button ng-disabled=" ''+detailedImage.snaps!='' "href="#/delete/{{ detailedImage.pool }}/{{ detailedImage.name }}" class="btn btn-danger">Delete</button>
+    <button ng-disabled=" ''+detailedImage.snaps!='' " ng-click="showDeleteImage()" class="btn btn-danger">Delete</button>
     <a href="#/" class="btn btn-default">Close</a>
 </div>
