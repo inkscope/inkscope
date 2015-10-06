@@ -233,6 +233,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
 
     $scope.reweightByUtilization = function (){
         var uri = inkscopeCtrlURL + "osds" ;
+        //TODO add confirmation dialog
 
         $http({method: "PUT", url: uri, data : "action=reweight-by-utilisation", headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
             success(function (data, status) {
@@ -520,6 +521,28 @@ osdMapApp.directive('myTopology', function () {
                     return (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
                 }
              }
+
+            scope.$watch('nodeFilter', function (value, oldValue) {
+                console.log("nodeFilter changed : "+value);
+                if (value==''){
+                    sunburst.selectAll('text')
+                        .style("fill", "#fff")
+                        .style("font-weight", "normal")
+                        .style("text-shadow", "none")
+                    return;
+                }
+                sunburst.selectAll('text')
+                    .style("fill", function(d){
+                        return (d.name.indexOf(value) > -1) ? "#f00" : "#fff";
+                    })
+                    .style("font-weight", function(d) {
+                        return (d.name.indexOf(value) > -1) ? "bold" : "normal";
+                    })
+                    .style("text-shadow", function(d){
+                        return (d.name.indexOf(value) > -1) ? "0px 0px 4px #ff0" : "none";
+                    });
+            });
+
 
             scope.$watch('base', function (base, oldBase) {
                 // if 'base' is undefined, exit

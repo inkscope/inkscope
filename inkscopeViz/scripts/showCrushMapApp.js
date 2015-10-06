@@ -134,11 +134,8 @@ showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $sc
 showCrushMapApp.directive('myTopology', function () {
 
     return {
-        restrict: 'E',
+        restrict: 'EA',
         terminal: true,
-        scope: {
-            values: '='
-        },
         link: function (scope, element, attrs) {
 
 
@@ -172,18 +169,28 @@ showCrushMapApp.directive('myTopology', function () {
             var svg = d3.select(element[0])
                 .append("svg")
                 .attr("width", width)
-                .attr("height", height)
-                .append("g")
+                .attr("height", height);
+
+            var sunburst= svg.append("g")
+                .attr("id","sunburst")
                 .attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
 
             var divTooltip =  d3.select("body").select("#tooltip");
 
-            scope.$watch('values', function (root, oldRoot) {
+            scope.$watch('nodeFilter', function (value, oldValue) {
+                if (typeof value === 'undefined') return;
 
-                // values is $scope.buckets
+                console.log("nodeFilter changed : "+value);
+                if (value == "")
+                    sunburst.selectAll('text').style("fill", "#000");
+                else
+                    sunburst.selectAll('text').style("fill", function(d){return (d.name.indexOf(value) > -1) ? "#f00" : "#000";});
+            });
+
+            scope.$watch('buckets', function (root, oldRoot) {
 
                 // clear the elements inside of the directive
-                svg.selectAll('*').remove();
+                sunburst.selectAll('*').remove();
 
                 // if 'root' is undefined, exit
                 if (!root) {
@@ -199,7 +206,7 @@ showCrushMapApp.directive('myTopology', function () {
                     .innerRadius(function(d) { return Math.max(0, y(d.y)); })
                     .outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
 
-                var g = svg.selectAll("g")
+                var g = sunburst.selectAll("g")
                     .data(partition.nodes(root))
                     .enter().append("g")
                     .on("click", click)
@@ -292,8 +299,6 @@ showCrushMapApp.directive('myTopology', function () {
                 }
 
             });
-
-
         }
     }
 })

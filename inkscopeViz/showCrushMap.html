@@ -34,6 +34,12 @@
                         <td valign="center">Root : </td>
                         <td valign="center"><select id="base" ng-model="base" ng-options="value.id as value.name for value in rootTab| orderBy:'name'" name="base" ng-change="buckets =computeBucketsTree(rawbuckets , base);"></select></td>
                     </tr>
+                    <tr>
+                        <td> Search node:</td>
+                        <td>
+                            <input ng-model="nodeFilter" type="text">
+                        </td>
+                    </tr>
                 </table>
             </div>
             <!--div style="position:absolute ;top: 10; left:10">base: <input type="text" ng-model="base" name="base" ng-change="buckets =computeBucketsTree(rawbuckets , base);" size="4"></div-->

@@ -60,6 +60,13 @@
                     <select ng-model="dispoMode" ng-options="dispoMode for dispoMode in dispoModes"></select>
                 </td>
             </tr>
+            <tr><td></td></tr>
+            <tr>
+                <td> Search node:</td>
+                <td>
+                    <input ng-model="nodeFilter" type="text">
+                </td>
+            </tr>
         </table>
         <div ng-hide="warningMessage == ''"><p class="text-warning"><i class="icon-warning-sign"></i> {{warningMessage}}
         </p></div>
