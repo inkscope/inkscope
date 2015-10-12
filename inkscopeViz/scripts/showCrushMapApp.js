@@ -38,11 +38,11 @@ showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $sc
         if (id==2) return "raid-4";
         if (id==3) return "erasure";
         return "N/A";
-    }
+    };
 
     $scope.showStep = function (step) {
         return prettyPrint(step);
-    }
+    };
 
 
     $scope.findRoots = function (rawbuckets) {
@@ -74,7 +74,7 @@ showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $sc
         for (var i = 0; i < rawbuckets.length; i++) {
             if ( ! bucketsTab[rawbuckets[i].id].hasParent) $scope.rootTab.push(bucketsTab[rawbuckets[i].id]);
         }
-    }
+    };
 
     $scope.computeBucketsTree = function (rawbuckets , base) {
         var bucketsTab = [];
@@ -109,7 +109,7 @@ showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $sc
 
 
         return buckets;
-    }
+    };
 
     $scope.prettifyStep = function(step){
         if (step.op == "take")
@@ -121,7 +121,7 @@ showCrushMapApp.controller('CrushMapCtrl', function CrushMapCtrl($rootScope, $sc
             txtStep +=" type "+ step.type;
         return txtStep;
 
-    }
+    };
 
     $scope.getBucketForId= function(id){
         for (var i = 0; i < $scope.rawbuckets.length; i++) {
@@ -141,9 +141,9 @@ showCrushMapApp.directive('myTopology', function () {
 
             function description(d){
                 var html="";
-                html+="<h2>"+ d.name+"</h2>"
-                html+="id : "+ d.id+"<br />"
-                html+="weight : "+ d.weight+"<br />"
+                html+="<h2>"+ d.name+"</h2>";
+                html+="id : "+ d.id+"<br />";
+                html+="weight : "+ d.weight+"<br />";
                 if(typeof d.hash !== "undefined"){html+="hash : "+ d.hash+"<br />"}
                 if(typeof d.alg !== "undefined"){html+="alg : "+ d.alg+"<br />"}
                 if(typeof d.type_name !== "undefined"){html+="type : "+ d.type_name+"<br />"}
@@ -301,4 +301,4 @@ showCrushMapApp.directive('myTopology', function () {
             });
         }
     }
-})
+});
