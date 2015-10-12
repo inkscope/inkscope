@@ -1,16 +1,22 @@
 /**
  * Created by Alain Dechorgnat on 24/02/14.
  */
-var osdMapApp = angular.module('osdMapApp', ['InkscopeCommons'])
+var osdMapApp = angular.module('osdMapApp', ['ui.bootstrap','InkscopeCommons'])
     .filter('duration', funcDurationFilter);
+
+const UP_DOWN_MODE = "up/down";
+const IN_OUT_MODE  = "in/out";
+const FREE_SPACE_MODE = "free space (%)";
+const POOL_DISTRIBUTION_MODE = "pool distribution";
 
 osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http, $location , $window, $dialogs) {
     $scope.osds = [];
-    $scope.dispoModes = ["up/down", "in/out" , "free space (%)"];
-    $scope.dispoMode = "up/down";
+    $scope.dispoModes = [UP_DOWN_MODE, IN_OUT_MODE , FREE_SPACE_MODE, POOL_DISTRIBUTION_MODE];
+    $scope.dispoMode = UP_DOWN_MODE;
+    $scope.POOL_DISTRIBUTION_MODE = POOL_DISTRIBUTION_MODE;
     $scope.osdControl = 0;
     $scope.warningMessage = "";
-    if ($location.absUrl().indexOf("dispoMode=space") > -1) $scope.dispoMode = "free space (%)";
+    if ($location.absUrl().indexOf("dispoMode=space") > -1) $scope.dispoMode = FREE_SPACE_MODE;
 
 
     // get OSD info and refresh every 10s
@@ -20,6 +26,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
         typeof $rootScope.fsid !== "undefined"? startRefresh($rootScope, $http,$scope) : setTimeout(function () {waitForFsid($rootScope, $http,$scope)}, 1000);
         function startRefresh($rootScope, $http,$scope){
             getOsds();
+            getOsd2();
             setInterval(function () {getOsds()},10*1000);
         }
     };
@@ -40,6 +47,9 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
         error(function (data, status) {
             $scope.status = status;
         });
+
+    // Get pool list to show pool distribution on OSD
+    getPoolList($http,$scope);
 
     $scope.computeBucketsTree = function (rawbuckets , base) {
         var bucketsTab = [];
@@ -134,12 +144,68 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
             });
     }
 
+    function getOsd2 (){
+        $http({method: "get", url: cephRestApiURL + "pg/stat.json"})
+            .success(function (data, status) {
+                // fetching pg list and relation with osd
+                var pg_stats = data.output.pg_stats;
+                $http({method: "get", url: cephRestApiURL + "osd/dump.json"})
+                    .success(function (data, status) {
+                        //fetching pool list and osd status
+                        var pools = data.output.pools;
+                        var poolTab = [];
+                        for (var i = 0; i < pools.length; i++) {
+                            var pool = pools[i];
+                            poolTab[pool.pool] = {};
+                            poolTab[pool.pool].name = pool.pool_name;
+                            poolTab[pool.pool].acting = [];
+                        }
+                        // scaning pg to find acting osd
+                        for (var i = 0; i < pg_stats.length; i++) {
+                            var pg = pg_stats[i];
+                            var elem = pg.pgid.split('.');
+                            var poolId = elem[0];
+                            for (var j = 0; j < pg.acting.length; j++) {
+                                var osd = pg.acting[j];
+                                var found = false;
+                                for (var k in poolTab[poolId].acting) {
+                                    if (poolTab[poolId].acting[k]==osd){
+                                        found = true;
+                                        continue;
+                                    }
+                                }
+                                if (!found) poolTab[poolId].acting.push(osd);
+                            }
+
+                        }
+                        $scope.pool2osd = poolTab;
+                    }
+                );
+            });
+    };
+
     $scope.dispo= function(node) {
         if (typeof node === undefined) return -1;
-        if ($scope.dispoMode == "up/down") return node.stat.up ? 1.0 : 0.0;
-        if ($scope.dispoMode == "in/out") return node.stat.in ? 1.0 : 0.2;
-        if ($scope.dispoMode == "free space (%)") return (node.percent== -1 ? "N/A": node.percent);
+        if ($scope.dispoMode == UP_DOWN_MODE) return node.stat.up ? 1.0 : 0.0;
+        if ($scope.dispoMode == IN_OUT_MODE) return node.stat.in ? 1.0 : 0.2;
+        if ($scope.dispoMode == FREE_SPACE_MODE) return (node.percent== -1 ? "N/A": node.percent);
+        if ($scope.dispoMode == POOL_DISTRIBUTION_MODE) {
+            if (typeof $scope.pool === 'undefined') return "N/A";
+            return isOsdInPoolActing(node.id, $scope.pool.poolnum) ? 1.0 : -1;
+        }
     };
+
+    function isOsdInPoolActing(osdId, poolId){
+        var found = false;
+        var pool = $scope.pool2osd[poolId];
+        for  (var i= 0; i< pool.acting.length;i++){
+            if  (pool.acting[i] == osdId) {
+                found=true;
+                break;
+            }
+        }
+        return found;
+    }
 
     $scope.dispoOfNode= function(nodeId) {
         if (typeof nodeId === undefined) return {"value":0,"total":0};
@@ -151,21 +217,29 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
             if (typeof node.children !== "undefined"){
                 for (var i= 0; i< node.children.length;i++){
                     var res =  $scope.dispoOfNode(node.children[i].id) ;
-                    value += res.value;
+                    if (res.value != -1)value += res.value;
                     total += res.total;
                 }
             }
             $scope.bucketsTab[nodeId].value= value;
             $scope.bucketsTab[nodeId].total= total;
-            $scope.bucketsTab[nodeId].dispo= value/total;
+            if ($scope.dispoMode==POOL_DISTRIBUTION_MODE)
+                $scope.bucketsTab[nodeId].dispo= value>0 ? 1.0 : -1;
+            else
+                $scope.bucketsTab[nodeId].dispo= value/total;
             return {"value":value,"total":total};
         }
         else {
             // OSD node
             if (typeof nodeId === undefined) return {"value": 0, "total": 0};
-            if ($scope.dispoMode == "up/down") return {"total":1,"value":$scope.osds[nodeId].stat.up ? 1.0 : 0.0};
-            if ($scope.dispoMode == "in/out") return {"total":1,"value":$scope.osds[nodeId].stat.in ? 1.0 : 0.2};
-            if ($scope.dispoMode == "free space (%)") return {"value":$scope.osds[nodeId].free,"total":$scope.osds[nodeId].total};
+            if ($scope.dispoMode == UP_DOWN_MODE) return {"total":1,"value":$scope.osds[nodeId].stat.up ? 1.0 : 0.0};
+            if ($scope.dispoMode == IN_OUT_MODE) return {"total":1,"value":$scope.osds[nodeId].stat.in ? 1.0 : 0.2};
+            if ($scope.dispoMode == FREE_SPACE_MODE) return {"value":$scope.osds[nodeId].free,"total":$scope.osds[nodeId].total};
+            if ($scope.dispoMode == POOL_DISTRIBUTION_MODE){
+                if (typeof $scope.pool === 'undefined') return "N/A";
+                var found = isOsdInPoolActing(nodeId, $scope.pool.poolnum);
+                return {"total":1.0,"value": found ? 1.0 : -1};
+            }
         }
     };
 
@@ -233,17 +307,23 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
 
     $scope.reweightByUtilization = function (){
         var uri = inkscopeCtrlURL + "osds" ;
-        //TODO add confirmation dialog
-
-        $http({method: "PUT", url: uri, data : "action=reweight-by-utilisation", headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
-            success(function (data, status) {
-                $scope.status = status;
-                $dialogs.notify("Reweight by utilisation", data);
+        var dialog = $dialogs.confirm("Reweight by utilisation","are you sure you want to do this");
+        dialog.result.then(function() {
+            $http({
+                method: "PUT",
+                url: uri,
+                data: "action=reweight-by-utilisation",
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
             }).
-            error(function (data, status, headers) {
-                $scope.status = status;
-                $dialogs.error("Reweight by utilisation has failed", data);
-            });
+                success(function (data, status) {
+                    $scope.status = status;
+                    $dialogs.notify("Reweight by utilisation", data);
+                }).
+                error(function (data, status, headers) {
+                    $scope.status = status;
+                    $dialogs.error("Reweight by utilisation has failed", data);
+                });
+        });
     };
 
     $scope.home = function(){
@@ -297,9 +377,9 @@ osdMapApp.directive('myTopology', function () {
                     html += "free : " +(scope.osds[d.id].free*100/scope.osds[d.id].total).toFixed(1) + "% <br />";
                 }else
                 {
-                    if (scope.dispoMode == "up/down") html += "OSD up : " + scope.bucketsTab[d.id].value + " of " + scope.bucketsTab[d.id].total + "<br />";
-                    if (scope.dispoMode == "in/out") html += "OSD out : " + ((scope.bucketsTab[d.id].total-scope.bucketsTab[d.id].value)/0.8).toFixed(0) + " of " + scope.bucketsTab[d.id].total + "<br />";
-                    if (scope.dispoMode == "free space (%)") {
+                    if (scope.dispoMode == UP_DOWN_MODE) html += "OSD up : " + scope.bucketsTab[d.id].value + " of " + scope.bucketsTab[d.id].total + "<br />";
+                    if (scope.dispoMode == IN_OUT_MODE) html += "OSD out : " + ((scope.bucketsTab[d.id].total-scope.bucketsTab[d.id].value)/0.8).toFixed(0) + " of " + scope.bucketsTab[d.id].total + "<br />";
+                    if (scope.dispoMode == FREE_SPACE_MODE) {
                         html += "free space : " + funcBytes(scope.bucketsTab[d.id].value) + "<br />";
                         html += "total space : " + funcBytes(scope.bucketsTab[d.id].total) + "<br />";
                         html += "free : " +(scope.bucketsTab[d.id].dispo*100).toFixed(1) + "% <br />";
@@ -356,18 +436,23 @@ osdMapApp.directive('myTopology', function () {
                 {"value":0.1,"text":"10 %"},
                 {"value":0,"text":"0 %"}
             ];
+            var legendDataPoolDistrubution =[
+                {"value":1,"text":"used"},
+                {"value":-1,"text":"not used"}
+            ];
 
             var divlegend = d3.select("#legend");
             makeLegend();
 
             function makeLegend(){
                 var legendData = "";
-                if (scope.dispoMode == "up/down") legendData = legendDataUpDown;
-                if (scope.dispoMode == "in/out") legendData = legendDataInOut;
-                if (scope.dispoMode == "free space (%)") legendData = legendDataFreeSpace;
+                if (scope.dispoMode == UP_DOWN_MODE) legendData = legendDataUpDown;
+                if (scope.dispoMode == IN_OUT_MODE) legendData = legendDataInOut;
+                if (scope.dispoMode == FREE_SPACE_MODE) legendData = legendDataFreeSpace;
+                if (scope.dispoMode == POOL_DISTRIBUTION_MODE) legendData = legendDataPoolDistrubution;
 
                 divlegend.selectAll('*').remove();
-                var legend = divlegend.append("svg").attr("height",20*legendData.length).append("g");
+                var legend = divlegend.append("svg").attr("height",20*legendData.length).attr("width",70).append("g");
                 legend.selectAll('rect')
                     .data(legendData)
                     .enter()
@@ -562,6 +647,11 @@ osdMapApp.directive('myTopology', function () {
 
             scope.$watch('dispoMode', function (dispoMode, olddispoMode) {
                 makeLegend();
+                scope.refreshStatusDisplay();
+            }, true);
+
+
+            scope.$watch('pool', function (pool, oldpool) {
                 scope.refreshStatusDisplay();
             }, true);
         }
