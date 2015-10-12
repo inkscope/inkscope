@@ -361,9 +361,10 @@ osdMapApp.directive('myTopology', function () {
             makeLegend();
 
             function makeLegend(){
-                if (scope.dispoMode == "up/down") var legendData = legendDataUpDown;
-                if (scope.dispoMode == "in/out") var legendData = legendDataInOut;
-                if (scope.dispoMode == "free space (%)") var legendData = legendDataFreeSpace;
+                var legendData = "";
+                if (scope.dispoMode == "up/down") legendData = legendDataUpDown;
+                if (scope.dispoMode == "in/out") legendData = legendDataInOut;
+                if (scope.dispoMode == "free space (%)") legendData = legendDataFreeSpace;
 
                 divlegend.selectAll('*').remove();
                 var legend = divlegend.append("svg").attr("height",20*legendData.length).append("g");
