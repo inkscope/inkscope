@@ -80,7 +80,7 @@
 
     <div id="osdStatGraph"><svg style="height:180px;width:100%"></svg></div>
     last control : {{osd.lastControl|duration}}<br>
-    reweight : {{osd.stat.weight}}<br>
+    reweight : {{(1*osd.stat.weight).toString()}}<br>
     {{osd.partition._id}}<br>
     {{osd.public_addr}}<br>
     <ad-gauge value="osd.partition.stat.used/osd.partition.stat.total" colormode="desc" width="241"></ad-gauge>
@@ -126,7 +126,7 @@
                     last control : {{osd.lastControl|duration}}<br><br>
                     {{osd.partition._id}}<br>
                     {{osd.public_addr}}<br>
-                    reweight : {{osd.stat.weight}}<br>
+                    reweight : {{(1*osd.stat.weight).toString()}}<br>
                     free : {{osd.partition.stat.free|bytes}}<br>
                     used : {{osd.partition.stat.used|bytes}}<br>
                     total: {{osd.partition.stat.total|bytes}}<br>
@@ -147,6 +147,7 @@
                     last control : {{osd.lastControl|duration}}<br><br>
                     {{osd.partition._id}}<br>
                     {{osd.public_addr}}<br>
+                    reweight : {{(1*osd.stat.weight).toString()}}<br>
                     free : {{osd.partition.stat.free|bytes}}<br>
                     used : {{osd.partition.stat.used|bytes}}<br>
                     total: {{osd.partition.stat.total|bytes}}<br>
