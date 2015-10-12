@@ -22,7 +22,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
             getOsds();
             setInterval(function () {getOsds()},10*1000);
         }
-    }
+    };
     waitForFsid($rootScope, $http,$scope);
 
     // Prepare OSD topology from crushmap
@@ -34,7 +34,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
             $scope.devices = data.output.devices;
             $scope.rawbuckets = data.output.buckets;
             $scope.findRoots(data.output.buckets);
-            $scope.base =  $scope.rootTab[0].id;;
+            $scope.base = $scope.rootTab[0].id;
             $scope.buckets = $scope.computeBucketsTree(data.output.buckets , $scope.base);
         }).
         error(function (data, status) {
@@ -86,7 +86,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
                 }
             }
         }
-    }
+    };
 
     function getOsds() {
         $http({method: "get", url: inkscopeCtrlURL + $rootScope.fsid+"/osd?depth=2"})
@@ -139,7 +139,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
         if ($scope.dispoMode == "up/down") return node.stat.up ? 1.0 : 0.0;
         if ($scope.dispoMode == "in/out") return node.stat.in ? 1.0 : 0.2;
         if ($scope.dispoMode == "free space (%)") return (node.percent== -1 ? "N/A": node.percent);
-    }
+    };
 
     $scope.dispoOfNode= function(nodeId) {
         if (typeof nodeId === undefined) return {"value":0,"total":0};
@@ -162,12 +162,12 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
         }
         else {
             // OSD node
-            if (typeof nodeId === undefined) return {"value":0,"total":0};;
+            if (typeof nodeId === undefined) return {"value": 0, "total": 0};
             if ($scope.dispoMode == "up/down") return {"total":1,"value":$scope.osds[nodeId].stat.up ? 1.0 : 0.0};
             if ($scope.dispoMode == "in/out") return {"total":1,"value":$scope.osds[nodeId].stat.in ? 1.0 : 0.2};
             if ($scope.dispoMode == "free space (%)") return {"value":$scope.osds[nodeId].free,"total":$scope.osds[nodeId].total};
         }
-    }
+    };
 
     $scope.findRoots = function (rawbuckets) {
         var bucketsTab = [];
@@ -198,7 +198,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
         for (var i = 0; i < rawbuckets.length; i++) {
             if ( ! bucketsTab[rawbuckets[i].id].hasParent) $scope.rootTab.push(bucketsTab[rawbuckets[i].id]);
         }
-    }
+    };
 
 
     $scope.refreshStatusDisplay = function () {
@@ -223,13 +223,13 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
                     //console.error("no dispo for bucketId "+bucketId +" : "+$scope.bucketsTab[bucketId].name);
             }
         }
-    }
+    };
 
     $scope.changeBase = function (){
         $scope.buckets = $scope.computeBucketsTree($scope.rawbuckets , $scope.base);
         $scope.dispoOfNode($scope.base);
         $scope.refreshStatusDisplay();
-    }
+    };
 
     $scope.reweightByUtilization = function (){
         var uri = inkscopeCtrlURL + "osds" ;
@@ -244,7 +244,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
                 $scope.status = status;
                 $dialogs.error("Reweight by utilisation has failed", data);
             });
-    }
+    };
 
     $scope.home = function(){
         $window.location.href = "index.html";
@@ -270,11 +270,11 @@ osdMapApp.directive('myTopology', function () {
                     html +=  "<br/>"+osdstate ;
 
                 }
-                html += "</h2>"
+                html += "</h2>";
 
-                html += "id : " + d.id + "<br />"
+                html += "id : " + d.id + "<br />";
                 // html += "value : " + d.value + "<br />"
-                html += "weight : " + d.weight + "<br />"
+                html += "weight : " + d.weight + "<br />";
                 if (d.id >=0){
                     html += "reweight : " + scope.osds[d.id].reweight + "<br />"
                 }
@@ -378,7 +378,7 @@ osdMapApp.directive('myTopology', function () {
                     .style("fill", function(d) {
                         var color = color4ascPercent(d.value);
                         return color;
-                    })
+                    });
 
                 legend.selectAll('text')
                     .data(legendData)
@@ -528,7 +528,7 @@ osdMapApp.directive('myTopology', function () {
                     sunburst.selectAll('text')
                         .style("fill", "#fff")
                         .style("font-weight", "normal")
-                        .style("text-shadow", "none")
+                        .style("text-shadow", "none");
                     return;
                 }
                 sunburst.selectAll('text')
@@ -565,7 +565,7 @@ osdMapApp.directive('myTopology', function () {
             }, true);
         }
     }
-})
+});
 
 /*javascript external to angular applies to a scope*/
 
