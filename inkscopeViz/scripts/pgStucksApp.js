@@ -27,6 +27,10 @@ function refreshPgs($http, $scope, $templateCache) {
 }
 
 function ListCtrl($rootScope, $scope,$http, $filter, ngTableParams, $location) {
+    var search = $location.search();
+    $scope.search = {};
+    if (typeof search.poolId !=="undefined")
+        $scope.search.pgid = search.poolId+'.';
     $scope.tableParams = new ngTableParams({
         page: 1,            // show first page
         count: 20,          // count per page

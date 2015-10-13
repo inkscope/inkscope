@@ -7,7 +7,7 @@ angular.module('poolApp', ['ngRoute','ngTable','D3Directives','ui.bootstrap','di
     .config(function ($routeProvider) {
         $routeProvider.
             when('/', {controller: ListCtrl, templateUrl: 'partials/pools/aboutPools.html'}).
-            when('/detail/:poolNum', {controller: DetailCtrl, templateUrl: 'partials/pools/detailPool.html'}).
+            when('/detail/:poolNum/:clean', {controller: DetailCtrl, templateUrl: 'partials/pools/detailPool.html'}).
             when('/new', {controller: CreateCtrl, templateUrl: 'partials/pools/createPool.html'}).
             when('/modify/:poolNum', {controller: ModifyCtrl, templateUrl: 'partials/pools/createPool.html'}).
             when('/delete/:poolNum/:poolName', {controller: DeleteCtrl, templateUrl: 'partials/pools/deletePool.html'}).
@@ -40,7 +40,12 @@ function refreshPools($http, $scope, $templateCache) {
                 $scope.totalSpace = data.output.stats.total_bytes;
 
             $scope.percentUsed = $scope.totalUsed / $scope.totalSpace;
+            for (var i=0; i<$scope.pools.length;i++){
+                $scope.pools[i].clean = true;
+            }
+            getPgInfo($http, $scope);
             $scope.tableParams.reload();
+
         }).
         error(function (data, status, headers) {
             //alert("refresh pools failed with status "+status);
@@ -51,6 +56,27 @@ function refreshPools($http, $scope, $templateCache) {
             $scope.stats.total_used = "N/A";
             $scope.stats.total_space = "N/A";
         });
+}
+
+function getPgInfo($http, $scope){
+        $http({method: "get", url: cephRestApiURL + "pg/dump_stuck.json",timeout:8000})
+            .success(function (data, status) {
+                // fetching stuck pg list
+                var pg_stats = data.output;
+                var currentNumPool = -1;
+                for (var i = 0; i < pg_stats.length; i++) {
+                    var pg = pg_stats[i];
+                    //console.log(pg.pgid + " : " + pg.state)
+                    var numPool = pg.pgid.split(".")[0];
+                    if (currentNumPool == numPool) continue;
+                    currentNumPool=numPool;
+                    for (var j=0; j<$scope.pools.length;j++){
+                        if (currentNumPool==$scope.pools[j].id){
+                            $scope.pools[j].clean = false;
+                        }
+                    }
+                }
+            });
 }
 
 function getRules($http, $scope) {
@@ -115,8 +141,9 @@ function ListCtrl($scope,$http, $filter, ngTableParams, $location) {
     getRules($http,$scope);
     getErasureProfiles($http,$scope);
 
-    $scope.showDetail = function (poolid) {
-        $location.path('/detail/'+poolid);
+    $scope.showDetail = function (pool) {
+        var url = '/detail/'+pool.id+ "/"+pool.clean;
+        $location.path(url);
     }
 }
 
@@ -163,7 +190,7 @@ function SnapshotCtrl($scope, $http, $routeParams, $location, $dialogs) {
             });
     }}
 
-function DetailCtrl($scope, $http, $routeParams, $route, $dialogs, ngTableParams , $filter) {
+function DetailCtrl($scope, $http, $routeParams, $dialogs, ngTableParams , $filter) {
     i = 0;
     poolParameters = {
             pool:{cat:"General",transform:"",rank:i++},
@@ -255,6 +282,7 @@ function DetailCtrl($scope, $http, $routeParams, $route, $dialogs, ngTableParams
                 $scope.detailedPoolParams.push(param);
 
             }
+            $scope.detailedPool.clean = $routeParams.clean;
             $scope.firstGroup=true;
             $scope.checkGroup = function(group){
                 if ($scope.firstGroup) $scope.firstGroup = false;

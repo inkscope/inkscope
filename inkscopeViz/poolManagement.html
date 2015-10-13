@@ -45,14 +45,17 @@
     </table>
     <br>
     <table ng-table="tableParams" class="table table-condensed clickable">
-        <tr ng-repeat="pool in orderedData | filter:search:strict" ng-click="showDetail(pool.id)">
+        <tr ng-repeat="pool in orderedData | filter:search:strict" ng-click="showDetail(pool)">
             <td data-title="'Id'" sortable="'id'">{{pool.id}}</td>
             <td data-title="'Pool'" sortable="'name'">{{pool.name}}</td>
             <!--td data-title="'Ruleset'" sortable="'ruleset'">{{pool.ruleset}}</td-->
             <!--td data-title="'Size'" sortable="'size'">{{pool.size}}</td-->
             <td data-title="'Space used'" sortable="'stats.bytes_used'" style="text-align:right">{{pool.stats.bytes_used|bytes}}</td>
             <td data-title="'Objects'" sortable="'stats.objects'" style="text-align:right">{{pool.stats.objects}}</td>
-            <td data-title="'View'" sortable="pool" style="text-align:center"><i class="icon-eye-open" alt="view details of {{pool.name}}" title="view details of {{pool.name}}"></i></td>
+            <td data-title="'View'" sortable="pool" style="text-align:center">
+                <i class="icon-eye-open" alt="view details of {{pool.name}}" title="view details of {{pool.name}}"></i>
+                <a href="pgStucks.html#/?poolId={{pool.id}}"><i class="icon-warning-sign" alt="view details of {{pool.name}}" title="view stuck pgs for {{pool.name}}" ng-hide="pool.clean"></i></a>
+            </td>
         </tr>
     </table>
 </div>
