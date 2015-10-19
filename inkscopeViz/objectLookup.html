@@ -27,9 +27,7 @@
         <h2>Selection</h2>
         <br>
         Pool:
-        <select id="pool" ng-model="pool" >
-            <option ng-repeat="pool in pools" value="{{ pool.name }}" >{{ pool.name }}</option>
-        </select>
+        <select id="pool" ng-model="pool" ng-options="value.poolname for value in poolList| orderBy:'poolnum'"  ng-change="getPoolInfo(pool)"></select>
         Object id:
         <input type="text" ng-model="objectId" name="objectId" placeholder="object id">
     </div>
@@ -37,13 +35,37 @@
 
 <div class="general_status">
    <h3>Date : {{date | date:'HH:mm:ss'}}</h3>
-    <table  class="table table-condensed" style="width:300px;align-self: center">
-        <tr><td>Pool</td><td>{{pool}}</td></tr>
-        <tr><td>Object</td><td>{{objectId}}</td></tr>
-        <tr><td>PG</td><td>{{data.pgid}}</td></tr>
-        <tr><td>acting</td><td>{{data.acting}}</td></tr>
-        <tr><td>up</td><td>{{data.up}}</td></tr>
+    <table><tr><td valign="top">
+        <table  class="table table-condensed" style="width:400px;align-self: center">
+            <tr><td>Pool</td><td>
+                <span ng-show="selectedPool">
+                    {{selectedPool.pool_name}} ({{selectedPool.pool}}), type: {{ getPoolType(selectedPool.type)}}, ruleset: {{ selectedPool.crush_ruleset }}, size: {{ selectedPool.size }}
+                </span>
+            </td></tr>
+            <tr><td>Object</td><td>{{objectId}}</td></tr>
+            <tr><td>PG</td><td>{{data.pgid}}</td></tr>
+            <tr><td>acting</td><td>{{data.acting}}</td></tr>
+            <tr><td>up</td><td>{{data.up}}</td></tr>
+        </table>
+        </td><td valign="top" style="padding-left: 20px">
+        <table class="table table-condensed" style="width:400px;align-self: center" ng-show="selectedRule">
+            <tr><td>Rule: </td><td>{{selectedRule.rule_name}} ({{selectedRule.rule_id}})</td></tr>
+            <tr><td>Type: </td><td>{{getPoolType(selectedRule.type)}} ({{selectedRule.type}})</td></tr>
+            <tr><td>Ruleset: </td><td>{{selectedRule.ruleset}}</td></tr>
+            <tr><td>Min size: </td><td>{{selectedRule.min_size}}</td></tr>
+            <tr><td>max size: </td><td>{{selectedRule.max_size}}</td></tr>
+            <tr><td>Steps:</td><td>
+                    <table class="table table-condensed table-nohead" style="width:100%">
+                        <tr ng-repeat="step in selectedRule.steps">
+                            <td>{{ prettifyStep(step) }}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        </td></tr>
     </table>
+
    <div id="osds">
         <h3>Acting OSD :</h3>
         <div ng-repeat="osd in acting track by $index" class=" tooltips osd {{ osdClassForId(osd) }}" >

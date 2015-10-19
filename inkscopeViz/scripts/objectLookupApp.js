@@ -8,7 +8,7 @@ var ObjectLookupApp = angular.module('ObjectLookupApp', ['D3Directives','Inkscop
     .filter('duration',funcDurationFilter);
 
 ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $http) {
-    $scope.pool = "";
+    $scope.pool = {};
 
     // start refresh when fsid is available
     var waitForFsid = function ($rootScope, $http,$scope){
@@ -21,25 +21,24 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
     waitForFsid($rootScope, $http,$scope);
 
 
-    getPoolsInfo();
+    getPoolList($http,$rootScope);
 
     getObjectInfo();
+    getCrushMap();
+
     setInterval(function () {getObjectInfo()},5*1000);
 
-    function getPoolsInfo() {
-        $http({method: "get", url: cephRestApiURL + "df.json"}).
+    function getCrushMap(){
+        $http({method: "get", url: cephRestApiURL + "osd/crush/dump.json"}).
             success(function (data, status) {
-                $scope.status = status;
-                $scope.date = new Date();
-                $scope.pools =  data.output.pools;
+                $rootScope.rules = data.output.rules;
+                $rootScope.rawbuckets = data.output.buckets;
             }).
-            error(function (data, status, headers) {
-                //alert("refresh pools failed with status "+status);
-                $scope.status = status;
-                $scope.date = new Date();
-                $scope.pools =  [];
+            error(function (data, status) {
+                $rootScope.status = status;
             });
     }
+
 
     function getOsdInfo(){
         $scope.date = new Date();
@@ -74,8 +73,8 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
         $rootScope.date = new Date();
         if ($scope.pool+"" =="undefined" || $scope.objectId+"" =="undefined") return;
 
-        console.log(cephRestApiURL + "osd/map?pool="+ $scope.pool +"&object="+ $scope.objectId );
-        $http({method: "get", url: cephRestApiURL + "osd/map.json?pool="+$scope.pool+"&object="+$scope.objectId})
+        console.log(cephRestApiURL + "osd/map?pool="+ $scope.pool.poolname +"&object="+ $scope.objectId );
+        $http({method: "get", url: cephRestApiURL + "osd/map.json?pool="+$scope.pool.poolname+"&object="+$scope.objectId})
 
             .success(function (data, status) {
                 $scope.data = data.output;
@@ -148,6 +147,24 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
 
     }
 
+    $scope.prettifyStep = function(step){
+        if (step.op == "take")
+            return "take "+ $scope.getBucketForId(step.item).name;
+        if (step.op == "emit")
+            return "emit";
+        var txtStep = step.op.replace("_"," ") +" "+ step.num;
+        if (typeof step.type !== "undefined")
+            txtStep +=" type "+ step.type;
+        return txtStep;
+
+    };
+
+    $scope.getBucketForId= function(id){
+        for (var i = 0; i < $scope.rawbuckets.length; i++) {
+            if ( $scope.rawbuckets[i].id == id) return $scope.rawbuckets[i];
+        }
+    }
+
     $rootScope.prettyPrint = function( object){
         return object.toString();
     }
@@ -174,6 +191,34 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
         //console.log("osd "+osd+" not found");
         return null;
     }
+
+    $rootScope.getPoolType = function (id) {
+        if (id+""=="1") return "replicated";
+        if (id+""=="2") return "raid-4";
+        if (id+""=="3") return "erasure";
+        return "N/A";
+    };
+
+    $rootScope.getPoolInfo = function(pool){
+        $http({method: "get", url: inkscopeCtrlURL + "pools/"+pool.poolnum}).
+            success(function (data, status) {
+                $scope.selectedPool = data.output;
+                // search for rule
+                var ruleset = $scope.selectedPool.crush_ruleset;
+                for (var i in $scope.rules){
+                    var rule = $scope.rules[i];
+                    if (rule.ruleset == ruleset){
+                        $scope.selectedRule = rule;
+                        break;
+                    }
+                }
+            }).
+            error(function (data, status) {
+                $scope.selectedPool = {};
+                $rootScope.status = status;
+            });
+    }
+
 
 
 });
