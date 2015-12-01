@@ -58,10 +58,14 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $scope, $http, $location ,$
                 }
                 for ( var i=0; i<data.length;i++){
                     data[i].id = data[i]._id;
-                    if ( data[i].stat == null)
+                    if ( data[i].stat == null) {
                         data[i].lastControl = "-";
-                    else
-                        data[i].lastControl = ((+$scope.date)-data[i].stat.timestamp)/1000;
+                        data[i].reweight = "N/A";
+                    }
+                    else {
+                        data[i].lastControl = ((+$scope.date) - data[i].stat.timestamp) / 1000;
+                        data[i].reweight = data[i].stat.weight;
+                    }
                 }
 
                 // search for selected osd, first one if none
@@ -125,6 +129,7 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $scope, $http, $location ,$
     $scope.osdSelect = function (osd) {
         $scope.osd = osd;
         $scope.selectedOsd = osd.node._id;
+        $scope.reweight = osd.reweight;
 
         var requestData = '{"$select" : {"osd.$id":'+$scope.selectedOsd+'},"$template" : {"timestamp":1, "up":1, "in":1}}';
         $http({method: "post", url:  inkscopeCtrlURL + $rootScope.fsid+"/osdstat", data: requestData}).
@@ -239,6 +244,17 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $scope, $http, $location ,$
 
             success(function (data, status) {
 
+            }).
+            error(function (data, status) {
+
+            });
+    }
+
+
+    $scope.osdReweight = function (osd) {
+        $http({method: "put", url: cephRestApiURL + "osd/reweight?id="+osd +"&weight="+$scope.reweight}).
+            success(function (data, status) {
+                alert(data.status);
             }).
             error(function (data, status) {
 

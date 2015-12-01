@@ -80,7 +80,7 @@
 
     <div id="osdStatGraph"><svg style="height:180px;width:100%"></svg></div>
     last control : {{osd.lastControl|duration}}<br>
-    reweight : {{(1*osd.stat.weight).toString()}}<br>
+    reweight : {{osd.reweight }}<br>
     {{osd.partition._id}}<br>
     {{osd.public_addr}}<br>
     <ad-gauge value="osd.partition.stat.used/osd.partition.stat.total" colormode="desc" width="241"></ad-gauge>
@@ -92,6 +92,11 @@
     <a class="btn btn-success btn-large" ng-hide="osd.stat.in == true" ng-click="osdIn(selectedOsd)" ><i class="icon-white icon-plus"></i> get in</a>
     <a class="btn btn-danger btn-large" ng-hide="osd.stat.in != true" ng-click="osdOut(selectedOsd)"><i class="icon-white icon-minus"></i> get out</a>
     <a class="btn btn-warning btn-large" ng-hide="osd.stat.up == false" ng-click="osdDown(selectedOsd)"><i class="icon-white icon-arrow-down"></i> down</a>
+    </div>
+    <div>
+        <hr>
+        <input ng-model="reweight" id="reweight" type="text">
+        <a class="btn btn-warning btn-small" ng-click="osdReweight(selectedOsd)">Reweight</a>
     </div>
 </div>
 
