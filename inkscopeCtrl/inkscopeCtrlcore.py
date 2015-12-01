@@ -8,9 +8,10 @@ app = Flask(__name__)  # ,template_folder='/var/www/inkscope/inkscopeAdm/')
 
 import mongoJuiceCore
 
-import poolsCtrl
+from poolsCtrl import PoolsCtrl,Pools
 import osdsCtrl
 import rbdCtrl
+#import probesCtrl
 
 from S3Ctrl import S3Ctrl, S3Error
 from S3ObjectCtrl import *
@@ -41,9 +42,7 @@ def full(db):
 #
 @app.route('/conf.json', methods=['GET'])
 def conf_manage():
-    platform = conf.get("platform")
-    result = json.dumps({"platform": platform})
-    return Response(result, mimetype='application/json')
+    return Response(json.dumps(conf), mimetype='application/json')
 
 
 #
@@ -51,23 +50,23 @@ def conf_manage():
 #
 @app.route('/poolList/', methods=['GET'])
 def pool_list():
-    return Response(poolsCtrl.pool_list(), mimetype='application/json')
+    return Response(PoolsCtrl(conf).pool_list(), mimetype='application/json')
 
 
 @app.route('/pools/', methods=['GET', 'POST'])
 @app.route('/pools/<int:id>', methods=['GET', 'DELETE', 'PUT'])
 def pool_manage(id=None):
-    return poolsCtrl.pool_manage(id)
+    return PoolsCtrl(conf).pool_manage(id)
 
 
 @app.route('/pools/<int:id>/snapshot', methods=['POST'])
 def makesnapshot(id):
-    return poolsCtrl.makesnapshot(id)
+    return PoolsCtrl(conf).makesnapshot(id)
 
 
 @app.route('/pools/<int:id>/snapshot/<namesnapshot>', methods=['DELETE'])
 def removesnapshot(id, namesnapshot):
-    return poolsCtrl.removesnapshot(id, namesnapshot)
+    return PoolsCtrl(conf).removesnapshot(id, namesnapshot)
 
 
 #
@@ -84,6 +83,7 @@ def getImagesList():
     except CalledProcessError, e:
         return Response(e.output, status=500)
 
+
 @app.route('/RBD/images/<string:pool_name>/<string:image_name>', methods=['GET'])
 def getImagesInfo(pool_name, image_name):
     # Log.debug("Calling  rbdCtrl.getImagesInfo() method")
@@ -91,6 +91,7 @@ def getImagesInfo(pool_name, image_name):
         return Response(rbdCtrl.image_info(pool_name, image_name), mimetype='application/json')
     except CalledProcessError, e:
         return Response(e.output, status=500)
+
 
 @app.route('/RBD/images/<string:pool_name>/<string:image_name>', methods=['PUT'])
 def createImage(pool_name, image_name):
@@ -159,9 +160,20 @@ def actionOnImageSnapshot(pool_name, image_name,snap_name, action):
 
 
 #
-# Osds management
+# Probes management
+#
+#@app.route('/probes/<string:probe_type>/<string:probe_name>/<string:action>', methods=['POST'])
+#def actionOnProbe(probe_type, probe_name, action):
+    # print "Calling  rbdCtrl.action_on_probe() method", action
+#    try:
+#        return Response(probesCtrl.action_on_probe(probe_type, probe_name, action), mimetype='application/json')
+#    except CalledProcessError, e:
+#        return Response(e.output, status=500)
 #
 
+#
+# Osds management
+#
 @app.route('/osds', methods=['PUT'])
 def osds_manage(id=None):
     return osdsCtrl.osds_manage(id)
