@@ -123,7 +123,7 @@ class PoolsCtrl:
             return  'ok'
     
     
-    def pool_list():
+    def pool_list(self):
         args = ['ceph',
                 'osd',
                 'lspools',
