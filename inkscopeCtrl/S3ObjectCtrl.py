@@ -16,9 +16,6 @@ from S3.user import  S3User
 import rados
 from datetime import  datetime
 
-def getCephRestApiUrl(request):
-    # discover ceph-rest-api URL
-    return request.url_root.replace("inkscopeCtrl", "ceph-rest-api")
 
 class S3ObjectCtrl:
     #Log.debug("Entering in S3ObjectCtrl class <<")
@@ -30,6 +27,8 @@ class S3ObjectCtrl:
         self.radosgw_url = conf.get("radosgw_url", "127.0.0.1")
         self.clusterName = conf.get("cluster", "ceph")
         self.secure = self.radosgw_url.startswith("https://")
+        self.cephRestApiUrl = "http://"+conf.get("ceph_rest_api", "")+"/"+conf.get("ceph_rest_api_subfolder", "")+"/api/v0.1/"
+        self.inkscopeCtrlUrl = "http://"+conf.get("inkscope_root", "")+"/inkscopeCtrl/"
 
         if not self.radosgw_url.endswith('/'):
             self.radosgw_url += '/'
@@ -193,7 +192,7 @@ class S3ObjectCtrl:
 # The PG id is used as an input argument
     def getOsdMapInfos(self, pgid):
         Log.info("___getOsdMapInfos(pgid=" + str(pgid) + ")")
-        cephRestApiUrl = getCephRestApiUrl(request) + 'tell/' + pgid + '/query.json';
+        cephRestApiUrl = self.cephRestApiUrl + 'tell/' + pgid + '/query.json';
 
         Log.debug("____cephRestApiUrl Request=" + cephRestApiUrl)
         osdmap = []
@@ -235,7 +234,7 @@ class S3ObjectCtrl:
     def getOsdDump(self):
         Log.debug("___getOsdDump()")
         # print str(datetime.datetime.now()), "-- Process OSDDump"
-        cephRestUrl = request.url_root + self.cluster.get_fsid() + '/osd?depth=2'
+        cephRestUrl = self.inkscopeCtrlUrl + self.cluster.get_fsid() + '/osd?depth=2'
         print(cephRestUrl)
         # Set HTTP credentials for url callback (requests.)
         data = requests.get(cephRestUrl)
@@ -312,7 +311,7 @@ class S3ObjectCtrl:
 # We careful with double entry whena dding the osd id, thanks to the list.count(x) method for the comparison
     def getOsdsListForPg(self, pgid):
         Log.info("____getOsdsListForPg(pgid=" + str(pgid) + ")")
-        cephRestApiUrl = getCephRestApiUrl(request) + 'pg/map.json?pgid=' + pgid
+        cephRestApiUrl = self.cephRestApiUrl + 'pg/map.json?pgid=' + pgid
         data = requests.get(cephRestApiUrl)
         # r = data.json()
         r = data.content
