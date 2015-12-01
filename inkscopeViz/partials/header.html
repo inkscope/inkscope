@@ -1,7 +1,7 @@
 <div id="page_header"  ng-controller="overallStatusCtrl">
     <div id="page_logo"><a href="index.html" title="{{ overallStatus.severity }}: {{ overallStatus.summary }}"><img src="img/inkscope_logo100.png" border="0"></a></div>
     <div id="page_title" class="text_health_status_{{ overallStatus.severity }}">{{ pageTitle }}</div>
-    <div id="page_subtitle" class="text_health_status_{{ overallStatus.severity }}">{{ platform }}</div>
+    <div id="page_subtitle" class="text_health_status_{{ overallStatus.severity }}">{{ conf.platform }}</div>
     <div id="page_menu">
         <ul id="menu_cat_list" class="nav nav-pills">
             <li id="menu_cat_cluster" class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Cluster<span class="caret"></span></a>
