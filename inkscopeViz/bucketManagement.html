@@ -29,7 +29,7 @@
         <tr>
             <th><input type="text" ng-model="search" class="search-query" placeholder="Search"></th>
             <th>&nbsp; &nbsp; </th>
-            <th>new bucket <a href="#/new"><i class="icon-plus-sign" alt="add a new bucket" title="add a new bucket"></i></a></th>
+            <th ng-show="role=='admin'">new bucket <a href="#/new"><i class="icon-plus-sign" alt="add a new bucket" title="add a new bucket"></i></a></th>
         </tr>
     </table>
     <br>

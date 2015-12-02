@@ -40,7 +40,7 @@
         <tr>
             <th><input type="text" ng-model="search" class="search-query" placeholder="Search erasure profile name"></th>
             <th>&nbsp; &nbsp; </th>
-            <th><a href="#/new">new erasure profile <i class="icon-plus-sign" alt="add a new erasure profile" title="add a new erasure profile"></i></a></th>
+            <th ng-show="role=='admin'"><a href="#/new">new erasure profile <i class="icon-plus-sign" alt="add a new erasure profile" title="add a new erasure profile"></i></a></th>
         </tr>
     </table>
     <br>

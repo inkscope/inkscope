@@ -28,7 +28,7 @@
 </table>
 
 
-<div class="button-bar">
+<div class="button-bar"  ng-show="role=='admin'">
     <button ng-disabled="detailedSnap.format == 1 || detailedSnap.protected=='true'" ng-click="protectSnapshot()" class="btn btn-info" style="float:left;margin-right: 5px">Protect</button>
     <button ng-disabled="detailedSnap.format == 1 || detailedSnap.protected=='false'" ng-click="unprotectSnapshot()" class="btn btn-info" style="float:left;margin-right: 5px">Unprotect</button>
     <button ng-disabled="detailedSnap.format == 1 || detailedSnap.protected=='false'" ng-click="showCloneImageSnapshot()" class="btn btn-info" style="float:left;margin-right: 5px">Clone</button>

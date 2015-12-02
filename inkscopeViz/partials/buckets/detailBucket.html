@@ -32,7 +32,7 @@
 </table>
 
 
-<div class="button-bar">
+<div class="button-bar" ng-show="role=='admin'">
     <a href="#/changeOwner/{{ detailedBucket.bucket }}/{{ detailedBucket.owner }}" class="btn btn-success">Change owner</a>
     <a href="#/delete/{{ detailedBucket.bucket }}" class="btn btn-danger">Delete</a>
     <a href="#/" class="btn btn-default">Close</a>

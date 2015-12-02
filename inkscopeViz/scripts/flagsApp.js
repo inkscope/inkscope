@@ -3,7 +3,7 @@
  */
 var FlagsApp = angular.module('FlagsApp', ['InkscopeCommons']);
 
-FlagsApp.controller("flagsCtrl", function ($scope, $http) {
+FlagsApp.controller("flagsCtrl", function ($rootScope, $scope, $http) {
     var apiURL = '/ceph-rest-api/';
 
     refreshData();
@@ -33,22 +33,26 @@ FlagsApp.controller("flagsCtrl", function ($scope, $http) {
     }
 
     $scope.setFlag=function(flag){
-        $http({method: "put", url: apiURL + "osd/set?key="+flag,timeout:4000})
-            .success(function (){
-                refreshData();
-            })
-            .error(function (data) {
-                $scope.status = "Flags not found : "+data;
-            })
+        if ($rootScope.role=='admin') {
+            $http({method: "put", url: apiURL + "osd/set?key=" + flag, timeout: 4000})
+                .success(function () {
+                    refreshData();
+                })
+                .error(function (data) {
+                    $scope.status = "Flags not found : " + data;
+                })
+        }
     }
 
     $scope.unsetFlag=function(flag){
-        $http({method: "put", url: apiURL + "osd/unset?key="+flag,timeout:4000})
-            .success(function (){
-                refreshData();
-            })
-            .error(function (data) {
-                $scope.status = "Flags not found : "+data;
-            })
+        if ($rootScope.role=='admin') {
+            $http({method: "put", url: apiURL + "osd/unset?key=" + flag, timeout: 4000})
+                .success(function () {
+                    refreshData();
+                })
+                .error(function (data) {
+                    $scope.status = "Flags not found : " + data;
+                })
+        }
     }
 });

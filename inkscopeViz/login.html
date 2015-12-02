@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=UTF-8/>
+    <title>Inkscope sign in</title>
+
+    <link rel="stylesheet" type="text/css" media="screen" href="css/testAdmin.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="css/tooltip.css"/>
+    <link rel="stylesheet" href="css/animation.css">
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
+
+    <!--[if IE]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+</head>
+
+<body>
+<div id="page_header">
+    <div id="page_logo"><img src="img/inkscope_logo100.png" border="0"></div>
+    <div id="page_title" class="text_health_status_HEALTH_OK">Inkscope sign in</div>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6">
+      <div id="error_message" class="alert alert-danger" role="alert" style="visibility: hidden;">Invalid user name or password.</div>
+      <form class="form" name="form" method="post" action="../inkscopeCtrl/login/" novalidate>
+        <div class="form-group">
+          <strong>User</strong><br>
+          <input type="text" name="name" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <strong>Password</strong><br>
+          <input type="password" name="password" class="form-control" required>
+        </div>
+        <div>
+          <button class="btn btn-success" type="submit">
+            Login
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+    if (window.location.search.indexOf('failed') > -1) {
+        $("#error_message").css( "visibility", "visible" );
+    }
+</script>
+</body>

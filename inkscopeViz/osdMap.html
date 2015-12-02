@@ -76,7 +76,7 @@
         </table>
         <div ng-hide="warningMessage == ''"><p class="text-warning"><i class="icon-warning-sign"></i> {{warningMessage}}
         </p></div>
-        <a ng-click="reweightByUtilization()" class="btn btn-info" style="float: right">Reweight by utilization</a>
+        <a ng-click="reweightByUtilization()" class="btn btn-info" style="float: right"  ng-show="role=='admin'">Reweight by utilization</a>
     </div>
 </form>
 

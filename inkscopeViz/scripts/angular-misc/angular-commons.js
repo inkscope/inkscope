@@ -58,12 +58,15 @@ function getMenu(){
 
 
 angular.module('InkscopeCommons', ['ngTable','dialogs','ui.bootstrap'])
-    .controller('overallStatusCtrl', function ($rootScope, $scope,$http) {
+    .controller('overallStatusCtrl', function ($rootScope, $scope, $http, $window) {
+        $rootScope.role = 'unknown';
         $http({method: "get", url: inkscopeCtrlURL + "conf.json",timeout:4000})
             .success(function (data) {
                 $scope.conf = data;
+                $rootScope.role=data.role;
             })
-            .error(function(data){
+            .error(function(data,status){
+                if (status==401) $window.location.assign("login.html");
                 console.log (data);
             });
         refreshData();
