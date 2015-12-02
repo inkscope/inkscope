@@ -62,7 +62,7 @@ angular.module('InkscopeCommons', ['ngTable','dialogs','ui.bootstrap'])
         $rootScope.role = 'unknown';
         $http({method: "get", url: inkscopeCtrlURL + "conf.json",timeout:4000})
             .success(function (data) {
-                $scope.conf = data;
+                $rootScope.conf = data;
                 $rootScope.role=data.role;
             })
             .error(function(data,status){

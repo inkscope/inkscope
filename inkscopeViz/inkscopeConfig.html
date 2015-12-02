@@ -1,0 +1,50 @@
+<!doctype html>
+<html ng-app="adminApp">
+<head>
+    <meta charset=utf-8 />
+    <script src="scripts/angular/angular.min.js"></script>
+    <script src="scripts/angular/angular-route.min.js"></script>
+    <script src="scripts/angular/angular-sanitize.min.js"></script>
+    <script src="scripts/angular-misc/ng-table.min.js"></script>
+    <script src="scripts/angular-misc/angular-commons.js"></script>
+    <script src="scripts/angular-misc/ui-bootstrap-tpls-0.10.0.min.js"></script>
+    <script src="scripts/angular-misc/dialogs.v2.min.js"></script>
+    <script src="scripts/adminApp.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
+    <script src="scripts/angular-misc/D3Directives.js"></script>
+    <script src="scripts/d3/d3.v3.min.js"></script>
+    <script src="scripts/d3/common.js"></script>
+    <script src="scripts/d3/colorbrewer.js"></script>
+    <link rel="stylesheet" href="css/testAdmin.css" />
+    <link rel="stylesheet" href="css/tooltip.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="scripts/angular-misc/ng-table.min.css">
+    <title>Inkscope config</title>
+</head>
+<body onresize="resizeBlocks(['#listparameters'])">
+
+
+<header id="header" ng-include src="'partials/header.html'" ng-init="pageTitle='Inkscope config'"></header>
+
+<div>
+<!--div id="status"  >{{status}}</div-->
+<div id="listparameters">
+    <table class="table table-condensed table-hover">
+        <tr ng-repeat="(key, val) in conf | orderBy:key">
+            <td >
+                {{key}}
+            </td>
+            <td>
+                {{val}}
+            </td>
+        </tr>
+    </table>
+</div>
+</div>
+
+<script>resizeBlocks(['#listparameters']);</script>
+
+</body>
+
+</html>

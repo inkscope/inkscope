@@ -56,12 +56,12 @@
                     <li><a href="console.html" title="console">Console</a></li>
                 </ul>
             </li>
-            <li id="menu_cat_logout" class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#" title="Crush map, object lookup and probe status">Logged as {{role}}<span class="caret"></span></a>
+            <li id="menu_cat_logout" class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#" title="">Logged as {{role}}<span class="caret"></span></a>
                 <ul  id="menu_cat_logout_list" class="dropdown-menu">
+                    <li ng-show="role=='admin'"><a href="inkscopeConfig.html" title="log out">Inkscope config</a></li>
                     <li><a href="../inkscopeCtrl/logout" title="log out">Logout</a></li>
                 </ul>
             </li>
-
         </ul>
     </div>
 </div>
