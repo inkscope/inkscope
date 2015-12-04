@@ -5,12 +5,13 @@
 # 2015-12 A. Dechorgnat: add login security (inspired from http://thecircuitnerd.com/flask-login-tokens/)
 
 
-from flask import Flask, Response, redirect, url_for
+from flask import Flask, Response, redirect
 from flask_login import (LoginManager, login_required, login_user,
                          current_user, logout_user, UserMixin)
 from itsdangerous import URLSafeTimedSerializer
 from datetime import timedelta
 from hashlib import md5
+from bson.json_util import dumps
 
 app = Flask(__name__)
 app.secret_key = "Mon Nov 30 17:20:29 2015"
@@ -35,14 +36,6 @@ import rbdCtrl
 from S3Ctrl import S3Ctrl, S3Error
 from S3ObjectCtrl import *
 
-
-# Load configuration from file
-configfile = "/opt/inkscope/etc/inkscope.conf"
-datasource = open(configfile, "r")
-conf = json.load(datasource)
-datasource.close()
-
-
 def hash_pass(password):
     """
     Return the md5 hash of the password+salt
@@ -51,9 +44,25 @@ def hash_pass(password):
     return md5(salted_password).hexdigest()
 
 
-# proxy for a database of users
-USERS = (("Administrator", hash_pass("admin"), "admin"),
-          ("Supervizor", hash_pass("supervizor"), "supervizor"))
+
+# Load configuration from file
+configfile = "/opt/inkscope/etc/inkscope.conf"
+datasource = open(configfile, "r")
+conf = json.load(datasource)
+datasource.close()
+
+# control inkscope users  collection in mongo
+db = mongoJuiceCore.getClient(conf, 'inkscope')
+if db.inkscope_users.count() == 0:
+    print "list users is empty: populating with default users"
+    user = {"name":"admin",
+            "password": hash_pass("admin"),
+            "roles":["admin"]}
+    db.inkscope_users.insert(user)
+    user = {"name":"guest",
+            "password": hash_pass(""),
+            "roles":["supervizor"]}
+    db.inkscope_users.insert(user)
 
 
 #
@@ -61,10 +70,10 @@ USERS = (("Administrator", hash_pass("admin"), "admin"),
 #
 class User(UserMixin):
 
-    def __init__(self, username, password, role):
-        self.id = username
+    def __init__(self, name, password, roles):
+        self.id = name
         self.password = password
-        self.role = role
+        self.roles = roles
 
     @staticmethod
     def get(userid):
@@ -73,12 +82,11 @@ class User(UserMixin):
         does exist then return a User Object.  If not then return None as
         required by Flask-Login.
         """
-        # For this example the USERS database is a list consisting of
-        # (user, hased_password, role) of users.
-        for user in USERS:
-            if user[0] == userid:
-                return User(user[0], user[1], user[2])
+        u = db.inkscope_users.find_one({"name":userid})
+        if u:
+            return User(u['name'], u['password'], u['roles'])
         return None
+
 
     def get_auth_token(self):
         """
@@ -161,16 +169,78 @@ def logout():
 # global management
 #
 @app.route('/conf.json', methods=['GET'])
-@login_required #called by every page, so force to be identified
+@login_required  # called by every page, so force to be identified
 def conf_manage():
-    if ( current_user.role == 'admin'):
-        conf['role'] = current_user.role
+    if 'admin' in current_user.roles:
+        conf['roles'] = current_user.roles
+        conf['username']= current_user.id
         return Response(json.dumps(conf), mimetype='application/json')
     else:
         conflite = {}
-        conflite['role'] = current_user.role
+        conflite['roles'] = current_user.roles
         conflite['platform'] = conf.get('platform')
+        conflite['username']= current_user.id
         return Response(json.dumps(conflite), mimetype='application/json')
+
+
+#
+# inkscope users management
+#
+@app.route('/inkscope_user/', methods=['GET'])
+def inkscope_user_list():
+    return Response(dumps(db.inkscope_users.find()))
+
+
+@app.route('/inkscope_user/<id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@login_required
+def inkscope_user_manage(id):
+    if request.method == 'GET':
+        # user info
+        return  Response(dumps(db.inkscope_users.find_one({"name":id})))
+
+    elif request.method == 'POST':
+        # user creation
+        if 'admin' not in current_user.roles:
+            return Response("Not enough permissions to do this", status=403)
+        if db.inkscope_users.find_one({"name":id}):
+            return Response("This user already exists", status=403)
+        user = json.loads(request.data)
+        user['password']= hash_pass(user['password'])
+        db.inkscope_users.insert(user)
+        return Response('ok', status=201)
+
+    elif request.method == 'PUT':
+        # user modification
+        if 'admin' not in current_user.roles:
+            return Response("Not enough permissions to do this", status=403)
+        print 'old', dumps(db.inkscope_users.find_one({"name":id}))
+        user = json.loads(request.data)
+        if 'newpassword' in user:
+            user['password']= hash_pass(user['newpassword'])
+            del user['newpassword']
+        del user['_id']
+
+        print 'rep', dumps(user)
+        newuser = db.inkscope_users.replace_one({"name":id}, user)
+        print 'old', dumps(db.inkscope_users.find_one({"name":id}))
+        return Response('ok')
+
+    elif request.method == 'DELETE':
+        # user deletion
+        if 'admin' not in current_user.roles:
+            return Response("Not enough permissions to do this", status=403)
+        if current_user.id == id:
+            return Response("You can't delete yourself", status=403)
+        else:
+            db.inkscope_users.remove({"name":id})
+            return Response('ok')
+
+
+@app.route('/inkscope_user_role/', methods=['GET'])
+def inkscope_user_role_list():
+    roles = ["admin","admin_rgw","admin_rbd","admin_pool","supervizor"]
+    return Response(dumps(roles), mimetype='application/json')
+
 
 #
 # mongoDB query facility

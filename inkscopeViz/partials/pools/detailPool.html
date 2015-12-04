@@ -5,7 +5,7 @@
         <p class="text-warning"> <i class="icon-warning-sign" ></i> This pool has stucked pgs</p>
     </a><br>
 </div>
-<div class="button-bar"  ng-show="role=='admin'">
+<div class="button-bar"  ng-show="hasRole('admin')">
     <a href="#/snapshot/{{detailedPool.pool}}/{{detailedPool.pool_name}}" class="btn btn-info" style="float:left"><i class="icon-white icon-camera"></i> make snapshot </a>
     <div style="width:35px;display: inline-block"></div>
     <a href="#/modify/{{detailedPool.pool}}" class="btn btn-success">Modify</a>

@@ -1,0 +1,12 @@
+<h3>User deletion</h3>
+<br />
+<form name="myForm">
+    <p>Are you sure you want to delete user  <strong>"{{user.name}}"</strong> ?</p>
+
+    <br>
+
+    <div class="button-bar">
+        <button ng-click="userDelete()" ng-show="user.name" class="btn btn-danger">Delete</button>
+        <a href="#/detail/{{user.name}}" class="btn">Cancel</a>
+    </div>
+</form>

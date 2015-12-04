@@ -40,7 +40,7 @@
         <tr>
             <th><input type="text" ng-model="search.name" class="search-query" placeholder="Search pool name"></th>
             <th>&nbsp; &nbsp; </th>
-            <th  ng-show="role=='admin'">new pool <a href="#/new"><i class="icon-plus-sign" alt="add a new pool" title="add a new pool"></i></a></th>
+            <th  ng-show="hasRole('admin')">new pool <a href="#/new"><i class="icon-plus-sign" alt="add a new pool" title="add a new pool"></i></a></th>
         </tr>
     </table>
     <br>

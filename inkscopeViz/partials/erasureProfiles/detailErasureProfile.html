@@ -1,6 +1,6 @@
 <h3>Erasure code profile details for {{detailedErasureProfile.name}}</h3>
 <br>
-<div class="button-bar" ng-show="role=='admin'">
+<div class="button-bar" ng-show="hasRole('admin')">
     <div style="width:35px;display: inline-block"></div>
     <a href="#/delete/{{detailedErasureProfile.name}}" class="btn btn-danger">Delete</a>
     <a href="#/" class="btn btn-default">Close</a>

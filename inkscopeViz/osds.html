@@ -88,7 +88,7 @@
         {{osd.partition.stat.used| bytes}} used <br>on {{osd.partition.stat.total| bytes}}
     </div>
 
-    <div ng-show="role=='admin'">
+    <div ng-show="hasRole('admin')">
         <hr>
         <div align="center">
             <a class="btn btn-success btn-large" ng-hide="osd.stat.in == true" ng-click="osdIn(selectedOsd)" ><i class="icon-white icon-plus"></i> get in</a>

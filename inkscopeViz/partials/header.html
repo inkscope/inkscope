@@ -56,9 +56,11 @@
                     <li><a href="console.html" title="console">Console</a></li>
                 </ul>
             </li>
-            <li id="menu_cat_logout" class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#" title="">Logged as {{role}}<span class="caret"></span></a>
+            <li id="menu_cat_logout" class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#" title="">Logged as {{conf.username}}<span class="caret"></span></a>
                 <ul  id="menu_cat_logout_list" class="dropdown-menu">
-                    <li ng-show="role=='admin'"><a href="inkscopeConfig.html" title="log out">Inkscope config</a></li>
+                    <li ng-show="hasRole('admin')"><a href="inkscopeConfig.html" title="log out">Inkscope config</a></li>
+                    <li ng-show="hasRole('admin')"><a href="inkscope_userManagement.html" title="log out">Inkscope user management</a></li>
+                    <!--li><a href="inkscope_userChangePassword.html" title="log out">Change password</a></li-->
                     <li><a href="../inkscopeCtrl/logout" title="log out">Logout</a></li>
                 </ul>
             </li>

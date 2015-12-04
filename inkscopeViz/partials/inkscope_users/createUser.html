@@ -1,0 +1,50 @@
+<h3>Inkscope user creation</h3>
+<br/>
+<form name="form" novalidate class="form-horizontal">
+
+    <div class="control-group">
+        <label for="user.name" class="col-sm-2 control-label">user name :</label>
+
+        <div class="controls">
+            <input type=text id="user.name" ng-model="user.name" placeholder="name" required/>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="user.password" class="col-sm-2 control-label">password :</label>
+
+        <div class="controls">
+            <input type=password id="user.password" ng-model="user.password" required/>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="user.email" class="col-sm-2 control-label">email :</label>
+
+        <div class="controls">
+            <input type=text id="user.email" ng-model="user.email" placeholder="email" />
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="col-sm-2 control-label">Roles: </label>
+        <table>
+            <tr ng-repeat="role in inkscopeRoles |orderBy:role">
+                <td><input type="checkbox" checklist-model="user.roles" checklist-value="role"> {{role}}</td>
+            </tr>
+        <table>
+    </div>
+
+    </div>
+
+    <br>
+
+    <div class="button-bar">
+        <button ng-click="userCreate(user)" ng-disabled="form.$invalid || isUnchanged(user)" class="btn btn-success">Create</button>
+        <button ng-click="reset()" ng-disabled="isUnchanged(user)" class="btn btn-default">
+            Reset
+        </button>
+        <button ng-click="cancel()" class="btn btn-default">Cancel</button>
+
+    </div>
+</form>

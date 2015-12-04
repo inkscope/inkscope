@@ -36,6 +36,14 @@ function funcDurationFilter(){
     }
 }
 
+function funcPrettifyArrayFilter(){
+    return function (string){
+        string = string.toString().replace(/,/g, ", ");;
+        return string;
+    }
+}
+
+
 function resizeBlocks(blockNames){
     var height = window.innerHeight-250;
     for(var i= 0; i < blockNames.length; i++){
@@ -59,11 +67,17 @@ function getMenu(){
 
 angular.module('InkscopeCommons', ['ngTable','dialogs','ui.bootstrap'])
     .controller('overallStatusCtrl', function ($rootScope, $scope, $http, $window) {
-        $rootScope.role = 'unknown';
+        $rootScope.roles = [];
+
+        $rootScope.hasRole=function(role){
+            if ($.inArray('admin',$rootScope.roles)!=-1) return true;
+            return ($.inArray(role,$rootScope.roles)!=-1);
+        }
+
         $http({method: "get", url: inkscopeCtrlURL + "conf.json",timeout:4000})
             .success(function (data) {
                 $rootScope.conf = data;
-                $rootScope.role=data.role;
+                $rootScope.roles=data.roles;
             })
             .error(function(data,status){
                 if (status==401) $window.location.assign("login.html");

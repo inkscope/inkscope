@@ -277,7 +277,7 @@ def build(db, obj):
     return res
 
 
-#@app.route('/<db>/<collection>', methods=['GET', 'POST'])
+# @app.route('/<db>/<collection>', methods=['GET', 'POST'])
 def find(conf, db, collection):
     depth = int(request.args.get('depth', '0'))
     if request.method == 'POST':
@@ -289,6 +289,7 @@ def find(conf, db, collection):
         db = getClient(conf,db)
         response_body = dumps(listObjects(db, None, collection, depth))
         return Response(response_body, headers = {"timestamp" :  int(round(time.time() * 1000))}, mimetype='application/json')
+
 
 # @app.route('/<db>', methods=['POST'])
 def full(conf, db):

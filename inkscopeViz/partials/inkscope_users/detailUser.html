@@ -1,0 +1,20 @@
+<h3>User details for {{user.name}}</h3>
+<br />
+
+<table  class="table table-condensed table-nohead">
+    <tbody>
+    <tr><td width="100px">Name</td> <td> {{ user.name }} </td></tr>
+    <tr><td>Email</td> <td> <a href="mailto: {{ user.email }}">{{ user.email }}</a> </td></tr>
+    <tr>
+        <td width="100px">Roles</td>
+        <td> {{ user.roles | prettifyArray }} </td>
+    </tr>
+    </tbody>
+</table>
+
+
+<div class="button-bar" ng-show="hasRole('admin')">
+    <a href="#/modify/{{user.name}}" class="btn btn-success">Modify</a>
+    <a href="#/delete/{{user.name}}" class="btn btn-danger">Delete</a>
+    <a href="#/" class="btn btn-default">Close</a>
+</div>

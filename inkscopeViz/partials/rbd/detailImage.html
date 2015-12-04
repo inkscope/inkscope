@@ -49,7 +49,7 @@
 </table>
 
 
-<div class="button-bar"  ng-show="role=='admin'">
+<div class="button-bar"  ng-show="hasRole('admin_rbd')">
     <a href="#/snapshot/create/{{detailedImage.pool}}/{{detailedImage.name}}" class="btn btn-info" style="float:left;margin-right: 5px"><i class="icon-white icon-camera"></i> make snapshot </a>
     <a ng-show=" ''+detailedImage.parent!='' " href="#/flatten/{{detailedImage.pool}}/{{detailedImage.name}}" class="btn btn-info" style="float:left;margin-right: 5px"> Flatten </a>
     <a ng-show=" ''+detailedImage.snaps!='' " href="#/purge/{{detailedImage.pool}}/{{detailedImage.name}}" class="btn btn-info" style="float:left;margin-right: 5px"> Purge </a>

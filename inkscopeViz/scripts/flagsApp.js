@@ -33,7 +33,7 @@ FlagsApp.controller("flagsCtrl", function ($rootScope, $scope, $http) {
     }
 
     $scope.setFlag=function(flag){
-        if ($rootScope.role=='admin') {
+        if ($rootScope.hasRole('admin')) {
             $http({method: "put", url: apiURL + "osd/set?key=" + flag, timeout: 4000})
                 .success(function () {
                     refreshData();
@@ -45,7 +45,7 @@ FlagsApp.controller("flagsCtrl", function ($rootScope, $scope, $http) {
     }
 
     $scope.unsetFlag=function(flag){
-        if ($rootScope.role=='admin') {
+        if ($rootScope.hasRole('admin')) {
             $http({method: "put", url: apiURL + "osd/unset?key=" + flag, timeout: 4000})
                 .success(function () {
                     refreshData();

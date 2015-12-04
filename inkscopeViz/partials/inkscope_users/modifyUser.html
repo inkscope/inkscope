@@ -1,0 +1,54 @@
+<h3>Inkscope user modification</h3>
+<br/>
+<form name="form" novalidate class="form-horizontal">
+
+    <div class="control-group">
+        <label for="user.name" class="col-sm-2 control-label">user name :</label>
+
+        <div class="controls">
+            <input type=text id="user.name" ng-model="user.name" placeholder="name" disabled/>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="password" class="col-sm-2 control-label">change password :</label>
+
+        <div class="controls">
+            <input type=checkbox id="password" ng-model="password" required/>
+        </div>
+    </div>
+
+    <div class="control-group" ng-show="password">
+        <label for="user.newpassword" class="col-sm-2 control-label">new password :</label>
+
+        <div class="controls">
+            <input type=password id="user.newpassword" ng-model="user.newpassword" />
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="user.email" class="col-sm-2 control-label">email :</label>
+
+        <div class="controls">
+            <input type=text id="user.email" ng-model="user.email" placeholder="email" />
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="col-sm-2 control-label">Roles: </label>
+        <table>
+            <tr ng-repeat="role in inkscopeRoles |orderBy:role">
+                <td><input type="checkbox" checklist-model="user.roles" checklist-value="role"> {{role}}</td>
+            </tr>
+        <table>
+    </div>
+
+    </div>
+
+    <br>
+
+    <div class="button-bar">
+        <button ng-click="userModify(user)" class="btn btn-success">Modify</button>
+        <button ng-click="cancel(user.name)" class="btn btn-default">Cancel</button>
+    </div>
+</form>
