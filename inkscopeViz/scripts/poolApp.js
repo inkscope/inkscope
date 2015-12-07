@@ -476,8 +476,11 @@ function ModifyCtrl($scope, $scope, $routeParams, $location, $http, $dialogs) {
         $http({method: "put", url: $scope.uri, data: "json="+JSON.stringify($scope.pool), headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
             success(function (data, status) {
                 $scope.status = status;
-                $scope.data = data;
-                $dialogs.notify("Pool modification","Pool <strong>"+$scope.pool.pool_name+"</strong> was modified");
+                if (data !="")
+                    $dialogs.error("Pool modification of Pool <strong>"+$scope.pool.pool_name+"</strong>:<br>"+data);
+                else
+                    $dialogs.notify("Pool modification","Pool <strong>"+$scope.pool.pool_name+"</strong> was modified");
+
                 refreshPools($http, $scope);
                 $location.path('/detail/'+$scope.pool.pool);
             }).

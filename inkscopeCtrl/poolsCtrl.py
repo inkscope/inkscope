@@ -255,10 +255,14 @@ class PoolsCtrl:
                 var_name= ['size', 'min_size', 'crash_replay_interval','pg_num','pgp_num','crush_ruleset']
                 param_to_set_list = [newpool.size, newpool.min_size, newpool.crash_replay_interval, newpool.pg_num, newpool.pgp_num, newpool.crush_ruleset]
                 default_param_list = [savedpool.size, savedpool.min_size, savedpool.crash_replay_interval, savedpool.pg_num, savedpool.pgp_num, savedpool.crush_ruleset]
-    
+
+                message = ""
                 for i in range(len(default_param_list)):
                     if param_to_set_list[i] != default_param_list[i]:
+                        print "set ", var_name[i], " to ", str(param_to_set_list[i])
                         r = requests.put(cephRestApiUrl+'osd/pool/set?pool='+str(newpool.name)+'&var='+var_name[i]+'&val='+str(param_to_set_list[i]))
+                        if r.status_code != 200:
+                            message= message+ "Can't set "+ var_name[i]+ " to "+ str(param_to_set_list[i])+ " : "+ r.content+"<br>"
                     else:
                         pass
     
@@ -271,10 +275,12 @@ class PoolsCtrl:
                 for i in range(len(default_param)):
                     if param_to_set[i] != default_param[i]:
                         r = requests.put(cephRestApiUrl+'osd/pool/set-quota?pool='+str(newpool.name)+'&field='+field_name[i]+'&val='+str(param_to_set[i]))
+                        if r.status_code != 200:
+                            message= message+ "Can't set "+ field_name[i]+ " to "+ str(param_to_set[i])+ " : "+ r.content+"<br>"
                     else:
                         pass
 
-                return str(r.status_code)
+                return message
     
     
     # @app.route('/pools/<int:id>/snapshot', methods=['POST'])
