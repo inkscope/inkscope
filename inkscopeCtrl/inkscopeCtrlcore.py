@@ -261,7 +261,10 @@ def full(db):
 #
 @app.route('/poolList/', methods=['GET'])
 def pool_list():
-    return Response(PoolsCtrl(conf).pool_list(), mimetype='application/json')
+    try:
+        return Response(PoolsCtrl(conf).pool_list(), mimetype='application/json')
+    except InkscopeError as e:
+        return Response(e.message, e.status)
 
 
 @app.route('/pools/', methods=['GET', 'POST'])
@@ -275,12 +278,18 @@ def pool_manage(id=None):
 
 @app.route('/pools/<int:id>/snapshot', methods=['POST'])
 def makesnapshot(id):
-    return PoolsCtrl(conf).makesnapshot(id)
+    try:
+        return PoolsCtrl(conf).makesnapshot(id)
+    except InkscopeError as e:
+        return Response(e.message, e.status)
 
 
 @app.route('/pools/<int:id>/snapshot/<namesnapshot>', methods=['DELETE'])
 def removesnapshot(id, namesnapshot):
-    return PoolsCtrl(conf).removesnapshot(id, namesnapshot)
+    try:
+        return PoolsCtrl(conf).removesnapshot(id, namesnapshot)
+    except InkscopeError as e:
+        return Response(e.message, e.status)
 
 
 #

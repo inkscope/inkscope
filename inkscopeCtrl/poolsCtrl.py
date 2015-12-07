@@ -140,7 +140,7 @@ class PoolsCtrl:
             else:
                 data = requests.get(cephRestApiUrl+'osd/dump.json')
                 if data.status_code != 200:
-                    return 'Error '+str(data.status_code)+' on the request getting pools'
+                    raise InkscopeError( data.status_code, 'Error '+str(data.status_code)+' on the request getting pools: '+data.content)
                 else:
     
                     ind = self.getindice(id, data)
@@ -236,7 +236,7 @@ class PoolsCtrl:
     
             data = requests.get(cephRestApiUrl+'osd/dump.json')
             if data.status_code != 200:
-                return 'Error '+str(data.status_code)+' on the request getting pools'
+                raise InkscopeError( data.status_code, 'Error '+str(data.status_code)+' on the request getting pools: '+data.content)
             else:
                 #r = data.json()
                 r = data.content
@@ -273,6 +273,7 @@ class PoolsCtrl:
                         r = requests.put(cephRestApiUrl+'osd/pool/set-quota?pool='+str(newpool.name)+'&field='+field_name[i]+'&val='+str(param_to_set[i]))
                     else:
                         pass
+
                 return str(r.status_code)
     
     
@@ -292,7 +293,9 @@ class PoolsCtrl:
         jsondata = json.loads(jsondata)
         snap = jsondata['snapshot_name']
         r = requests.put(cephRestApiUrl+'osd/pool/mksnap?pool='+str(poolname)+'&snap='+str(snap))
-        return str(r.status_code)
+        if r.status_code != 200:
+                raise InkscopeError(r.status_code, r.content)
+        return r.content
     
     
     # @app.route('/pools/<int:id>/snapshot/<namesnapshot>', methods=['DELETE'])
@@ -307,9 +310,7 @@ class PoolsCtrl:
     
         poolname = r['output']['pools'][id]['pool_name']
     
-        try:
-            r = requests.put(cephRestApiUrl+'osd/pool/rmsnap?pool='+str(poolname)+'&snap='+str(namesnapshot))
-        except HTTPException, e:
-            return e
-        else:
-            return r.content
+        r = requests.put(cephRestApiUrl+'osd/pool/rmsnap?pool='+str(poolname)+'&snap='+str(namesnapshot))
+        if r.status_code != 200:
+                raise InkscopeError(r.status_code, r.content)
+        return r.content
