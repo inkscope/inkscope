@@ -479,11 +479,11 @@ def createSubuserKey(uid, subuser):
         Log.err(e.__str__())
         return Response(e.reason, status=e.code)
 
-@app.route('/S3/user/<string:uid>/subuser/<string:subuser>/key/<string:key>', methods=['DELETE'])
-def deleteSubuserKey(uid, subuser, key):
+@app.route('/S3/user/<string:uid>/subuser/<string:subuser>/key', methods=['DELETE'])
+def deleteSubuserKey(uid, subuser):
     Log.debug("deleteSubuserKey")
     try:
-        return Response(S3Ctrl(conf).deleteSubuserKey(uid, subuser,key),mimetype='application/json')
+        return Response(S3Ctrl(conf).deleteSubuserKey(uid, subuser),mimetype='application/json')
     except S3Error , e:
         Log.err(e.__str__())
         return Response(e.reason, status=e.code)

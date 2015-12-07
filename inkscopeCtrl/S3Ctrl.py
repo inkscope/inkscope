@@ -82,9 +82,9 @@ class S3Ctrl:
         secret_key = request.form['secret_key']
         return S3User.createSubuserKey(uid, subuser, generate_key, secret_key, self.getAdminConnection())
 
-    def deleteSubuserKey(self, uid, subuser, key):
-        Log.debug( "delete key "+key+" for subuser "+subuser+" for user with uid "+ uid)
-        return S3User.deleteSubuserKey(uid, subuser, key, self.getAdminConnection())
+    def deleteSubuserKey(self, uid, subuser):
+        Log.debug( "delete key for subuser "+subuser+" for user with uid "+ uid)
+        return S3User.deleteSubuserKey(uid, subuser, self.getAdminConnection())
 
     def getUserBuckets(self, uid):
         Log.debug( "getBuckets for uid " + uid)

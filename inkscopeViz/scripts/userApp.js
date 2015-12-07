@@ -102,7 +102,7 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $route, $dialogs) {
     }
 
     $scope.removeSwiftKey = function(subuser, key){
-        $scope.uri = inkscopeCtrlURL+"S3/user/"+$rootScope.detailedUser.user_id+"/subuser/"+encodeURIComponent(subuser)+"/key/"+encodeURIComponent(key);
+        $scope.uri = inkscopeCtrlURL+"S3/user/"+$rootScope.detailedUser.user_id+"/subuser/"+encodeURIComponent(subuser)+"/key";
 
         dlg = $dialogs.confirm('Please Confirm','Do you really want to delete key <strong>'+key+'</strong> for user <strong>'+$rootScope.detailedUser.user_id+'</strong> ?');
         dlg.result.then(function(btn){
@@ -110,7 +110,7 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $route, $dialogs) {
                 success(function (data, status) {
                     $scope.status = status;
                     $scope.data = data;
-                    $dialogs.notify("Key deletion","key <strong>"+key +"</strong>  for subuser <strong>"+subuser+"</strong> has been deleted");
+                    $dialogs.notify("Key deletion","key for subuser <strong>"+subuser+"</strong> has been deleted");
                     refreshUsers($http, $scope);
                     $route.reload();
                 }).

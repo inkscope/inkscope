@@ -289,12 +289,12 @@ class S3User:
         return "";
 
     @staticmethod
-    def deleteSubuserKey(uid, subuser , key, conn):
+    def deleteSubuserKey(uid, subuser, conn):
         myargs = []
+        myargs.append(("key",""))
         myargs.append(("subuser",subuser))
         myargs.append(("uid", uid))
         myargs.append(("key-type", "swift"))
-        myargs.append(("secret-key", key))
         Log.debug(myargs.__str__())
         request= conn.request(method="DELETE", key="user", args= myargs)
         res = conn.send(request)
