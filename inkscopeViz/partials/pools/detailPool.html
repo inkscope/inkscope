@@ -9,9 +9,10 @@
     <a href="#/snapshot/{{detailedPool.pool}}/{{detailedPool.pool_name}}" class="btn btn-info" style="float:left"><i class="icon-white icon-camera"></i> make snapshot </a>
     <div style="width:35px;display: inline-block"></div>
     <a href="#/modify/{{detailedPool.pool}}" class="btn btn-success">Modify</a>
-    <a href="#/delete/{{detailedPool.pool}}/{{detailedPool.pool_name}}" class="btn btn-danger">Delete</a>
+    <a href="#/delete/{{detailedPool.pool}}/{{detailedPool.pool_name}}" class="btn btn-danger" ng-class="(detailedPool.tier_of!=-1) || (detailedPool.tiers.length!=0) ? ['disabled','disabled_link']:''">Delete</a>
     <a href="#/" class="btn btn-default">Close</a>
     <br />
+    <div ng-show="(detailedPool.tier_of!=-1) || (detailedPool.tiers.length!=0)"><em>This pool can't be deleted while it participates to cache tiering</em><br></div>
 </div>
 <table ng-table="poolParams"  template-pagination="custom/pager" class="table table-condensed">
     <thead><tr><th></th></tr></thead>

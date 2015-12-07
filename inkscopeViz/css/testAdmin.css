@@ -539,6 +539,11 @@ text-align: center;
     background-color: red;;
 }
 
+.disabled_link{
+           pointer-events: none;
+           cursor: default;
+    }
+
 /* for dialog service */
 .modal {
     display: block;

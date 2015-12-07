@@ -12,6 +12,7 @@ from itsdangerous import URLSafeTimedSerializer
 from datetime import timedelta
 from hashlib import md5
 from bson.json_util import dumps
+from InkscopeError import InkscopeError
 
 app = Flask(__name__)
 app.secret_key = "Mon Nov 30 17:20:29 2015"
@@ -266,7 +267,10 @@ def pool_list():
 @app.route('/pools/', methods=['GET', 'POST'])
 @app.route('/pools/<int:id>', methods=['GET', 'DELETE', 'PUT'])
 def pool_manage(id=None):
-    return PoolsCtrl(conf).pool_manage(id)
+    try:
+        return PoolsCtrl(conf).pool_manage(id)
+    except InkscopeError as e:
+        return Response(e.message, e.status)
 
 
 @app.route('/pools/<int:id>/snapshot', methods=['POST'])

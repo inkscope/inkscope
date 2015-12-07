@@ -7,6 +7,7 @@ import requests
 from array import *
 import subprocess
 from StringIO import StringIO
+from InkscopeError import InkscopeError
 
 class Pools:
     """docstring for pools"""
@@ -110,19 +111,7 @@ class PoolsCtrl:
                 result = json.dumps(skeleton)
                 return Response(result, mimetype='application/json')
     
-    
-    def geterrors(self,url, methods):
-        try:
-            if methods == 'GET':
-                r = requests.get(url)
-            else:
-                r = requests.put(url)
-        except HTTPError, e:
-            return 'Error '+str(r.status_code)
-        else:
-            return  'ok'
-    
-    
+
     def pool_list(self):
         args = ['ceph',
                 'osd',
@@ -233,7 +222,11 @@ class PoolsCtrl:
             poolname = r['output']['pools'][id]['pool_name']
             poolname = str(poolname)
             delete_request = requests.put(cephRestApiUrl+'osd/pool/delete?pool='+poolname+'&pool2='+poolname+'&sure=--yes-i-really-really-mean-it')
-            return str(delete_request.status_code)
+            print "Delete code ", delete_request.status_code
+            print "Delete message ",delete_request.content
+            if delete_request.status_code != 200:
+                raise InkscopeError(delete_request.status_code, delete_request.content)
+            return "pool has been deleted"
     
         else:
     

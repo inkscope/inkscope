@@ -7,6 +7,7 @@ angular.module('poolApp', ['ngRoute','ngTable','D3Directives','ui.bootstrap','di
     .config(function ($routeProvider) {
         $routeProvider.
             when('/', {controller: ListCtrl, templateUrl: 'partials/pools/aboutPools.html'}).
+            when('/detail/:poolNum', {controller: DetailCtrl, templateUrl: 'partials/pools/detailPool.html'}).
             when('/detail/:poolNum/:clean', {controller: DetailCtrl, templateUrl: 'partials/pools/detailPool.html'}).
             when('/new', {controller: CreateCtrl, templateUrl: 'partials/pools/createPool.html'}).
             when('/modify/:poolNum', {controller: ModifyCtrl, templateUrl: 'partials/pools/createPool.html'}).
@@ -282,7 +283,10 @@ function DetailCtrl($scope, $http, $routeParams, $dialogs, ngTableParams , $filt
                 $scope.detailedPoolParams.push(param);
 
             }
-            $scope.detailedPool.clean = $routeParams.clean;
+            if (typeof $routeParams.clean ==="undefined")
+                $scope.detailedPool.clean = true;
+            else
+                $scope.detailedPool.clean = $routeParams.clean;
             $scope.firstGroup=true;
             $scope.checkGroup = function(group){
                 if ($scope.firstGroup) $scope.firstGroup = false;
