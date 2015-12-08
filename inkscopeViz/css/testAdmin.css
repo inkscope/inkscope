@@ -270,6 +270,13 @@ label {
     background-color: white;
     float : left;
 }
+#pools_graph {
+    width:400px;
+    height: 350px;
+    margin-right: 10px;
+    background-color: white;
+    float : left;
+}
 #osd_status{
     width:180px;
     height: 360px;

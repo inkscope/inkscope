@@ -5,7 +5,8 @@
         {{totalUsed| bytes}} used <br>on {{totalSpace| bytes}}
     </div>
     <br />
-    <p>View also:<br>
-    <a href="http://ceph.com/docs/master/rados/operations/pools" title="Ceph documentation on pools" target="_blank">- Ceph documentation on pools</a> <br>
-    <a href="poolspgsosds.html" title="shows relationship between pools and osds">- Pools /pgs /osds </a> </p>
+    <h3>Bytes used by pools</h3>
+    <div id="pools_graph">
+        <ad-pie-pools id="pie01" value="pools" width="400" labelfield="name"></ad-pie-pools>
+    </div>
 </div>
