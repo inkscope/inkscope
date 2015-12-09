@@ -5,9 +5,41 @@
     <tbody>
     <tr><td width="100px">User id</td> <td> {{ detailedUser.user_id }} </td></tr>
     <tr><td>Display Name</td> <td> {{ detailedUser.display_name }} </td></tr>
-    <tr><td>Suspended</td> <td> <input type="checkbox" ng-model="detailedUser.suspended" ng-true-value="True" ng-false-value="False" disabled> </td></tr>
+    <tr><td>Suspended</td> <td> <input type="checkbox" ng-model="detailedUser.suspended" ng-true-value="true" ng-false-value="false" disabled> </td></tr>
+    <tr><td>System</td> <td> <input type="checkbox" ng-model="detailedUser.system" ng-true-value="true" ng-false-value="false" disabled> </td></tr>
     <tr><td>Email</td> <td> <a href="mailto: {{ detailedUser.email }}">{{ detailedUser.email }}</a> </td></tr>
     <tr><td>Max buckets</td> <td> {{ detailedUser.max_buckets }} </td></tr>
+    <tr>
+        <td>User quota</td>
+        <td ng-show="detailedUser.user_quota.enabled">
+            <div ng-show="detailedUser.user_quota.max_objects>-1">
+                max objects :{{detailedUser.user_quota.max_objects}}
+            </div>
+            <div ng-show="detailedUser.user_quota.max_size_kb >-1">
+                max size: {{detailedUser.user_quota.max_size_kb*1024|bytes}}
+            </div>
+        </td>
+        <td ng-hide="detailedUser.user_quota.enabled">
+            disabled
+        </td>
+    </tr>
+    <tr>
+        <td>Bucket quota</td>
+        <td ng-show="detailedUser.bucket_quota.enabled">
+             <div ng-show="detailedUser.bucket_quota.max_objects>-1">
+                max objects :{{detailedUser.bucket_quota.max_objects}}
+            </div>
+            <div ng-show="detailedUser.bucket_quota.max_size_kb >-1">
+                max size: {{detailedUser.bucket_quota.max_size_kb*1024|bytes}}
+            </div>
+        </td>
+        <td ng-hide="detailedUser.bucket_quota.enabled">
+            disabled
+        </td>
+    </tr>
+    <tr><td>OP mask</td> <td> {{ detailedUser.op_mask }} </td></tr>
+    <tr><td>Default placement</td> <td> {{ detailedUser.default_placement }} </td></tr>
+    <tr><td>Placement tags</td> <td> {{ (detailedUser.placement_tags.length>0) ? (detailedUser.placement_tags|prettifyArray) :'none' }} </td></tr>
     <tr>
         <td>S3 keys <a href="#/createKey/{{detailedUser.user_id}}" ng-show="hasRole('admin_rgw')"><i class="icon-plus-sign closeButton" alt="add key" title="add key"></i></a></td>
         <td>

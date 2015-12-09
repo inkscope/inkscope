@@ -17,7 +17,9 @@ angular.module('userApp', ['ngRoute','ngSanitize','InkscopeCommons'])
             when('/capabilities/:uid', {controller: CapabilitiesCtrl, templateUrl: 'partials/users/capabilities.html'}).
             otherwise({redirectTo: '/'})
 
-    });
+    })
+    .filter('bytes', funcBytesFilter)
+    .filter('prettifyArray', funcPrettifyArrayFilter);
 
 function refreshUsers($http, $scope, $templateCache) {
     $http({method: "get", url: inkscopeCtrlURL + "S3/user", cache: $templateCache}).
@@ -66,9 +68,11 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $route, $dialogs) {
         success(function (data, status) {
             $rootScope.detailedUser = data;
             if ($rootScope.detailedUser.suspended == 0)
-                $rootScope.detailedUser.suspended = 'False';
+                $rootScope.detailedUser.suspended = 'false';
             else
-                $rootScope.detailedUser.suspended = 'True';
+                $rootScope.detailedUser.suspended = 'true';
+            if (typeof $rootScope.detailedUser.system === 'undefined')
+                $rootScope.detailedUser.system = 'false';
 
             $rootScope.status = status;
         }).

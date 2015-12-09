@@ -176,10 +176,12 @@ class S3User:
     @staticmethod
     def view(uid , conn):
         # uid /	The user ID to view./ String / Required
-        request= conn.request(method="GET", key="user", args=[("uid",uid)])
+        request= conn.request(method="GET", key="metadata/user", args=[("key",uid)])
         res = conn.send(request)
         userInfo =  res.read()
-        return userInfo
+        userInfo =  json.loads(userInfo)
+        print userInfo
+        return json.dumps(userInfo.get('data'))
 
     @staticmethod
     def remove(uid , conn):
