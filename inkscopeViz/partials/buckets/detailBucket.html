@@ -13,6 +13,20 @@
     <tr><td>Max marker</td> <td> {{ detailedBucket.max_marker }} </td></tr>
     <tr><td>Modification time</td> <td> {{ detailedBucket.mtime *1000 | date:'medium' }} </td></tr>
     <tr><td>Index pool</td> <td> {{ detailedBucket.index_pool }} </td></tr>
+    <tr>
+        <td>Bucket quota</td>
+        <td ng-show="detailedUser.bucket_quota.enabled">
+             <div ng-show="detailedUser.bucket_quota.max_objects>-1">
+                max objects :{{detailedUser.bucket_quota.max_objects}}
+            </div>
+            <div ng-show="detailedUser.bucket_quota.max_size_kb >-1">
+                max size: {{detailedUser.bucket_quota.max_size_kb*1024|bytes}}
+            </div>
+        </td>
+        <td ng-hide="detailedUser.bucket_quota.enabled">
+            disabled
+        </td>
+    </tr>
     <tr><td>Usage</td>
         <td>
             <table  class="table table-condensed table-nohead">

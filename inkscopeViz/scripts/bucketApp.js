@@ -11,7 +11,10 @@ angular.module('bucketApp', ['ngRoute','ui.bootstrap','InkscopeCommons'])
             when('/changeOwner/:bucketName/:actualOwner', {controller: ChangeOwnerCtrl, templateUrl: 'partials/buckets/changeOwner.html'}).
             when('/delete/:bucketName', {controller: DeleteCtrl, templateUrl: 'partials/buckets/deleteBucket.html'}).
             otherwise({redirectTo: '/'})
-    });
+    })
+    .filter('bytes', funcBytesFilter)
+    .filter('prettifyArray', funcPrettifyArrayFilter);
+
 
 function refreshBuckets($http, $scope) {
     $http({method: "get", url: inkscopeCtrlURL + "S3/bucket", data:"stats=False"}).
@@ -66,6 +69,7 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $route, $dialogs) {
             $rootScope.buckets =  data || "Request failed";
             $dialogs.error("<h3>Can't display bucket named "+$routeParams.bucketName+"</h3><br>"+$scope.data);
         });
+
 }
 
 function DeleteCtrl($scope, $http, $routeParams, $location, $dialogs) {
