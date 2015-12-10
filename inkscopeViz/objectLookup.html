@@ -29,7 +29,10 @@
         Pool:
         <select id="pool" ng-model="pool" ng-options="value.poolname for value in poolList| orderBy:'poolnum'"  ng-change="getPoolInfo(pool)"></select>
         Object id:
-        <input type="text" ng-model="objectId" name="objectId" placeholder="object id">
+        <input type="text" ng-model="objectId_input" name="objectId_input" placeholder="object id">
+        &nbsp;
+        <button class="btn btn-success" style="padding: 4px;vertical-align: top;" ng-click="setObjectId()">look up</button>
+
     </div>
 
 

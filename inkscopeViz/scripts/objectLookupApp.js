@@ -23,10 +23,8 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
 
     getPoolList($http,$rootScope);
 
-    getObjectInfo();
     getCrushMap();
 
-    setInterval(function () {getObjectInfo()},5*1000);
 
     function getCrushMap(){
         $http({method: "get", url: cephRestApiURL + "osd/crush/dump.json"}).
@@ -41,7 +39,7 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
 
 
     function getOsdInfo(){
-        $scope.date = new Date();
+
         $http({method: "get", url: inkscopeCtrlURL + $rootScope.fsid+"/osd?depth=2"}).
 
             success(function (data, status) {
@@ -70,7 +68,7 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
 
 
     function getObjectInfo() {
-        $rootScope.date = new Date();
+        $scope.date = new Date();
         if ($scope.pool+"" =="undefined" || $scope.objectId+"" =="undefined") return;
 
         console.log(cephRestApiURL + "osd/map?pool="+ $scope.pool.poolname +"&object="+ $scope.objectId );
@@ -110,6 +108,13 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
                 $scope.data = {"pgid":"not found","acting":"","up":""};
             });
 
+    }
+
+    $rootScope.setObjectId = function(){
+        $scope.objectId = $scope.objectId_input;
+        if (typeof $scope.timer !== 'undefined') clearInterval($scope.timer);
+        getObjectInfo();
+        $scope.timer = setInterval(function () {getObjectInfo()},5*1000);
     }
 
     $rootScope.osdClass = function (osdin,osdup){
