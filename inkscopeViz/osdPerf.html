@@ -14,12 +14,14 @@
     <script src="scripts/bootstrap.min.js"></script>
     <script src="scripts/angular-misc/D3Directives.js"></script>
     <script src="scripts/d3/d3.v3.min.js"></script>
+    <script src="scripts/d3/nv.d3.min.js" charset="utf-8"></script>
     <script src="scripts/d3/common.js"></script>
     <script src="scripts/d3/colorbrewer.js"></script>
     <link rel="stylesheet" href="css/testAdmin.css" />
     <link rel="stylesheet" href="css/tooltip.css" />
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="scripts/angular-misc/ng-table.min.css">
+    <link rel="stylesheet" href="css/nv.d3.min.css">
     <title>Osd perf</title>
 </head>
 
@@ -42,7 +44,7 @@
         </table>
         <br>
         <table ng-table="tableParams" class="table table-condensed clickable">
-            <tr ng-repeat="osd in orderedData | filter:search:strict">
+            <tr ng-repeat="osd in orderedData | filter:search:strict" ng-click="showOsd(osd.id)">
                 <td data-title="'Id'" sortable="'id'">osd.{{osd.id}}</td>
                 <td data-title="'Apply latency'" sortable="'perf_stats.apply_latency_ms'" style="text-align: right">{{ osd.perf_stats.apply_latency_ms }}</td>
                 <td data-title="'Commit latency'" sortable="'perf_stats.commit_latency_ms'" style="text-align: right">{{ osd.perf_stats.commit_latency_ms }}</td>
@@ -50,8 +52,44 @@
         </table>
     </div>
 </div>
-<!--div ng-view id="control" ></div-->
+<div id="control" ng-show="osd" style="float:right;width:250px">
+    <div class="osd  {{osdClass(osd)}}" style="float:right">
+            {{osd.node._id}}
+    </div>
+    <h3>{{osd.node.name}}</h3>
+    <br>
+
+    <strong>{{osdState(osd)}}</strong>
+    <br><br>
+
+    <div id="osdStatGraph"><svg style="height:180px;width:100%"></svg></div>
+    <div>
+    last control : {{osd.lastControl|duration}}<br>
+    reweight : {{osd.reweight }}<br>
+    {{osd.partition._id}}<br>
+    {{osd.public_addr}}<br>
+        </div>
+    <ad-gauge value="osd.partition.stat.used/osd.partition.stat.total" colormode="desc" width="241" style="margin:5px auto:width:241px"></ad-gauge>
+    <div class="gaugeLegend">
+        {{osd.partition.stat.used| bytes}} used <br>on {{osd.partition.stat.total| bytes}}
+    </div>
+
+    <div ng-show="hasRole('admin')">
+        <hr>
+        <div align="center">
+            <a class="btn btn-success btn-large" ng-hide="osd.stat.in == true" ng-click="osdIn(osd.id)" ><i class="icon-white icon-plus"></i> get in</a>
+            <a class="btn btn-danger btn-large" ng-hide="osd.stat.in != true" ng-click="osdOut(osd.id)"><i class="icon-white icon-minus"></i> get out</a>
+            <a class="btn btn-warning btn-large" ng-hide="osd.stat.up == false" ng-click="osdDown(osd.id)"><i class="icon-white icon-arrow-down"></i> down</a>
+        </div>
+        <div>
+            <hr>
+            <input ng-model="reweight" id="reweight" type="text" style="width:150px;vertical-align: top">
+            <a class="btn btn-warning btn-small" ng-click="osdReweight(osd.id)">Reweight</a>
+        </div>
+    </div>
+</div>
 
 <script>resizeBlocks(['#list','#control']);</script>
+</body>
 </body>
 </html>
