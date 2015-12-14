@@ -114,6 +114,8 @@
     <div class="filter clickable" ng-hide="!downFilter" ng-click="removeFilter('down')"> x down</div>
     <div class="notfilter clickable" ng-hide="downFilter" ng-click="addFilter('down')"> + down</div>
 </div>
+<br style="clear: both">
+    <div style="margin-left:10px">Minimum fill rate <span style="width:30px;display:inline-block">{{minUsedSpace}}%</span> <input type="range" ng-model="minUsedSpace"></div>
 <br>
 <div id="datePanel"><br>Date : {{date | date:'HH:mm:ss'}} - matching: {{count}} of {{nbOsd}} OSD
     <div ng-hide="osdControl<15 || count == 0">
@@ -125,7 +127,7 @@
 
 
 <div id="osds" ng-show="dispoMode == 'state'">
-    <div ng-repeat="osd in data|orderBy:'id'" class=" tooltips osd {{osdClass(osd)}}">
+    <div ng-repeat="osd in data|orderBy:'id'" class=" tooltips osd {{osdClass(osd)}}"  ng-show="100*osd.partition.stat.used/osd.partition.stat.total > minUsedSpace">
         <div ng-click="osdSelect(osd);">
             {{osd.id}}
             <div> <!-- tooltip -->
@@ -145,7 +147,7 @@
 </div>
 
 <div id="osdspaces" ng-show="dispoMode == 'used space (%)'">
-    <div ng-repeat="osd in data|orderBy:'id'" class="tooltips osdspace" >
+    <div ng-repeat="osd in data|orderBy:'id'" class="tooltips osdspace"  ng-show="100*osd.partition.stat.used/osd.partition.stat.total > minUsedSpace">
         <div ng-click="osdSelect(osd);">
             osd {{osd.id}}<br>
             <ad-gauge value="osd.partition.stat.used/osd.partition.stat.total" colormode="desc" width="120" type="plain" animated="false"></ad-gauge>

@@ -322,12 +322,20 @@ StatusApp.controller('ModalInstanceCtrl', function ($scope, $modalInstance, $htt
                 $scope.details = data.output.detail;
                 for (var i=0;i<$scope.details.length;i++){
                     var txt = $scope.details[i];
-                    /([0-9]+\.[0-9a-f]+)/.exec(txt);
-                    var pgid = RegExp.$1;
-                    if (pgid != null)
-                        //$scope.details[i] = txt.replace(pgid,"<a href='pg.html?pgid="+pgid+"'>"+pgid+"</a>");
-                        $scope.details[i] = txt.replace("pg "+pgid,"<a href='../ceph-rest-api/tell/"+pgid+"/query.json'>pg "+pgid+"</a>");
-                    // ceph-rest-api/tell/<pgid>/query.json
+                    /(osd\.[0-9]+)/.exec(txt);
+                    var osd = RegExp.$1;
+                    if (osd != null) {
+                        txt = txt.replace(osd, "<a href='osds.html?dispoMode=space&" + osd + "'>" + osd + "</a>");
+                    }
+                   /([0-9]+\.[0-9a-f]+)/.exec(txt);
+                    var id = RegExp.$1;
+                    if (id != null){
+                        //$scope.details[i] = txt.replace(id,"<a href='pg.html?id="+id+"'>"+id+"</a>");
+                        txt = txt.replace("pg "+id,"<a href='../ceph-rest-api/tell/"+id+"/query.json'>pg "+id+"</a>");
+                        }
+                     // ceph-rest-api/tell/<id>/query.json
+                    $scope.details[i] = txt;
+
                 }
             })
             .error(function (data, status) {

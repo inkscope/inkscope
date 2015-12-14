@@ -7,10 +7,24 @@ var OsdsApp = angular.module('OsdsApp', ['D3Directives','InkscopeCommons'])
     .filter('bytes', funcBytesFilter)
     .filter('duration', funcDurationFilter);
 
+const STATE_MODE  = "state";
+const SPACE_MODE = "used space (%)";
 
 OsdsApp.controller("OsdsCtrl", function ($rootScope, $scope, $http, $location ,$window) {
-    $scope.dispoModes = ["state" , "used space (%)"];
-    $scope.dispoMode = "state";
+
+    $scope.minUsedSpace = 0;
+
+    $scope.dispoModes = [STATE_MODE , SPACE_MODE];
+
+    // preselected dispo mode
+    if ($location.absUrl().indexOf("dispoMode=space") > -1)
+        $scope.dispoMode = SPACE_MODE;
+    else
+        $scope.dispoMode = STATE_MODE;
+    // preselected osd
+    var pos = $location.absUrl().indexOf("osd.");
+    if ( pos > -1)
+        $scope.selectedOsd = parseInt($location.absUrl().substring(pos+4));
 
     $scope.count = 0;
     $scope.nbOsd = 0;
@@ -124,6 +138,8 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $scope, $http, $location ,$
     $scope.prettyPrintKey = function( key){
         return key.replace(new RegExp( "_", "g" )," ")
     }
+
+
 
 
     $scope.osdSelect = function (osd) {
@@ -329,7 +345,9 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $scope, $http, $location ,$
             if (filterString!="") filterString+= "+";
             filterString+= "out";
         }
-        $window.location.href = "osds.html?state="+filterString;
+        var url = "osds.html?state="+filterString;
+        if ($scope.dispoMode == SPACE_MODE) url = url +"&dispoMode=space";
+        $window.location.href = url;
     }
 
     $scope.home = function(){
