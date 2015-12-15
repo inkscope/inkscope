@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html ng-app="adminApp">
+<head>
+    <meta charset=utf-8 />
+    <script src="scripts/angular/angular.min.js"></script>
+    <script src="scripts/angular/angular-route.min.js"></script>
+    <script src="scripts/angular/angular-sanitize.min.js"></script>
+    <script src="scripts/angular-misc/ng-table.min.js"></script>
+    <script src="scripts/angular-misc/angular-commons.js"></script>
+    <script src="scripts/angular-misc/ui-bootstrap-tpls-0.10.0.min.js"></script>
+    <script src="scripts/angular-misc/dialogs.v2.min.js"></script>
+    <script src="scripts/adminApp.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
+    <script src="scripts/angular-misc/D3Directives.js"></script>
+    <script src="scripts/d3/d3.v3.min.js"></script>
+    <script src="scripts/d3/common.js"></script>
+    <script src="scripts/d3/colorbrewer.js"></script>
+    <link rel="stylesheet" href="css/testAdmin.css" />
+    <link rel="stylesheet" href="css/tooltip.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="scripts/angular-misc/ng-table.min.css">
+    <title>About Inkscope</title>
+    <style>
+        #aboutDiv {
+            border: thin solid lightgrey;
+            margin: 50px auto;
+            width:450px;
+            -moz-box-shadow: 10px 10px 10px 0px #c0c0c0;
+            -webkit-box-shadow: 10px 10px 10px 0px #c0c0c0;
+            -o-box-shadow: 10px 10px 10px 0px #c0c0c0;
+            box-shadow: 10px 10px 10px 0px #c0c0c0;
+            filter:progid:DXImageTransform.Microsoft.Shadow(color=#c0c0c0, Direction=134, Strength=10);
+        }
+        #aboutBody{
+            padding:20px;
+            background-color: lightgrey;
+        }
+    </style>
+</head>
+
+<body>
+
+<header id="header" ng-include src="'partials/header.html'" ng-init="pageTitle='About Inkscope'"></header>
+
+<div id="aboutDiv">
+    <div id="aboutHeader">
+    <h1><img src="img/inkscope_h_logo.png"> {{conf.version}}</h1>
+    </div>
+    <div id="aboutBody">
+        <strong>Inkscope</strong> is a open-source initiative to provide a <a href="http://ceph.com/" target="_blank">Ceph</a> admin and supervision interface.
+        <br>
+        It is available on <a href="https://github.com/">GitHub</a> under <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank"> Apache V2 license</a>.
+        <br><br>
+        Available resources :
+        <ul>
+            <li>Sources :  <a href="https://github.com/inkscope/inkscope" target="_blank">https://github.com/inkscope/inkscope</a></li>
+            <li>Documentation :  <a href="https://github.com/inkscope/inkscope/wiki" target="_blank">https://github.com/inkscope/inkscope/wiki</a></li>
+            <li>Support :  <a href="https://github.com/inkscope/inkscope/issues" target="_blank">https://github.com/inkscope/inkscope/issues</a></li>
+            <li>Blog :  <a href="http://inkscope.blogspot.fr/" target="_blank">http://inkscope.blogspot.fr</a></li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>
