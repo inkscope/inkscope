@@ -14,6 +14,8 @@ from hashlib import md5
 from bson.json_util import dumps
 from InkscopeError import InkscopeError
 
+version = "1.3.0"
+
 app = Flask(__name__)
 app.secret_key = "Mon Nov 30 17:20:29 2015"
 app.config["REMEMBER_COOKIE_DURATION"] = timedelta(days=14)
@@ -172,12 +174,18 @@ def logout():
 @app.route('/conf.json', methods=['GET'])
 @login_required  # called by every page, so force to be identified
 def conf_manage():
+    #force platform field to invite admin to give a name to this instance
+    conf['platform'] = conf.get('platform')
+    if conf['platform'] is None:
+        conf['platform'] = "define 'platform' in inkscope.conf"
     if 'admin' in current_user.roles:
+        conf['version'] = version
         conf['roles'] = current_user.roles
         conf['username']= current_user.id
         return Response(json.dumps(conf), mimetype='application/json')
     else:
         conflite = {}
+        conflite['version'] = version
         conflite['roles'] = current_user.roles
         conflite['platform'] = conf.get('platform')
         conflite['username']= current_user.id
