@@ -66,7 +66,7 @@ def ceph_conf_list(prefix):
     outdata, errdata = p.communicate()
     if (len(errdata)):
         raise RuntimeError('unable to get conf option prefix %s: %s' % (prefix, errdata))
-    return outdata.rstrip().splitlines();
+    return outdata.rstrip().splitlines()
 
 
 # get a field value from named section
@@ -122,14 +122,15 @@ def ceph_conf_global(cephConfPath, field):
 
 
 # extract mons from conf and put them into mons
-def process_conf():
+def process_conf(cephConfPath):
     mon_sections=ceph_conf_list('mon.')
     if len(mon_sections)==0:
-        initmon = ceph_conf_global('mon_initial_members')
+        initmon = ceph_conf_global(cephConfPath, 'mon_initial_members')
         if not initmon:
             raise RuntimeError('enable to find a mon')
         mons = [initmon]
     else:
+        mons = []
         for mon in mon_sections:
             mons.append(ceph_conf('host', mon))
         
@@ -200,9 +201,15 @@ def process_status(restapi, ceph_rest_api_subfolder, db):
          
     print str(datetime.datetime.now()), "-- Process Status"  
     sys.stdout.flush()
-    restapi.connect()
-    restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/status.json")
-    r1=restapi.getresponse()
+    try:
+        restapi.connect()
+        restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/status.json")
+        r1=restapi.getresponse()
+    except Exception, e:
+        print str(datetime.datetime.now()), "-- error (Status) failed to connect to ceph rest api: ", e.message
+        restapi.close()
+        raise e
+
     if r1.status != 200:
         print str(datetime.datetime.now()), "-- error (Status) failed to connect to ceph rest api: ", r1.status, r1.reason
         restapi.close()
@@ -316,9 +323,15 @@ def process_osd_dump(restapi, ceph_rest_api_subfolder, db):
     
     print str(datetime.datetime.now()), "-- Process OSDDump"  
     sys.stdout.flush()
-    restapi.connect()
-    restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/osd/dump.json")
-    r1=restapi.getresponse()
+    try:
+        restapi.connect()
+        restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/osd/dump.json")
+        r1=restapi.getresponse()
+    except Exception, e:
+        print str(datetime.datetime.now()), "-- error (OSDDump) failed to connect to ceph rest api: ", e.message
+        restapi.close()
+        raise e
+
     if r1.status != 200:
         print str(datetime.datetime.now()), "-- error (OSDDump) failed to connect to ceph rest api: ", r1.status, r1.reason
         restapi.close()
@@ -413,9 +426,14 @@ def process_pg_dump(restapi, ceph_rest_api_subfolder, db):
     
     print str(datetime.datetime.now()), "-- Process PGDump"  
     sys.stdout.flush()
-    restapi.connect()
-    restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/pg/dump.json")
-    r1 = restapi.getresponse()
+    try:
+        restapi.connect()
+        restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/pg/dump.json")
+        r1 = restapi.getresponse()
+    except Exception, e:
+        print str(datetime.datetime.now()), "-- error (PGDump) failed to connect to ceph rest api: ", e.message
+        restapi.close()
+        raise e
     if r1.status != 200:
         print str(datetime.datetime.now()), "-- error (PGDump) failed to connect to ceph rest api: ", r1.status, r1.reason
         restapi.close()
@@ -461,9 +479,14 @@ def process_crushmap(restapi, ceph_rest_api_subfolder, db):
     
     print str(datetime.datetime.now()), "-- Process Crushmap"  
     sys.stdout.flush()
-    restapi.connect()
-    restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/osd/crush/dump.json")
-    r1=restapi.getresponse()
+    try:
+        restapi.connect()
+        restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/osd/crush/dump.json")
+        r1=restapi.getresponse()
+    except Exception, e:
+        print str(datetime.datetime.now()), "-- error (Crushmap) failed to connect to ceph rest api: ", e.message
+        restapi.close()
+        raise e
     if r1.status != 200:
         print str(datetime.datetime.now()), "-- error (Crushmap) failed to connect to ceph rest api: ", r1.status, r1.reason
         restapi.close()
@@ -543,9 +566,14 @@ def process_df(restapi, ceph_rest_api_subfolder, db):
     
     print str(datetime.datetime.now()), "-- Process DF"  
     sys.stdout.flush()
-    restapi.connect()
-    restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/df.json")
-    r1=restapi.getresponse()
+    try:
+        restapi.connect()
+        restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/df.json")
+        r1=restapi.getresponse()
+    except Exception, e:
+        print str(datetime.datetime.now()), "-- error (DF) failed to connect to ceph rest api: ", e.message
+        restapi.close()
+        raise e
     if r1.status != 200:
         print str(datetime.datetime.now()), "-- error (DF) failed to connect to ceph rest api: ", r1.status, r1.reason
         restapi.close()
@@ -617,10 +645,13 @@ class Repeater(Thread):
                 self.function(*self.args)
             except Exception, e:
                 # try later
-                print str(datetime.datetime.now()), "-- WARNING : "+self.function.__name__ + " did not worked : ", e
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                traceback.print_exception(exc_type, exc_value, exc_traceback)
-                pass
+                try:
+                    print str(datetime.datetime.now()), "-- WARNING : "+self.function.__name__ + " did not work : ", e
+                    exc_type, exc_value, exc_traceback = sys.exc_info()
+                    traceback.print_exception(exc_type, exc_value, exc_traceback)
+                    pass
+                except:
+                    pass
 
 
 class Usage(Exception):
