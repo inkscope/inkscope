@@ -127,7 +127,7 @@
 
 
 <div id="osds" ng-show="dispoMode == 'state'">
-    <div ng-repeat="osd in data|orderBy:'id'" class=" tooltips osd {{osdClass(osd)}}"  ng-show="100*osd.partition.stat.used/osd.partition.stat.total > minUsedSpace">
+    <div ng-repeat="osd in data|orderBy:'id'" class=" tooltips osd {{osdClass(osd)}}" ng-show="filledOver(osd)">
         <div ng-click="osdSelect(osd);">
             {{osd.id}}
             <div> <!-- tooltip -->
@@ -147,7 +147,7 @@
 </div>
 
 <div id="osdspaces" ng-show="dispoMode == 'used space (%)'">
-    <div ng-repeat="osd in data|orderBy:'id'" class="tooltips osdspace"  ng-show="100*osd.partition.stat.used/osd.partition.stat.total > minUsedSpace">
+    <div ng-repeat="osd in data|orderBy:'id'" class="tooltips osdspace"  ng-show="filledOver(osd)">
         <div ng-click="osdSelect(osd);">
             osd {{osd.id}}<br>
             <ad-gauge value="osd.partition.stat.used/osd.partition.stat.total" colormode="desc" width="120" type="plain" animated="false"></ad-gauge>

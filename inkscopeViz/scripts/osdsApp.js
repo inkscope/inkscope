@@ -108,6 +108,14 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $scope, $http, $location ,$
             });
     }
 
+    $scope.filledOver = function (osd){
+        if ( osd == null) return true;
+        if ( osd.partition == null) return true;
+        if ( osd.partition.stat == null) return true;
+        return 100*osd.partition.stat.used/osd.partition.stat.total > $scope.minUsedSpace
+    }
+
+
     $scope.osdClass = function (osd){
         if ( osd == null) return "osd_unknown";
         if ( osd.stat == null) return "osd_unknown";
