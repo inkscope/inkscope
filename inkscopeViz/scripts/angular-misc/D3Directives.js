@@ -103,7 +103,7 @@ angular.module('D3Directives', [])
                             if (d.name == "fond")return d.color; else return colorFunc(d.value);
                         });
                     path.enter().append("svg:path");
-                    var duration = 1500;
+                    var duration = 1000;
                     if (!animated){
                         duration = 0;
                     }
@@ -121,19 +121,20 @@ angular.module('D3Directives', [])
                         .enter()
                         .append("text")
                         .text(function (d) {
-                            return (d.value * 100).toFixed(1) + " %";
+                            if (d.valid) return (d.value * 100).toFixed(1) + " %";
+                            else return "N/A"
                         })
                         .style("text-anchor", "middle")
                         .style("font-size", fontSize + "px")
                         .style("font-family", "arial");
                     if (animated){
                         gaugeText.transition()
-                        .duration(1500)
+                        .duration(duration)
                         .tween("text", function (d) {
                             var i = d3.interpolate(d.previous, d.value);
                             return function (t) {
                                 if (d.valid) this.textContent = (i(t) * 100).toFixed(1) + " %";
-                                else this.textContent = "invalid";
+                                else this.textContent = "N/A";
                             };
                         });
                     }
