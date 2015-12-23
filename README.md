@@ -29,11 +29,9 @@ Here is the dashboard screenshot and an object storage user management screensho
 what do we plan in Inkscope?
 ============================
 
-- Extend or replace Ceph Rest API request by command lines or the use of Calamari REST API
+- Extend or replace Ceph Rest API request by command lines
 - Improve S3/swift features : zones and regions management
 - Improve probes operations
-- Implement S3 objects visualization
-- Plug the monitoring module to feed Nagios/Shinken
 
 Other ideas:
 - Simulation : impact calculation in case of crushmap update (storage capacity, bandwidth,..)
