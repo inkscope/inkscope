@@ -244,8 +244,8 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
                 $scope.osdsIn = parseInt(osdmap.num_in_osds);
                 $scope.osdsOut = osdmap.num_osds - osdmap.num_in_osds;
                 $scope.osdsDown = $scope.osdsIn - $scope.osdsUp + $scope.osdsOut;
-                $scope.osdsNearFull = osdmap.nearfull ==  "true" ?1:0;
-                $scope.osdsFull = osdmap.full ==  "true" ?1:0;
+                $scope.osdsNearFull = osdmap.nearfull?1:0;
+                $scope.osdsFull = osdmap.full?1:0;
             })
             .error(function (data) {
                 $scope.health = {};
