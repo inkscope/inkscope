@@ -63,6 +63,12 @@ function DetailCtrl($rootScope,$scope, $http, $routeParams, $route, $dialogs) {
         success(function (data, status) {
             $rootScope.status = status;
             $rootScope.detailedBucket =  data;
+            if (typeof $rootScope.detailedBucket.mtime === "string") {
+                stringToParse = $rootScope.detailedBucket.mtime.replace(/-/g,"/");
+                var dateString    = stringToParse.match(/\d{4}\/\d{2}\/\d{2}\s+\d{2}:\d{2}:\d{2}/);
+                var dt            = new Date(dateString);
+                $rootScope.detailedBucket.mtime = dt.getTime()/1000;
+            }
         }).
         error(function (data, status, headers) {
             $rootScope.status = status;
