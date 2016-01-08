@@ -34,6 +34,8 @@ import mongoJuiceCore
 from poolsCtrl import PoolsCtrl,Pools
 import osdsCtrl
 import rbdCtrl
+import subprocess
+from StringIO import StringIO
 #import probesCtrl
 
 from S3Ctrl import S3Ctrl, S3Error
@@ -97,6 +99,48 @@ class User(UserMixin):
         """
         data = [str(self.id), self.password]
         return login_serializer.dumps(data)
+
+
+def get_ceph_version():
+    args = ['ceph',
+            '--version']
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, error = p.communicate()
+    if p.returncode != 0:
+        return "not found"
+    ceph_version = re.search('[0-9]*\.[0-9]*\.[0-9]*', output)
+    if ceph_version:
+        return ceph_version.group(0)
+    return "not found"
+
+
+def get_ceph_version_name(ceph_version):
+    major, minor, revision = ceph_version.split(".")
+    if major == '10':
+        return 'Jewel'
+    if major == '9':
+        return 'Infernalis'
+    if major == '0':
+        minor = int(minor)
+        if minor == 94:
+            return 'Hammer'
+        if minor > 87:
+            return 'Pre-Hammer'
+        if minor == 87:
+            return 'Giant'
+        if minor > 80:
+            return 'Pre-Giant'
+        if minor == 80:
+            return 'Firefly'
+        if minor > 72:
+            return 'Pre-Firefly'
+        if minor == 72:
+            return 'Emperor'
+        if minor > 67:
+            return 'Pre-Emperor'
+        if minor == 67:
+            return 'Dumpling'
+        return 'Really too old'
 
 
 @login_manager.user_loader
@@ -178,14 +222,19 @@ def conf_manage():
     conf['platform'] = conf.get('platform')
     if conf['platform'] is None:
         conf['platform'] = "define 'platform' in inkscope.conf"
+    ceph_version = get_ceph_version()
     if 'admin' in current_user.roles:
         conf['version'] = version
+        conf['ceph_version'] = ceph_version
+        conf['ceph_version_name'] = get_ceph_version_name(ceph_version)
         conf['roles'] = current_user.roles
         conf['username']= current_user.id
         return Response(json.dumps(conf), mimetype='application/json')
     else:
         conflite = {}
         conflite['version'] = version
+        conflite['ceph_version'] = ceph_version
+        conflite['ceph_version_name'] = get_ceph_version_name(ceph_version)
         conflite['roles'] = current_user.roles
         conflite['platform'] = conf.get('platform')
         conflite['username']= current_user.id
