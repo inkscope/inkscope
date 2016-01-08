@@ -212,7 +212,7 @@ function CreateCtrl($scope, $location, $http, $dialogs) {
             }).
             error(function (data, status) {
                 $scope.status = status;
-                $dialogs.error("<h3>Can't create erasure code profile <strong>"+$scope.erasureProfile.name+"</strong> !</h3> <br>"+data);
+                $dialogs.error("<h3>Can't create erasure code profile <strong>"+$scope.erasureProfile.name+"</strong> !</h3> <br>"+data.status);
             });
     };
 
