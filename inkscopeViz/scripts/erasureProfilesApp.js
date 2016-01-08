@@ -169,7 +169,7 @@ function DeleteCtrl($scope, $http,  $routeParams, $location, $dialogs) {
     }
 }
 
-function CreateCtrl($scope, $location, $http, $dialogs) {
+function CreateCtrl($scope, $location, $http, $dialogs, $window) {
     $scope.operation = "creation";
 
     // functions declaration
@@ -208,7 +208,7 @@ function CreateCtrl($scope, $location, $http, $dialogs) {
                 $scope.data = data;
                 $dialogs.notify("Erasure code profile creation","Erasure code profile <strong>"+$scope.erasureProfile.name+"</strong> was created");
                 refreshErasureProfiles($http, $scope);
-                $location.path('/');
+                $window.location.assign("#/detail/"+$scope.erasureProfile.name);
             }).
             error(function (data, status) {
                 $scope.status = status;
