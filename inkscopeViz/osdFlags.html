@@ -21,35 +21,23 @@
 
 <header id="header" ng-include src="'partials/header.html'" ng-init="pageTitle='Cluster general flags'"></header>
 
+<div id="datePanel"><br>Date : {{date | date:'HH:mm:ss'}}</div>
 
 <div id="list" style="margin: 2em 150px; width:150px">
-    <div ng-repeat="flag in flagList">
-        <a ng-show="isSet(flag)" class="btn btn-warning"  style="width:100px" ng-click="unsetFlag(flag)" >{{ flag }} <i class="icon-white icon-remove"></i></a>
-        <a ng-show="!isSet(flag)" class="btn btn-default"  style="width:100px" ng-click="setFlag(flag)" >{{ flag }} <i class="icon-check"></i></a><br><br>
+    <div ng-repeat="flag in flagList" ng-show="isAvailable(flag)">
+        <a ng-show="isSet(flag)" class="btn btn-warning"  style="width:100px" ng-click="unsetFlag(flag)" >{{ flag.name }} <i class="icon-white icon-remove"></i></a>
+        <a ng-show="!isSet(flag)" class="btn btn-default"  style="width:100px" ng-click="setFlag(flag)" >{{ flag.name }} <i class="icon-check"></i></a>
+        <br><br>
     </div>
 </div>
 
 <div id="control" style="float:left" >
     <h3>About flags</h3>
-    <strong>pause</strong> :if set, no IO requests will be sent to any OSD<br>
-    <br>
-    <strong>noup</strong>  : prevent OSDs from getting marked up<br>
-    <strong>nodown</strong> : prevent OSDs from getting marked down<br>
-    <strong>noout</strong> : prevent OSDs from getting marked out<br>
-        <strong>noin</strong> :prevent OSDs from getting marked in<br>
-    <br>
-    <em>noin and noout prevent booting OSDs from being marked in (allocated data) or protect OSDs from eventually being marked out (regardless of what the current value for mon osd down out interval is).<br>
-    noup, noout, and nodown are temporary in the sense that once the flags are cleared, the action they were blocking should occur shortly after.<br>
-    The noin flag, on the other hand, prevents OSDs from being marked in on boot, and any daemons that started while the flag was set will remain that way.</em><br>
-    <br>
-            <strong>nobackfill<br>
-    norecover<br>
-    <br>
-    noscrub<br>
-    nodeep-scrub</strong><br>
-    <br>
-            <strong>notieragent</strong> : This will pause tiering agent work
-
+    <div ng-repeat="flag in flagList">
+        <span ng-show="isAvailable(flag)">
+            <strong>{{flag.name}}</strong>: <span ng-bind-html=" flag.description"></span><br>
+        </span>
+    </div>
 </div>
 
 <script>resizeBlocks(['#list','#control']);</script>
