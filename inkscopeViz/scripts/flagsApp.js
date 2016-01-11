@@ -27,27 +27,6 @@ FlagsApp.controller("flagsCtrl", function ($rootScope, $scope, $http, $dialogs) 
         {name:'sortbitwise',minVersion:'Infernalis',description:''}
     ];
 
-    /*
-
-    <strong>pause</strong> :if set, no IO requests will be sent to any OSD<br>
-    <br>
-    <strong>noup</strong>  : prevent OSDs from getting marked up<br>
-    <strong>nodown</strong> : prevent OSDs from getting marked down<br>
-    <strong>noout</strong> : prevent OSDs from getting marked out<br>
-        <strong>noin</strong> :prevent OSDs from getting marked in<br>
-    <br>
-    <br>
-    <br>
-            <strong>nobackfill<br>
-    norecover<br>
-    <br>
-    noscrub<br>
-    nodeep-scrub</strong><br>
-    <br>
-            <strong>notieragent</strong> : This will pause tiering agent work
-
-     */
-
     function refreshData() {
         //
         $scope.date = new Date();
