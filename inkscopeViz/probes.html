@@ -26,6 +26,8 @@
 
 
 <div id="probes">
+
+    Inkscope server date: {{timestamp_inkscope| date:'yyyy/MM/dd HH:mm:ss'}}<br>
     <h3>Ceph probes</h3>
 
     <div ng-repeat="probe in cephprobes | orderBy:'_id'" class=" tooltips {{probe.class}}">
@@ -34,6 +36,7 @@
                 <span>
                     <strong>{{probe._id}}</strong><br>
                     last heartbeat : {{probe.lastHB|duration}}<br>
+                    date : {{probe.dateHB| date:'yyyy/MM/dd HH:mm:ss'}}<br>
                 </span>
         </div>
     </div>
@@ -47,6 +50,7 @@
                 <span>
                     <strong>{{probe._id}}</strong><br>
                     last heartbeat : {{probe.lastHB|duration}}<br>
+                    date : {{probe.dateHB| date:'yyyy/MM/dd HH:mm:ss'}}<br>
                 </span>
         </div>
     </div>

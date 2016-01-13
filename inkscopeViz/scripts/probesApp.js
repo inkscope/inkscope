@@ -25,11 +25,13 @@ ProbesApp.controller("ProbesCtrl", function ($rootScope, $scope, $http) {
 
         $http({method: "get", url: inkscopeCtrlURL + $rootScope.fsid+"/cephprobe"}).
 
-            success(function (data,status,headers,config ) {
+            success(function (data,status,headers) {
                 $scope.cephprobes = data;
+                $scope.timestamp_inkscope = new Date(parseInt(headers().timestamp));
                 for ( var i=0; i< $scope.cephprobes.length;i++){
                     $scope.cephprobes[i].lastHB = (headers().timestamp-$scope.cephprobes[i].timestamp)/1000;
                     $scope.cephprobes[i].class = $scope.probeClass($scope.cephprobes[i].lastHB);
+                    $scope.cephprobes[i].dateHB = new Date($scope.cephprobes[i].timestamp);
                 }
 
             }).
@@ -46,9 +48,11 @@ ProbesApp.controller("ProbesCtrl", function ($rootScope, $scope, $http) {
 
             success(function (data, status,headers) {
                 $scope.sysprobes = data;
+                $scope.timestamp_inkscope = new Date(parseInt(headers().timestamp));
                 for ( var i=0; i< $scope.sysprobes.length;i++){
                     $scope.sysprobes[i].lastHB = (headers().timestamp-$scope.sysprobes[i].timestamp)/1000;
                     $scope.sysprobes[i].class = $scope.probeClass($scope.sysprobes[i].lastHB);
+                    $scope.sysprobes[i].dateHB = new Date($scope.sysprobes[i].timestamp);
                 }
 
             }).
