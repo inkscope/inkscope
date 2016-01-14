@@ -15,6 +15,7 @@ function refreshHosts($rootScope, $http, $scope, $templateCache) {
     //while (typeof $rootScope.fsid === 'undefined')  ;
     $http({method: "get", url: inkscopeCtrlURL + $rootScope.fsid + "/hosts", cache: $templateCache}).
         success(function (data, status) {
+            $scope.date = new Date();
             $scope.status = status;
             $scope.hosts =  data;
             $scope.tableParams.reload();
