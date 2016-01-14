@@ -14,7 +14,7 @@ from hashlib import md5
 from bson.json_util import dumps
 from InkscopeError import InkscopeError
 
-version = "1.3.0"
+version = "1.3.1"
 
 app = Flask(__name__)
 app.secret_key = "Mon Nov 30 17:20:29 2015"
@@ -220,8 +220,8 @@ def logout():
 def conf_manage():
     #force platform field to invite admin to give a name to this instance
     conf['platform'] = conf.get('platform')
-    if conf['platform'] is None:
-        conf['platform'] = "define 'platform' in inkscope.conf"
+    if conf['platform'] is None or conf['platform'] == "":
+        conf['platform'] = "fill 'platform' field in inkscope.conf"
     ceph_version = get_ceph_version()
     if 'admin' in current_user.roles:
         conf['version'] = version
