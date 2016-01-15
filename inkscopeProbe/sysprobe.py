@@ -50,7 +50,7 @@ import signal
 
 configfile = "/opt/inkscope/etc/inkscope.conf"
 runfile = "/var/run/sysprobe/sysprobe.pid"
-logfile = "/var/log/sysprobe.log"
+logfile = "/var/log/inkscope/sysprobe.log"
 
 
 # load the conf (from json into file)

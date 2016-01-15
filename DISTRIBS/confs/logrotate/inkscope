@@ -1,4 +1,4 @@
-/var/log/cephprobe.log {
+/var/log/inkscope/cephprobe.log {
     rotate 2
     daily
     size 10M
@@ -6,7 +6,23 @@
     missingok
 }
 
-/var/log/sysprobe.log {
+/var/log/inkscope/sysprobe.log {
+    rotate 2
+    daily
+    size 10M
+    compress
+    missingok
+}
+
+/var/log/inkscope/webserver_error.log {
+    rotate 2
+    daily
+    size 10M
+    compress
+    missingok
+}
+
+/var/log/inkscope/webserver_access.log {
     rotate 2
     daily
     size 10M

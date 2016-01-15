@@ -40,7 +40,7 @@ import signal
 
 configfile = "/opt/inkscope/etc/inkscope.conf"
 runfile = "/var/run/cephprobe/cephprobe.pid"
-logfile = "/var/log/cephprobe.log"
+logfile = "/var/log/inkscope/cephprobe.log"
 clusterName = "ceph"
 fsid = ""
 
