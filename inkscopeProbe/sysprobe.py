@@ -562,7 +562,7 @@ def pick_ceph_processes_v1(hostname, db):
 
 
 # delete the oldest stats
-#window in second
+# window in second
 def drop_stat(db, collection, window):
     before = int((time.time() - window) * 1000)
     print str(datetime.datetime.now()), "-- drop Stats:", collection, "before", before       
@@ -600,12 +600,8 @@ def ensure_dir(f):
     d = os.path.dirname(f)
     if not os.path.exists(d):
         os.makedirs(d)
-    
 
-def ensure_dir(f):
-    d = os.path.dirname(f)
-    if not os.path.exists(d):
-        os.makedirs(d)  
+
 # ceph probe 
 # cephClient = httplib.HTTPConnection("localhost", port)
 
@@ -841,6 +837,7 @@ class SysProbeDaemon(Daemon):
    
 
 if __name__ == "__main__":   
+    ensure_dir(logfile)
     ensure_dir(runfile)
     daemon = SysProbeDaemon(runfile)
     if len(sys.argv) == 2:

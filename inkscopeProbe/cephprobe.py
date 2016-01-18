@@ -612,7 +612,7 @@ def drop_stat(db, collection, window):
 def heart_beat(hostname, db):
     beat = {"timestamp": int(round(time.time() * 1000)), }
     db.cephprobe.update({'_id': hostname}, {"$set": beat}, upsert=True)   
-    #leadership
+    # leadership
     leadership(db, hostname)
 
 
@@ -855,6 +855,7 @@ class CephProbeDaemon(Daemon):
     
 
 if __name__ == "__main__":   
+    ensure_dir(logfile)
     ensure_dir(runfile)
     daemon = CephProbeDaemon(runfile)
     if len(sys.argv) == 2:
