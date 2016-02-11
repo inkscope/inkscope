@@ -27,7 +27,10 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
         function startRefresh($rootScope, $http,$scope){
             getOsds();
             getOsd2();
-            setInterval(function () {getOsds()},10*1000);
+            setInterval(function () {
+                getOsds();
+                getOsd2();}
+                ,10*1000);
         }
     };
     waitForFsid($rootScope, $http,$scope);
