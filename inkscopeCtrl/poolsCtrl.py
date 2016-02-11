@@ -53,7 +53,11 @@ class Pools:
 
 class PoolsCtrl:
     def __init__(self,conf):
-        self.cephRestApiUrl = "http://"+conf.get("ceph_rest_api", "")+"/"+conf.get("ceph_rest_api_subfolder", "")+"/api/v0.1/"
+        ceph_rest_api_subfolder = conf.get("ceph_rest_api_subfolder", "")
+        ceph_rest_api_subfolder = ceph_rest_api_subfolder.strip('/')
+        if ceph_rest_api_subfolder != '':
+            ceph_rest_api_subfolder = "/" + ceph_rest_api_subfolder
+        self.cephRestApiUrl = "http://"+conf.get("ceph_rest_api", "")+ceph_rest_api_subfolder+"/api/v0.1/"
         pass
 
     def getCephRestApiUrl(self):

@@ -27,7 +27,12 @@ class S3ObjectCtrl:
         self.radosgw_url = conf.get("radosgw_url", "127.0.0.1")
         self.clusterName = conf.get("cluster", "ceph")
         self.secure = self.radosgw_url.startswith("https://")
-        self.cephRestApiUrl = "http://"+conf.get("ceph_rest_api", "")+"/"+conf.get("ceph_rest_api_subfolder", "")+"/api/v0.1/"
+
+        ceph_rest_api_subfolder = conf.get("ceph_rest_api_subfolder", "")
+        ceph_rest_api_subfolder = ceph_rest_api_subfolder.strip('/')
+        if ceph_rest_api_subfolder != '':
+            ceph_rest_api_subfolder = "/" + ceph_rest_api_subfolder
+        self.cephRestApiUrl = "http://"+conf.get("ceph_rest_api", "")+ceph_rest_api_subfolder+"/api/v0.1/"
         self.inkscopeCtrlUrl = "http://"+conf.get("inkscope_root", "")+"/inkscopeCtrl/"
 
         if not self.radosgw_url.endswith('/'):
