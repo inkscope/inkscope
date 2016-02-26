@@ -5,11 +5,6 @@ from flask import Flask, request,Response
 from pymongo import MongoClient, MongoReplicaSetClient
 from pymongo.read_preferences import ReadPreference
 
-import json
-from bson.dbref import DBRef
-from bson.json_util import dumps
-from bson import ObjectId
-import time
 from bson.dbref import DBRef
 from bson.json_util import dumps
 from bson import ObjectId
