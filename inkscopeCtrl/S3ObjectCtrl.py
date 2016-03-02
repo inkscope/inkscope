@@ -396,7 +396,7 @@ class S3ObjectCtrl:
     def getChunkBaseName(self, poolName, objectid):
         Log.info("____Get the chunks list for the object [" + objectid + "] and the pool[ " + str(poolName) + "]")
         ioctx = self.cluster.open_ioctx(str(poolName))
-        xattr = ioctx.get_xattr(objectid, 'user.rgw.manifest')
+        xattr = ioctx.get_xattr(str(objectid), 'user.rgw.manifest')
         shadow = xattr.replace('\x00', '').replace('\x01', '').replace('\x02', '').replace('\x03', '').\
                       replace('\x04', '').replace('\x05', '').replace('\x06', '').replace('\x07', '').replace('\x08', '').replace('\x09', '')\
                       .replace('\x10', '').replace('\x11', '').replace('\x12', '').replace('\x0e', '').replace('\x0b', '').replace('\x0c', '')
