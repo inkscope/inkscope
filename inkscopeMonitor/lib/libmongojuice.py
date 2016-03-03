@@ -1,23 +1,21 @@
 #author Philippe Raipin
 #author eric Mourgaya
 #licence : apache v2
-from flask import Flask, request,Response
-from pymongo import MongoClient, MongoReplicaSetClient
-from pymongo.read_preferences import ReadPreference
 
-import json
-from bson.dbref import DBRef
-from bson.json_util import dumps
-from bson import ObjectId
-import time
-from bson.dbref import DBRef
-from bson.json_util import dumps
-from bson import ObjectId
-import time
+from flask import Flask
+from flask import request
+from flask import Response
+from pymongo.read_preferences import ReadPreference
 from pymongo import Connection
+from pymongo import MongoClient
+from pymongo import MongoReplicaSetClient
+from bson.dbref import DBRef
+from bson.json_util import dumps
+from bson import ObjectId
 from bson import BSON
 from bson import json_util
-from bson.objectid import ObjectId
+import time
+import json
 
 # for ceph command call
 import subprocess
