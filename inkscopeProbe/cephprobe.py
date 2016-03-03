@@ -266,20 +266,19 @@ def process_status(restapi, ceph_rest_api_subfolder, db):
             #find the mon host
             hostaddr = mon['addr'].partition(':')[0]
             monhostid = None
-            
-            
-            try :
-                #monhostid = socket.gethostbyaddr(hostaddr)[0]
-                monhostid = socket.getfqdn(hostaddr)
-            except:                       
+
+            #if hostaddr == '': # the case if mon is declared but not completly configured
+            # no need to treat cause we can keep monhostid = None
+            if hostaddr != '':
+                # first lookup known hosts in db
                 monhost = db.hosts.find_one({"hostip": hostaddr})
-    
-                if hostaddr == '': # the case if mon is declared but not completly configured
-                    monhostid = None
-                elif not monhost:
+
+                if not monhost:
                     monneti = db.net.find_one({"$where":  "this.inet.addr === '"+hostaddr+"'"})
                     if monneti:
                         monhostid = monneti["_id"].partition(":")[0]
+                    else: # not found in db, lookup with fqdn
+                        monhostid = socket.getfqdn(hostaddr)
                 else:
                     monhostid = monhost["_id"]
             
@@ -365,20 +364,20 @@ def process_osd_dump(restapi, ceph_rest_api_subfolder, db):
             
             hostaddr = osd["public_addr"].partition(':')[0]
             osdhostid = None
-            
+
             #find host name
-            try :
-                #osdhostid = socket.gethostbyaddr(hostaddr)[0]
-                osdhostid = socket.getfqdn(hostaddr)
-            except:                       
+            #if hostaddr == '': # the case if osd is declared but not completly configured
+            # no need to treat cause we can keep osdhostid = None
+            if hostaddr != '':
+                # first lookup known hosts in db
                 osdhost = db.hosts.find_one({"hostip": hostaddr})
-    
-                if hostaddr == '': # the case if osd is declared but not completly configured
-                    osdhostid = None
-                elif not osdhost:
+
+                if not osdhost:
                     osdneti = db.net.find_one({"$where":  "this.inet != null && this.inet.addr === '"+hostaddr+"'"})
                     if osdneti:
                         osdhostid = osdneti["_id"].partition(":")[0]
+                    else: # not found in db, lookup with fqdn
+                        osdhostid = socket.getfqdn(hostaddr)
                 else:
                     osdhostid = osdhost["_id"]
                     
