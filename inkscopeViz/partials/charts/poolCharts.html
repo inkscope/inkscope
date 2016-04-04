@@ -1,6 +1,8 @@
 <div id="poolChoice">
-    <h2>Pool choice:</h2>
+    <br>
+    <h2>Pool choice:
     <select id="pool" ng-model="pool" ng-options="value.poolname for value in poolList| orderBy:'poolnum'"  ng-change="getPoolStat(pool)"></select>
+    </h2>
 </div>
 
 <div id="charts" ng-show="poolName">

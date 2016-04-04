@@ -25,7 +25,7 @@
 <body>
 <header ng-include src="'partials/header.html'" ng-init="pageTitle='Statistics with influxDB'"></header>
 
-<div id="stats" style="margin:1em" ng-controller="MonitoringCtrl">
+<div id="stats" style="margin-left:2em" ng-controller="MonitoringCtrl">
     <div id="datePanel"><br>Date : {{date | date:'HH:mm:ss'}}
         <criteria_panel ng-include src="'partials/criteriaPanel.html'"></criteria_panel>
     </div>
@@ -46,9 +46,10 @@
     <h1>Cluster</h1>
     <div id="container_cluster_space" class="chart_super_container"></div>
     <div id="container_cluster_latency" class="chart_super_container"></div>
-    <h1>&nbsp;</h1>
+    <br style="clear: both">
     <div id="container_mon" class="chart_super_container"></div>
     <div id="container_osd" class="chart_super_container"></div>
+    <br style="clear: both">
     <div id="container_pg" class="chart_super_container"></div>
 
 </div>
