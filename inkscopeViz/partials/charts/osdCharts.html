@@ -1,0 +1,26 @@
+<div id="osdChoice">
+    <h2>OSD choice:</h2>
+    <select ng-model="osdSelected" ng-change="getOsdStat(osdSelected)">
+        <option ng-repeat="osdNum in osds" value="osd-{{ osdNum }}" >osd-{{ osdNum }}</option>
+    </select>
+</div>
+
+<div id="charts" ng-show="osdId">
+    <div ng-init="
+            charts= [
+                {title:osdId+' space',instance:osdId,suffix:'_space',filter:['kb_total','kb_used'],unit:'byte',coeff:1024.0,legend:'bottom'},
+                {title:osdId+' latency',instance:osdId,suffix:'_latency',filter:['apply_latency_ms','commit_latency_ms'],unit:'milliseconds',legend:'bottom'},
+            ];
+            reinitCharts();
+            ">
+    </div>
+
+    <h1>{{osdId}}</h1>
+    <div id="datePanel"><br>Date : {{date | date:'HH:mm:ss'}}
+        <criteria_panel ng-include src="'partials/criteriaPanel.html'"></criteria_panel>
+    </div>
+
+    <div id="container_{{osdId}}_latency" class="chart_super_container"></div>
+    <div id="container_{{osdId}}_space" class="chart_super_container"></div>
+
+</div>

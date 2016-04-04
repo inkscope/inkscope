@@ -1,0 +1,138 @@
+.chart_super_container {
+  display: inline-block;
+  width : 640px;
+  height : 230px;
+  white-space: nowrap;
+  background-color: #EEEEEE;
+  border-top: 2px solid #F0F0F0;
+  border-left: 2px solid #F0F0F0;
+  border-bottom: 2px solid #aaaaaa;
+  border-right: 2px solid #aaaaaa;
+  margin:5px 0 0 5px;
+}
+
+.chart_container {
+  position: relative;
+  width:100%;
+  display: inline-block;
+  /*font-family: Arial, Helvetica, sans-serif;*/
+  margin-top: 0px;
+  /*background-color:#00d6b2;*/
+}
+
+.chart_title{
+  position: absolute;
+  top: 5px;
+  left: 60px;
+  font-weight: bold;
+  font-size: medium;
+  /*color: lightgrey;*/
+}
+
+.chart_status{
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  font-weight: bold;
+  color: orangered;
+}
+
+
+.chart {
+  position: absolute;
+  top: 30px;
+  left: 60px;
+  width: 550px;
+  background-color:white;
+}
+
+.slider {
+  position: absolute;
+  top: 30px;
+  left: 50px;
+  width: 550px;
+  background-color:white;
+}
+
+
+.legend {
+  position: absolute;
+  top: 30px;
+  left: 650px;
+  width: 180px;
+  background-color: #a3a3a3;
+}
+
+.legend-bottom {
+  top:200px;
+  left: 60px;
+  width: 550px;
+}
+
+.y_axis{
+  position: absolute;
+  top: 30px;
+  bottom: 0;
+  width: 60px;
+  height: 180px;
+  font-size: xx-small;
+  /*background-color:lightgrey;*/
+}
+
+
+.x_tick {
+  color:black;
+  bottom: -20px !important;
+}
+
+.swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin: 0 3px 0 0;
+}
+.chart_label {
+  margin: 0 0 0 5px;
+  display: inline-block;
+  color:white;
+  font-size: x-small;
+}
+.legend-bottom .line {
+  display: inline-block;
+  margin: 0 0 0 20px;
+}
+
+.line {
+  /*display: inline-block;*/
+  margin: 0 0 0 20px;
+}
+
+.rickshaw_graph .detail {
+  background: none;
+}
+
+criteria_panel {
+  font-size: small;
+  font-weight: normal;
+  display: inline-block;
+}
+criteria_panel > select{
+  margin-top:10px;
+  width:135px;
+}
+criterias {
+  margin:20px 30px 20px;
+}
+criteria {
+  padding:3px;
+  margin-left:5px;
+  cursor: pointer;
+}
+.selectedCriteria{
+  background-color: #00b3ee;
+  color:white;
+  cursor: none;
+}
+.criteria{
+  background-color: #EEEEEE;
+}

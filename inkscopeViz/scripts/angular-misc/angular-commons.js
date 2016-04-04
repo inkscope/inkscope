@@ -78,6 +78,7 @@ angular.module('InkscopeCommons', ['ngTable','dialogs','ui.bootstrap'])
             .success(function (data) {
                 $rootScope.conf = data;
                 $rootScope.roles=data.roles;
+                $rootScope.useInfluxDB = (typeof $rootScope.conf.influxdb_endpoint !=='undefined');
             })
             .error(function(data,status){
                 if (status==401) $window.location.assign("login.html");

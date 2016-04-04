@@ -9,6 +9,7 @@
                     <!--li><a href="cluster.html" title="Cluster">Cluster</a-->
                     <li><a href="hosts.html" title="hosts">Hosts</a></li>
                     <li><a href="osdFlags.html" title="Cluster general flags">Cluster general flags</a></li>
+                    <li ng-show="useInfluxDB"><a href="monitorCluster.html" title="cluster monitoring">Cluster monitoring</a></li>
                 </ul>
             </li>
             <li id="menu_cat_osd" class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">OSD<span class="caret"></span></a>
@@ -22,6 +23,7 @@
             <li id="menu_cat_pool" class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#" title="pool usage and pools/pgs/osd">Pool<span class="caret"></span></a>
                 <ul  id="menu_cat_pool_list" class="dropdown-menu">
                     <li><a href="poolManagement.html" title="pools management">Pool management</a></li>
+                    <li ng-show="useInfluxDB"><a href="monitorPool.html#/pool" title="pool monitoring">Pool monitoring</a></li>
                     <li><a href="poolspgsosds.html" title="shows relationship between pools and osds">Pools/Pgs/osds</a></li>
                 </ul>
             </li>
@@ -46,6 +48,14 @@
             <li id="menu_cat_mds" class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">MDS<span class="caret"></span></a>
                 <ul id="menu_cat_mds_list"  class="dropdown-menu">
                     <li><a href="mds.html" title="MDS cluster info">MDS status</a>
+                </ul>
+            </li>
+            <li id="menu_cat_monitoring" class="dropdown" ng-show="useInfluxDB">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#" title="Monitoring">Monitoring<span class="caret"></span></a>
+                <ul  id="menu_cat_misc_monitoring" class="dropdown-menu">
+                    <li><a href="monitorCluster.html" title="cluster">Cluster</a></li>
+                    <li><a href="monitorPool.html#/pool" title="pool">Pools</a></li>
+                    <li><a href="monitorOSD.html#/osd" title="osd">OSDs</a></li>
                 </ul>
             </li>
             <li id="menu_cat_misc" class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#" title="Crush map, object lookup and probe status">Misc.<span class="caret"></span></a>
