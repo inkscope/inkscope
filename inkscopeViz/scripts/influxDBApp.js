@@ -49,8 +49,10 @@ var InfluxDBApp = angular.module('MonitoringApp', ['ngRoute','InkscopeCommons'])
             .when('/', {controller: 'MonitoringCtrl', templateUrl: ''})
             .when('/pool', {controller: 'MonitoringCtrl', templateUrl: 'partials/charts/poolCharts.html'})
             .when('/pool/:poolNum/:poolName', {controller: 'MonitoringCtrl', templateUrl: 'partials/charts/poolCharts.html'})
+            .when('/pool/:poolNum/:poolName/:delay', {controller: 'MonitoringCtrl', templateUrl: 'partials/charts/poolCharts.html'})
             .when('/osd', {controller: 'MonitoringCtrl', templateUrl: 'partials/charts/osdCharts.html'})
-            .when('/osd/:osdId', {controller: 'MonitoringCtrl', templateUrl: 'partials/charts/osdCharts.html'});
+            .when('/osd/:osdId', {controller: 'MonitoringCtrl', templateUrl: 'partials/charts/osdCharts.html'})
+            .when('/osd/:osdId/:delay', {controller: 'MonitoringCtrl', templateUrl: 'partials/charts/osdCharts.html'});
     });
 
 InfluxDBApp.controller("MonitoringCtrl", function ($rootScope, $scope, $http, $location , $window, $routeParams) {
@@ -82,7 +84,18 @@ InfluxDBApp.controller("MonitoringCtrl", function ($rootScope, $scope, $http, $l
         {label:'month', duration:'30d', interval:'1h'},
     ];
 
-    $scope.currentCriteria = {label:'hour', duration:'1h', interval:'2m'};
+    function getInterval(delay){
+        for (var i in $scope.criterias){
+            if ($scope.criterias[i].duration==delay) return $scope.criterias[i].interval;
+        }
+        return '2m';
+    }
+
+
+    var delay = $routeParams.delay;
+    if (typeof delay==='undefined') delay='1h';
+
+    $scope.currentCriteria = {label:'hour', duration:delay, interval:getInterval(delay)};
 
     var GRAPH_WIDTH = 600;
     var GRAPH_HEIGHT = 150;
@@ -289,7 +302,7 @@ InfluxDBApp.controller("MonitoringCtrl", function ($rootScope, $scope, $http, $l
             height: GRAPH_HEIGHT,
             series: series,
             renderer: "line",
-            interpolate: "linear"
+            interpolation: "monotone"
         });
 
         var xAxis = new Rickshaw.Graph.Axis.Time({
@@ -330,11 +343,11 @@ InfluxDBApp.controller("MonitoringCtrl", function ($rootScope, $scope, $http, $l
     // specific functions
 
     $scope.getPoolStat= function(pool){
-        $window.location.href ="monitorPool.html#/pool/"+pool.poolnum+"/"+pool.poolname;
+        $window.location.href ="monitorPool.html#/pool/"+pool.poolnum+"/"+pool.poolname+'/'+$scope.currentCriteria.duration;
     }
 
     $scope.getOsdStat= function(osdId){
-        $window.location.href ="monitorOSD.html#/osd/"+osdId;
+        $window.location.href ="monitorOSD.html#/osd/"+osdId+'/'+$scope.currentCriteria.duration;
     }
 
     function getOsdsInfo() {
