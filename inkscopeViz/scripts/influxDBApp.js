@@ -142,7 +142,7 @@ InfluxDBApp.controller("MonitoringCtrl", function ($rootScope, $scope, $http, $l
         $scope.timeFilter = "time > now() - "+$scope.currentCriteria.duration;
 
         var select = "SELECT mean(\"value\") FROM \"ceph-ceph_value\" WHERE \"instance\" = '"+instance+"' AND "
-            +$scope.timeFilter+" GROUP BY time("+$scope.currentCriteria.interval+"), \"type_instance\" fill(previous)";
+            +$scope.timeFilter+" GROUP BY time("+$scope.currentCriteria.interval+"), \"type_instance\" fill(none)";
         var parameters = "?db=collectd";
         parameters += "&q=" + encodeURIComponent(select);
 
