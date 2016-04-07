@@ -136,13 +136,14 @@ InfluxDBApp.controller("MonitoringCtrl", function ($rootScope, $scope, $http, $l
         $scope.reinitCharts();
     };
 
-    $scope.reinitCharts();
+    //$scope.reinitCharts();
 
-    function getRequestUrl(instance) {
+    function getRequestUrl(chartParameters) {
         $scope.timeFilter = "time > now() - "+$scope.currentCriteria.duration;
+        if (typeof chartParameters.fill ==='undefined') chartParameters.fill = 'none';
 
-        var select = "SELECT mean(\"value\") FROM \"ceph-ceph_value\" WHERE \"instance\" = '"+instance+"' AND "
-            +$scope.timeFilter+" GROUP BY time("+$scope.currentCriteria.interval+"), \"type_instance\" fill(none)";
+        var select = "SELECT mean(\"value\") FROM \"ceph-ceph_value\" WHERE \"instance\" = '"+chartParameters.instance+"' AND "
+            +$scope.timeFilter+" GROUP BY time("+$scope.currentCriteria.interval+"), \"type_instance\" fill("+chartParameters.fill+")";
         var parameters = "?db=collectd";
         parameters += "&q=" + encodeURIComponent(select);
 
@@ -154,7 +155,7 @@ InfluxDBApp.controller("MonitoringCtrl", function ($rootScope, $scope, $http, $l
         $scope.status[chartParameters.instance] = 'loading...';
         $http({
             method: "get",
-            url: getRequestUrl(chartParameters.instance)
+            url: getRequestUrl(chartParameters)
         })
             .success(function (data, status) {
                 $scope.date = new Date();
