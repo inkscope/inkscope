@@ -242,6 +242,10 @@ def conf_manage():
         conflite['roles'] = current_user.roles
         conflite['platform'] = conf.get('platform')
         conflite['username']= current_user.id
+        try:
+            conflite['influxdb_endpoint'] = conf.get('influxdb_endpoint')
+        except:
+            pass
         return Response(json.dumps(conflite), mimetype='application/json')
 
 
