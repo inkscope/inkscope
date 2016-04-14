@@ -53,6 +53,7 @@ class Pools:
 
 class PoolsCtrl:
     def __init__(self,conf):
+        self.cluster_name = conf['cluster']
         ceph_rest_api_subfolder = conf.get("ceph_rest_api_subfolder", "")
         ceph_rest_api_subfolder = ceph_rest_api_subfolder.strip('/')
         if ceph_rest_api_subfolder != '':
@@ -120,7 +121,10 @@ class PoolsCtrl:
         args = ['ceph',
                 'osd',
                 'lspools',
-                '--format=json']
+                '--format=json',
+                '--cluster='+ self.cluster_name ]
+
+        print args
         output = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0]
         output_io = StringIO(output)
         return output_io
