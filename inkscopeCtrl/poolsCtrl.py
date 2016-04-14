@@ -123,8 +123,6 @@ class PoolsCtrl:
                 'lspools',
                 '--format=json',
                 '--cluster='+ self.cluster_name ]
-
-        print args
         output = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0]
         output_io = StringIO(output)
         return output_io
