@@ -142,9 +142,10 @@ InfluxDBApp.controller("MonitoringCtrl", function ($rootScope, $scope, $http, $l
         $scope.timeFilter = "time > now() - "+$scope.currentCriteria.duration;
         if (typeof chartParameters.fill ==='undefined') chartParameters.fill = 'none';
 
-        var select = "SELECT mean(\"value\") FROM \"ceph-ceph_value\" WHERE \"instance\" = '"+chartParameters.instance+"' AND "
+        var select = "SELECT mean(\"value\") FROM \"ceph-"+$rootScope.conf.cluster+"_value\" WHERE \"instance\" = '"+chartParameters.instance+"' AND "
             +$scope.timeFilter+" GROUP BY time("+$scope.currentCriteria.interval+"), \"type_instance\" fill("+chartParameters.fill+")";
         var parameters = "?db=collectd";
+        console.log(select); 
         parameters += "&q=" + encodeURIComponent(select);
 
         return $rootScope.conf.influxdb_endpoint + "/query" + parameters;
