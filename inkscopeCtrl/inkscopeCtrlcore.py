@@ -241,6 +241,7 @@ def conf_manage():
         conflite['ceph_version_name'] = get_ceph_version_name(ceph_version)
         conflite['roles'] = current_user.roles
         conflite['platform'] = conf.get('platform')
+        conflite['cluster'] = conf.get('cluster')
         conflite['username']= current_user.id
         try:
             conflite['influxdb_endpoint'] = conf.get('influxdb_endpoint')
