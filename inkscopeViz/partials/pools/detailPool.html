@@ -6,8 +6,9 @@
     </a><br>
 </div>
 <div class="button-bar"  ng-show="hasRole('admin')">
-    <a href="#/snapshot/{{detailedPool.pool}}/{{detailedPool.pool_name}}" class="btn btn-info" style="float:left"><i class="icon-white icon-camera"></i> make snapshot </a>
+    <a href="#/snapshot/{{detailedPool.pool}}/{{detailedPool.pool_name}}" class="btn btn-info" style="float:left"><i class="fa fa-camera"></i> make snapshot </a>
     <div style="width:35px;display: inline-block"></div>
+    <a href="monitorPool.html#/pool/{{detailedPool.pool}}/{{detailedPool.pool_name}}" class="btn btn-info" ng-show="useInfluxDB"><i class="fa fa-line-chart"></i> Monitor</a>
     <a href="#/modify/{{detailedPool.pool}}" class="btn btn-success">Modify</a>
     <a href="#/delete/{{detailedPool.pool}}/{{detailedPool.pool_name}}" class="btn btn-danger" ng-class="(detailedPool.tier_of!=-1) || (detailedPool.tiers.length!=0) ? ['disabled','disabled_link']:''">Delete</a>
     <a href="#/" class="btn btn-default">Close</a>

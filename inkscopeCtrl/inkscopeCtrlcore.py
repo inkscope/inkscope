@@ -14,7 +14,7 @@ from hashlib import md5
 from bson.json_util import dumps
 from InkscopeError import InkscopeError
 
-version = "1.3.2-alpha"
+version = "1.4.0"
 
 app = Flask(__name__)
 app.secret_key = "Mon Nov 30 17:20:29 2015"
@@ -33,7 +33,7 @@ import mongoJuiceCore
 
 from poolsCtrl import PoolsCtrl,Pools
 import osdsCtrl
-import rbdCtrl
+from rbdCtrl import RbdCtrl
 import subprocess
 from StringIO import StringIO
 #import probesCtrl
@@ -241,7 +241,12 @@ def conf_manage():
         conflite['ceph_version_name'] = get_ceph_version_name(ceph_version)
         conflite['roles'] = current_user.roles
         conflite['platform'] = conf.get('platform')
+        conflite['cluster'] = conf.get('cluster')
         conflite['username']= current_user.id
+        try:
+            conflite['influxdb_endpoint'] = conf.get('influxdb_endpoint')
+        except:
+            pass
         return Response(json.dumps(conflite), mimetype='application/json')
 
 
@@ -361,45 +366,45 @@ def removesnapshot(id, namesnapshot):
 #
 @app.route('/RBD/images', methods=['GET'])
 def getImagesList():
-    # Log.debug("Calling  rbdCtrl.listImages() method")
+    # Log.debug("Calling  RbdCtrl(conf).listImages() method")
     try:
-        return Response(rbdCtrl.list_images(), mimetype='application/json')
+        return Response(RbdCtrl(conf).list_images(), mimetype='application/json')
     except CalledProcessError, e:
         return Response(e.output, status=500)
 
 
 @app.route('/RBD/images/<string:pool_name>/<string:image_name>', methods=['GET'])
 def getImagesInfo(pool_name, image_name):
-    # Log.debug("Calling  rbdCtrl.getImagesInfo() method")
+    # Log.debug("Calling  RbdCtrl(conf).getImagesInfo() method")
     try:
-        return Response(rbdCtrl.image_info(pool_name, image_name), mimetype='application/json')
+        return Response(RbdCtrl(conf).image_info(pool_name, image_name), mimetype='application/json')
     except CalledProcessError, e:
         return Response(e.output, status=500)
 
 
 @app.route('/RBD/images/<string:pool_name>/<string:image_name>', methods=['PUT'])
 def createImage(pool_name, image_name):
-    # Log.debug("Calling  rbdCtrl.listImages() method")
+    # Log.debug("Calling  RbdCtrl(conf).listImages() method")
     try:
-        return Response(rbdCtrl.create_image(pool_name, image_name), mimetype='application/json')
+        return Response(RbdCtrl(conf).create_image(pool_name, image_name), mimetype='application/json')
     except CalledProcessError, e:
         return Response(e.output, status=500)
 
 
 @app.route('/RBD/images/<string:pool_name>/<string:image_name>/<string:action>', methods=['POST'])
 def modifyImage(pool_name, image_name , action):
-    # Log.debug("Calling  rbdCtrl.modifyImages() method")
+    # Log.debug("Calling  RbdCtrl(conf).modifyImages() method")
     try:
-        return Response(rbdCtrl.modify_image(pool_name, image_name, action), mimetype='application/json')
+        return Response(RbdCtrl(conf).modify_image(pool_name, image_name, action), mimetype='application/json')
     except CalledProcessError, e:
         return Response(e.output, status=500)
 
 
 @app.route('/RBD/images/<string:pool_name>/<string:image_name>', methods=['DELETE'])
 def deleteImage(pool_name, image_name):
-    # Log.debug("Calling  rbdCtrl.deleteImage() method")
+    # Log.debug("Calling  RbdCtrl(conf).deleteImage() method")
     try:
-        return Response(rbdCtrl.delete_image(pool_name, image_name), mimetype='application/json')
+        return Response(RbdCtrl(conf).delete_image(pool_name, image_name), mimetype='application/json')
     except CalledProcessError, e:
         return Response(e.output, status=500)
 
@@ -409,36 +414,36 @@ def deleteImage(pool_name, image_name):
 #
 @app.route('/RBD/snapshots/<string:pool_name>/<string:image_name>/<string:snap_name>', methods=['GET'])
 def infoImageSnapshot(pool_name, image_name,snap_name):
-    # Log.debug("Calling  rbdCtrl.info_image_snapshot() method")
+    # Log.debug("Calling  RbdCtrl(conf).info_image_snapshot() method")
     try:
-        return Response(rbdCtrl.info_image_snapshot(pool_name, image_name, snap_name), mimetype='application/json')
+        return Response(RbdCtrl(conf).info_image_snapshot(pool_name, image_name, snap_name), mimetype='application/json')
     except CalledProcessError, e:
         return Response(e.output, status=500)
 
 
 @app.route('/RBD/snapshots/<string:pool_name>/<string:image_name>/<string:snap_name>', methods=['PUT'])
 def createImageSnapshot(pool_name, image_name,snap_name):
-    # Log.debug("Calling  rbdCtrl.create_image_snapshot() method")
+    # Log.debug("Calling  RbdCtrl(conf).create_image_snapshot() method")
     try:
-        return Response(rbdCtrl.create_image_snapshot(pool_name, image_name, snap_name), mimetype='application/json')
+        return Response(RbdCtrl(conf).create_image_snapshot(pool_name, image_name, snap_name), mimetype='application/json')
     except CalledProcessError, e:
         return Response(e.output, status=500)
 
 
 @app.route('/RBD/snapshots/<string:pool_name>/<string:image_name>/<string:snap_name>', methods=['DELETE'])
 def deleteImageSnapshot(pool_name, image_name,snap_name):
-    # Log.debug("Calling  rbdCtrl.delete_image_snapshot() method")
+    # Log.debug("Calling  RbdCtrl(conf).delete_image_snapshot() method")
     try:
-        return Response(rbdCtrl.delete_image_snapshot(pool_name, image_name, snap_name), mimetype='application/json')
+        return Response(RbdCtrl(conf).delete_image_snapshot(pool_name, image_name, snap_name), mimetype='application/json')
     except CalledProcessError, e:
         return Response(e.output, status=500)
 
 
 @app.route('/RBD/snapshots/<string:pool_name>/<string:image_name>/<string:snap_name>/<string:action>', methods=['POST'])
 def actionOnImageSnapshot(pool_name, image_name,snap_name, action):
-    # print "Calling  rbdCtrl.action_on_image_snapshot() method", action
+    # print "Calling  RbdCtrl(conf).action_on_image_snapshot() method", action
     try:
-        return Response(rbdCtrl.action_on_image_snapshot(pool_name, image_name, snap_name, action), mimetype='application/json')
+        return Response(RbdCtrl(conf).action_on_image_snapshot(pool_name, image_name, snap_name, action), mimetype='application/json')
     except CalledProcessError, e:
         return Response(e.output, status=500)
 
@@ -448,7 +453,7 @@ def actionOnImageSnapshot(pool_name, image_name,snap_name, action):
 #
 #@app.route('/probes/<string:probe_type>/<string:probe_name>/<string:action>', methods=['POST'])
 #def actionOnProbe(probe_type, probe_name, action):
-    # print "Calling  rbdCtrl.action_on_probe() method", action
+    # print "Calling  probesCtrl.action_on_probe() method", action
 #    try:
 #        return Response(probesCtrl.action_on_probe(probe_type, probe_name, action), mimetype='application/json')
 #    except CalledProcessError, e:

@@ -1,0 +1,13 @@
+<criterias>Last
+    <criteria ng-repeat="criteria in criterias"  ng-click="reloadWithCriteria(criteria)" ng-class="currentCriteria.duration==criteria.duration?'selectedCriteria':'criteria'">{{criteria.label}}</criteria>
+</criterias>
+
+auto refresh:
+<select ng-model="refreshPeriod" ng-change="changeRefreshPeriod(refreshPeriod)">
+    <option value="0" ng-selected="refreshPeriod==0">never</option>
+    <option value="10" ng-selected="refreshPeriod==10">every 10 seconds</option>
+    <option value="60" ng-selected="refreshPeriod==60">every minute</option>
+    <option value="600" ng-selected="refreshPeriod==600">every 10 minutes</option>
+</select>
+
+<button class="btn btn-small" ng-click="reinitCharts()">Refresh now <i class="icon-refresh"></i></button>

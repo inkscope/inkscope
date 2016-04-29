@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html ng-app="MonitoringApp">
+<head>
+    <meta charset="UTF-8"/>
+    <script src="scripts/angular/angular.min.js"></script>
+    <script src="scripts/angular/angular-route.min.js"></script>
+    <script src="scripts/angular/angular-sanitize.min.js"></script>
+    <script src="scripts/angular-misc/ng-table.min.js"></script>
+    <script src="scripts/angular-misc/angular-commons.js"></script>
+    <script src="scripts/angular-misc/ui-bootstrap-tpls-0.10.0.min.js"></script>
+    <script src="scripts/angular-misc/dialogs.v2.min.js"></script>
+    <script src="scripts/influxDBApp.js"></script>
+    <script src="scripts/d3/d3.v3.min.js" charset="utf-8"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
+    <script src="scripts/d3/rickshaw.min.js"></script>
+    <link rel="stylesheet" href="css/tooltip.css"/>
+    <link rel="stylesheet" href="css/monitoring.css"/>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/rickshaw.min.css"/>
+    <link rel="stylesheet" href="css/testAdmin.css">
+    <title>OSD monitoring</title>
+</head>
+
+<body>
+<header ng-include src="'partials/header.html'" ng-init="pageTitle='OSD monitoring'"></header>
+
+<div ng-view style="margin-left:2em;"></div>
+
+</body>
+</html>
+

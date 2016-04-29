@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html ng-app="MonitoringApp">
+<head>
+    <meta charset="UTF-8"/>
+    <script src="scripts/angular/angular.min.js"></script>
+    <script src="scripts/angular/angular-route.min.js"></script>
+    <script src="scripts/angular/angular-sanitize.min.js"></script>
+    <script src="scripts/angular-misc/ng-table.min.js"></script>
+    <script src="scripts/angular-misc/angular-commons.js"></script>
+    <script src="scripts/angular-misc/ui-bootstrap-tpls-0.10.0.min.js"></script>
+    <script src="scripts/angular-misc/dialogs.v2.min.js"></script>
+    <script src="scripts/influxDBApp.js"></script>
+    <script src="scripts/d3/d3.v3.min.js" charset="utf-8"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
+    <script src="scripts/d3/rickshaw.min.js"></script>
+    <link rel="stylesheet" href="css/tooltip.css"/>
+    <link rel="stylesheet" href="css/monitoring.css"/>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/rickshaw.min.css"/>
+    <link rel="stylesheet" href="css/testAdmin.css">
+    <title>Cluster monitoring</title>
+</head>
+
+<body>
+<header ng-include src="'partials/header.html'" ng-init="pageTitle='Cluster monitoring'"></header>
+
+<div id="stats" style="margin-left:2em" ng-controller="MonitoringCtrl">
+    <div id="datePanel"><br>Date : {{date | date:'HH:mm:ss'}}
+        <criteria_panel ng-include src="'partials/criteriaPanel.html'"></criteria_panel>
+    </div>
+
+    <div ng-init="
+        osds=[{name:'osd-0'},{name:'osd-1'},{name:'osd-2'},{name:'osd-3'},{name:'osd-4'},{name:'osd-7'}];
+        charts= [
+            {title:'Cluster space',instance:'cluster',suffix:'_space',filter:['total_avail','total_used','total_space'],unit:'byte',legend:'bottom'},
+            {title:'Cluster latency',instance:'cluster',suffix:'_latency',filter:['avg_latency','stddev_latency','min_latency','max_latency'],unit:'milliseconds'},
+            {title:'ODS',instance:'osd',legend:'bottom'},
+            {title:'Placement-groups',instance:'pg',fill:'0'},
+            {title:'Monitors',instance:'mon',legend:'bottom'},
+        ];
+        reinitCharts();
+        ">
+    </div>
+
+    <h1>Cluster</h1>
+    <div id="container_cluster_space" class="chart_super_container"></div>
+    <div id="container_cluster_latency" class="chart_super_container"></div>
+    <br style="clear: both">
+    <div id="container_mon" class="chart_super_container"></div>
+    <div id="container_osd" class="chart_super_container"></div>
+    <br style="clear: both">
+    <div id="container_pg" class="chart_super_container"></div>
+
+</div>
+
+</body>
+</html>
+

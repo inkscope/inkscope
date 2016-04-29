@@ -1,0 +1,31 @@
+<div id="poolChoice">
+    <br>
+    <h2>Pool choice:
+    <select id="pool" ng-model="pool" ng-options="value.poolname for value in poolList| orderBy:'poolnum'"  ng-change="getPoolStat(pool)"></select>
+    </h2>
+</div>
+
+<div id="charts" ng-show="poolName">
+    <div ng-init="
+            charts= [
+                {title:'Pool '+poolName+' objects',instance:'pool-'+poolName,suffix:'_objects',filter:['objects'],legend:'bottom'},
+                {title:'Pool '+poolName+' config',instance:'pool-'+poolName+'',suffix:'_config',filter:['pg_num','pgp_num','size'],legend:'bottom'},
+                {title:'Pool '+poolName+' space',instance:'pool-'+poolName+'',suffix:'_space',filter:['bytes_used'],unit:'byte',legend:'bottom'},
+                {title:'Pool '+poolName+' IOPS',instance:'pool-'+poolName+'',suffix:'_iops',filter:['write_bytes_sec','read_bytes_sec'],unit:'byte/s',legend:'bottom'},
+                {title:'Pool '+poolName+' OPS',instance:'pool-'+poolName+'',suffix:'_ops',filter:['op_per_sec'],unit:'op/s',legend:'bottom'},
+            ];
+            reinitCharts();
+            ">
+    </div>
+
+    <h1>Pool {{poolName}}</h1>
+    <div id="datePanel"><br>Date : {{date | date:'HH:mm:ss'}}
+        <criteria_panel ng-include src="'partials/criteriaPanel.html'"></criteria_panel>
+    </div>
+
+    <div id="container_pool-{{poolName}}_config" class="chart_super_container"></div>
+    <div id="container_pool-{{poolName}}_space" class="chart_super_container"></div>
+    <div id="container_pool-{{poolName}}_objects" class="chart_super_container"></div>
+    <div id="container_pool-{{poolName}}_iops" class="chart_super_container"></div>
+    <div id="container_pool-{{poolName}}_ops" class="chart_super_container"></div>
+</div>

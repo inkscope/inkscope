@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/testAdmin.css">
     <link rel="stylesheet" href="css/nv.d3.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
     <title>Osds</title>
     <style>
         #controlPanel0 {
@@ -92,14 +93,15 @@
     <div ng-show="hasRole('admin')">
         <hr>
         <div align="center">
-            <a class="btn btn-success btn-large" ng-hide="osd.stat.in == true" ng-click="osdIn(selectedOsd)" ><i class="icon-white icon-plus"></i> get in</a>
-            <a class="btn btn-danger btn-large" ng-hide="osd.stat.in != true" ng-click="osdOut(selectedOsd)"><i class="icon-white icon-minus"></i> get out</a>
-            <a class="btn btn-warning btn-large" ng-hide="osd.stat.up == false" ng-click="osdDown(selectedOsd)"><i class="icon-white icon-arrow-down"></i> down</a>
+            <a class="btn btn-success" ng-hide="osd.stat.in == true" ng-click="osdIn(selectedOsd)" ><i class="icon-white icon-plus"></i> get in</a>
+            <a class="btn btn-danger" ng-hide="osd.stat.in != true" ng-click="osdOut(selectedOsd)"><i class="icon-white icon-minus"></i> get out</a>
+            <a class="btn btn-warning" ng-hide="osd.stat.up == false" ng-click="osdDown(selectedOsd)"><i class="icon-white icon-arrow-down"></i> down</a>
+            <a href="monitorOSD.html#/osd/osd-{{osd.node._id}}" class="btn btn-info" ng-show="useInfluxDB"><i class="fa fa-line-chart"></i> Monitor</a>
         </div>
         <div>
             <hr>
             <input ng-model="reweight" id="reweight" type="text">
-            <a class="btn btn-warning btn-small" ng-click="osdReweight(selectedOsd)">Reweight</a>
+            <a class="btn btn-warning btn-small" ng-click="osdReweight(selectedOsd)"><i class="fa fa-balance-scale"></i> Reweight</a>
         </div>
     </div>
 </div>

@@ -18,3 +18,9 @@
 [Rickshaw 1.5.1](https://github.com/shutterstock/rickshaw) ([Custom licence](https://raw.githubusercontent.com/shutterstock/rickshaw/master/LICENSE))
 
 [mongoDB 2.4](http://www.mongodb.org/) (GNU AGPL v3.0 License)
+
+[Font Awesome 4.5](http://fortawesome.github.io/Font-Awesome/)  (SIL OFL 1.1)
+
+[InfluxDB 0.11](http://www.influxdata.com/) (MIT license)
+
+[collectd-ceph](https://github.com/rochaporto/collectd-ceph) (GPL V2)
