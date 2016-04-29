@@ -14,7 +14,7 @@ from hashlib import md5
 from bson.json_util import dumps
 from InkscopeError import InkscopeError
 
-version = "1.3.2-alpha"
+version = "1.4.0"
 
 app = Flask(__name__)
 app.secret_key = "Mon Nov 30 17:20:29 2015"
