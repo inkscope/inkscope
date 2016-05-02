@@ -31,11 +31,10 @@
     </div>
 
     <div ng-init="
-        osds=[{name:'osd-0'},{name:'osd-1'},{name:'osd-2'},{name:'osd-3'},{name:'osd-4'},{name:'osd-7'}];
         charts= [
             {title:'Cluster space',instance:'cluster',suffix:'_space',filter:['total_avail','total_used','total_space'],unit:'byte',legend:'bottom'},
             {title:'Cluster latency',instance:'cluster',suffix:'_latency',filter:['avg_latency','stddev_latency','min_latency','max_latency'],unit:'milliseconds'},
-            {title:'ODS',instance:'osd',legend:'bottom'},
+            {title:'OSD',instance:'osd',legend:'bottom'},
             {title:'Placement-groups',instance:'pg',fill:'0'},
             {title:'Monitors',instance:'mon',legend:'bottom'},
         ];
