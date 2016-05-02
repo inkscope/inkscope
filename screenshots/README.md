@@ -23,4 +23,3 @@ Some screenshots
 ![Probes](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-Probes.png)
 ![Hosts](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-Hosts.png)
 ![user management](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-UserManagement.png)
-![Console](https://raw.github.com/inkscope/inkscope/master/screenshots/Screenshot-Console.png)
