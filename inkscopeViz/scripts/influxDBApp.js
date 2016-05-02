@@ -9,7 +9,7 @@ var toSecond = function (d) {
 };
 
 var toMillisecond = function (d) {
-    return d.toFixed(2) + " ms";
+    return d.toFixed(0) + " ms";
 };
 
 function formatBase1024KMGTP(y) {
