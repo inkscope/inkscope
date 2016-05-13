@@ -276,8 +276,16 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
 
     $scope.getPgmapMessage=function(){
         if (typeof  $scope.pgmap ==="undefined") return "";
-        if ((typeof  $scope.pgmap.degraded_objects ==="undefined" )||($scope.pgmap.degraded_objects==0)) return "";
-        return $scope.pgmap.degraded_objects +" objects degraded on "+$scope.pgmap.degraded_total +" ("+ $scope.pgmap.degraded_ratio +"%)";
+        var message = "";
+        if ((typeof  $scope.pgmap.degraded_objects !=="undefined" )&&($scope.pgmap.degraded_objects!=0)) {
+            if (message != "") message += ", ";
+            message += $scope.pgmap.degraded_objects + " objects degraded on " + $scope.pgmap.degraded_total + " (" + (100 * $scope.pgmap.degraded_objects / $scope.pgmap.degraded_total).toFixed(3) + "%)";
+        }
+        if ((typeof  $scope.pgmap.misplaced_objects !=="undefined" )&&($scope.pgmap.misplaced_objects!=0)) {
+            if (message != "") message += ", ";
+            message += $scope.pgmap.misplaced_objects +" objects misplaced on "+$scope.pgmap.misplaced_total +" ("+ (100*$scope.pgmap.misplaced_objects/$scope.pgmap.misplaced_total).toFixed(3) +"%)";
+        }
+        return message;
     }
 
     function historise() {
