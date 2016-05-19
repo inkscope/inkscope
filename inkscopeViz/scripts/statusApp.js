@@ -118,7 +118,6 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
             "$template":{
                 "stat":1
             }
-
         }
         $http({method: "post", url: inkscopeCtrlURL + $rootScope.fsid+"/osd", params :{"depth":1} ,data:filter,timeout:4000})
             .success(function (data, status) {
@@ -132,16 +131,18 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
                 $scope.osdsOutDown = 0;
                 $scope.statOK = true;
                 for (var i = 0; i < data.length; i++) {
-                    if (data[i].stat ==null){
-                        console.error("missing stat for "+data[i].node.name);
-                        $scope.statOK = false;
-                    }
-                    else {
-                        if (data[i].stat.in) {
-                            if (data[i].stat.up) $scope.osdsInUp ++; else $scope.osdsInDown ++;
+                    if (!data[i].lost) {
+                        if (data[i].stat ==null){
+                            console.error("missing stat for "+data[i].node.name);
+                            $scope.statOK = false;
                         }
                         else {
-                            if (data[i].stat.up) $scope.osdsOutUp ++; else $scope.osdsOutDown ++;
+                            if (data[i].stat.in) {
+                                if (data[i].stat.up) $scope.osdsInUp++; else $scope.osdsInDown++;
+                            }
+                            else {
+                                if (data[i].stat.up) $scope.osdsOutUp++; else $scope.osdsOutDown++;
+                            }
                         }
                     }
                 }

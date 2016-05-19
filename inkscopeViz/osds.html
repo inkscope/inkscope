@@ -130,7 +130,7 @@
 
 
 <div id="osds" ng-show="dispoMode == 'state'">
-    <div ng-repeat="osd in data|orderBy:'id'" class=" tooltips osd {{osdClass(osd)}}" ng-show="filledOver(osd)">
+    <div ng-repeat="osd in data|orderBy:'id'" class=" tooltips osd {{osdClass(osd)}}" ng-show="filledOver(osd)" ng-hide="osd.lost">
         <div ng-click="osdSelect(osd);">
             {{osd.id}}
             <div> <!-- tooltip -->

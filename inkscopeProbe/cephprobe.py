@@ -337,15 +337,25 @@ def process_osd_dump(restapi, ceph_rest_api_subfolder, db):
     else:
         data1 = r1.read()
         restapi.close()
+
+        osd_in_db = db.osd.find({"or" : [{"lost": {'$exists' : False}}, {"lost": False}]}, fields = {"_id" : 1})
+        lost_osd = list(osd_in_db)
+
         osd_dump = json.loads(data1)
 
         osdsxinfo_map = {}
         for xi in osd_dump['output']['osd_xinfo']:
             osdsxinfo_map[xi["osd"]] = xi
+
         
         osds = osd_dump['output']['osds']
-        
+
+
+
         for osd in osds:
+            if osd["osd"] in lost_osd:
+                lost_osd.remove(osd["osd"])
+
             osd_stat = {"osd": DBRef("osd", osd["osd"]),
                         "timestamp": int(round(time.time() * 1000)),
                         "weight":  osd["weight"],
@@ -415,6 +425,8 @@ def process_osd_dump(restapi, ceph_rest_api_subfolder, db):
                 p['auid'] = str(p['auid'])
             db.pools.update({'_id': p["_id"]}, p, upsert=True)
 
+        for osd in lost_osd:
+            db.osd.update({'_id': osd}, {"$set": {"lost": True}})
 
 # osd host from conf : "host" : DBRef( "hosts", hostmap[i]),
 # "partition" : DBRef( "partitions", hostmap[i]+":/dev/sdc1"),

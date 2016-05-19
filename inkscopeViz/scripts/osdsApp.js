@@ -57,8 +57,14 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $scope, $http, $location ,$
         $http({method: "get", url: inkscopeCtrlURL + $rootScope.fsid+"/osd?depth=2"}).
 
             success(function (data, status) {
-                $scope.nbOsd = data.length;
                 $scope.filtered = $scope.inFilter || $scope.outFilter || $scope.upFilter || $scope.downFilter;
+                // remomove lost osd
+                var filteredData = [];
+                for ( var i=0; i<data.length;i++){
+                    if (!data[i].lost) filteredData.push(data[i]);
+                }
+                data = filteredData;
+                $scope.nbOsd = data.length;
                 if ($scope.filtered){
                     var filteredData = [];
                     for ( var i=0; i<data.length;i++){
