@@ -484,7 +484,7 @@ def pick_ceph_processes_v2(hostname, db):
     
     for ceph_proc in ceph_procs:
         # print ceph_proc, " ", ceph_proc.cmdline()[1:]
-        options, remainder = getopt.getopt(ceph_proc.cmdline()[1:], 'ic:f', ['cluster=', 'id', 'config', 'pid-file'])
+        options, remainder = getopt.getopt(ceph_proc.cmdline()[1:], 'ic:fd', ['cluster=', 'id', 'config', 'pid-file'])
         clust = None
         id = None
         
