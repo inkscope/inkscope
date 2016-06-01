@@ -24,14 +24,17 @@ MdsApp.controller("MdsCtrl", function ($rootScope, $scope, $http, $location ,$wi
 
         $http({method: "get", url: cephRestApiURL + "mds/stat.json"})
             .success(function (data, status) {
-                $scope.mdsmap = data.output.mdsmap;
+                if (typeof data.output.mdsmap !== "undefined")
+                    $scope.mdsmap = data.output.mdsmap;
+                else
+                    $scope.mdsmap = data.output.fsmap;
                 $scope.count = data.length;
                 if (typeof $scope.mdsmap.fs_name === "undefined") $scope.mdsmap.fs_name = "N/A";
             }).
-            error(function (data, status) {
-                $scope.status = status;
-                $scope.data = data || "Request failed";
-            });
+        error(function (data, status) {
+            $scope.status = status;
+            $scope.data = data || "Request failed";
+        });
     }
 
     $scope.prettyPrint = function( object){
