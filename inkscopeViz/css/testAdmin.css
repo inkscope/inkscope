@@ -135,7 +135,7 @@ label {
     padding: 1em;
 }
 
-#list, #listpool, #listhost, #listpg {
+#list, #listpool, #listhost, #listpg, #listfs {
      margin : 2em;
      float:left;
      width :350px;
@@ -144,7 +144,7 @@ label {
      overflow-y: auto;
 }
 
-#listpool, #listhost, #listpg, #listparameters {
+#listpool, #listhost, #listpg, #listparameters, #listfs {
     width :450px;
     padding: 1em;
 }

@@ -1,0 +1,28 @@
+<h3>File system creation</h3>
+<br />
+<form name="form" novalidate class="form-horizontal">
+    <div class="control-group">
+        <label for="fs.name" class="col-sm-2 control-label">File system name :</label>
+        <div class="controls">
+            <input type=text id="fs.name"  ng-model="fs.name" placeholder="File system name" required/>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="fs.datapool" class="col-sm-2 control-label">Data pool : </label>
+        <div class="controls">
+            <select id="fs.datapool" ng-model="fs.datapool" ng-options="value.poolname for value in poolList| orderBy:'poolname'"></select>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="fs.metadatapool" class="col-sm-2 control-label">Metadata pool : </label>
+        <div class="controls">
+            <select id="fs.metadatapool" ng-model="fs.metadatapool" ng-options="value.poolname for value in poolList| orderBy:'poolname'"></select>
+        </div>
+    </div>
+    <br/>
+    <br />
+    <div class="button-bar">
+        <button ng-click="create()" ng-disabled="form.$invalid" class="btn btn-success">Create</button>
+        <button ng-click="cancel()" class="btn btn-default">Cancel</button>
+    </div>
+</form>

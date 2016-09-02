@@ -6,7 +6,7 @@ var StatusApp = angular.module('StatusApp', ['D3Directives','ngCookies','ngAnima
     .filter('bytes', funcBytesFilter)
     .filter('duration', funcDurationFilter);
 
-StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookieStore) {
+StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookieStore , $window) {
     $scope.journal = [];
     $scope.osdControl =0;
     $scope.statOK = true;
@@ -305,6 +305,15 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
         if ($scope.last_health_summary != $scope.health.summary) {
             $scope.journal.unshift({"date": new Date(), "summary": $scope.health.summary});
             $scope.last_health_summary = $scope.health.summary;
+        }
+    }
+
+    $scope.showFs = function(){
+        if ($scope.jewel){
+            $window.location.href ='fs.html';
+        }
+        else {
+            $window.location.href ='mds.html';
         }
     }
 

@@ -77,6 +77,7 @@ angular.module('InkscopeCommons', ['ngTable','dialogs','ui.bootstrap'])
         $http({method: "get", url: inkscopeCtrlURL + "conf.json",timeout:4000})
             .success(function (data) {
                 $rootScope.conf = data;
+                $rootScope.jewel= ($rootScope.conf.ceph_version_name>="Jewel");
                 $rootScope.roles=data.roles;
                 $rootScope.useInfluxDB = (typeof $rootScope.conf.influxdb_endpoint !=='undefined')&&($rootScope.conf.influxdb_endpoint != "");
             })

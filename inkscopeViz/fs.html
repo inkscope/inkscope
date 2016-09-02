@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html ng-app="FsApp">
+<head>
+    <meta charset="UTF-8"/>
+    <script src="scripts/angular/angular.min.js"></script>
+    <script src="scripts/angular/angular-route.min.js"></script>
+    <script src="scripts/angular/angular-sanitize.min.js"></script>
+    <script src="scripts/angular-misc/ng-table.min.js"></script>
+    <script src="scripts/angular-misc/angular-commons.js"></script>
+    <script src="scripts/angular-misc/ui-bootstrap-tpls-0.10.0.min.js"></script>
+    <script src="scripts/angular-misc/dialogs.v2.min.js"></script>
+    <script src="scripts/fsApp.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/tooltip.css"/>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/testAdmin.css">
+    <title>File systems status</title>
+</head>
+
+<body ng-controller="FsListCtrl">
+<header ng-include src="'partials/header.html'" ng-init="pageTitle='File systems status'"></header>
+
+<div>
+    <!--div id="status"  >{{status}}</div-->
+    <div id="datePanel"><br>Date : {{date | date:'HH:mm:ss'}}</div>
+
+    <div id="listfs">
+        <h2>Standby MDS servers</h2>
+        <span ng-repeat="mds in standbys"> gid_{{mds.gid}} ({{mds.name}}): {{mds.addr}}<br></span>
+        <br>
+        <h2>File systems</h2>
+        <table>
+            <tr>
+                <th><input type="text" ng-model="search.name" class="search-query" placeholder="Search fs name"></th>
+                <th>&nbsp; &nbsp; </th>
+                <!--th  ng-show="hasRole('admin')">new File system <a href="#/new"><i class="icon-plus-sign" alt="add a new file system" title="add a new file system"></i></a></th-->
+            </tr>
+        </table>
+        <br>
+        <table ng-table="tableParams" class="table table-condensed clickable">
+            <tr ng-repeat="fs in orderedData | filter:search:strict" ng-click="showDetail(fs)">
+                <td data-title="'Id'" sortable="'id'">{{fs.id}}</td>
+                <td data-title="'Name'" sortable="'name'">{{fs.name}}</td>
+                <td data-title="'View'" sortable="" style="text-align:center">
+                    <i class="icon-eye-open" alt="view details of {{fs.name}}" title="view details of {{fs.name}}"></i>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div ng-view id="control" ></div>
+
+<script>resizeBlocks(['#listfs','#control']);</script>
+
+</body>
+</html>
+

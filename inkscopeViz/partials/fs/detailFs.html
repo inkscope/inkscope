@@ -1,0 +1,45 @@
+
+<div id="fs" style="margin:1em">
+    <h2>File system : <strong>{{ mdsmap.fs_name }}</strong></h2>
+    <table>
+        <tr><td>Created</td><td>{{ mdsmap.created }}</td></tr>
+        <tr><td>Max file size</td><td>{{ mdsmap.max_file_size|bytes }}</td></tr>
+        <tr><td>Data pool</td><td><span ng-bind-html="getPoolLabels(mdsmap.data_pools)"></span></td></tr>
+        <tr><td>Metadata pool</td><td><span ng-bind-html="getPoolLabel(mdsmap.metadata_pool)"></span></td></tr>
+        <tr><td>Enabled</td><td>{{ mdsmap.enabled }}</td></tr>
+        <tr><td>Tableserver</td><td>{{ mdsmap.tableserver }}</td></tr>
+        <tr><td>Flags</td><td>{{ mdsmap.flags }}</td></tr>
+        <tr><td>Max mds</td><td>{{ mdsmap.max_mds }}</td></tr>
+        <tr><td colspan="2">in {{ mdsmap.in }} / up {{ mdsmap.up }} / failed {{ mdsmap.failed }}
+    / stopped {{ mdsmap.stopped }}</td></tr>
+    </table>
+    <br>
+    <h2>MDS : </h2>
+    <style>
+        .mdsInfo{
+            float:left;
+            margin:10px;
+            border:thin solid black;
+            padding: 5px;
+        }
+        .title{
+            color:white;
+            font-weight:bold;
+            background-color:#AAAAAA;
+        }
+        .active{
+            background-color:#00AA00;
+        }
+    </style>
+    <div class="mdsInfo" ng-repeat="(name, mds) in mdsmap.info">
+        <table>
+            <tr ng-class="{'title active': isUp(mds) , 'title': !isUp(mds)}">
+                <td colspan="2" align="center"><strong>{{ name }}</strong></td>
+            </tr>
+            <tr ng-repeat="(key, value) in mds">
+                <td>{{ prettyPrintKey(key) }}</td>
+                <td>{{ value }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
