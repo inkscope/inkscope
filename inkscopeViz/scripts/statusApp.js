@@ -163,15 +163,14 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
                 if ( typeof  data.output.pgmap.degraded_objects === "undefined" ) $scope.pgmap.degraded_objects=0;
 
 
-                if (typeof data.output.mdsmap !== "undefined"){
+                if (typeof data.output.mdsmap !== "undefined") {
                     $scope.mdsmap = data.output.mdsmap;
                     $scope.mdsmap.up_standby = data.output.mdsmap["up:standby"];
-                }
-                else {
+                } else if ("up:standby" in data.output.fsmap) {
                     $scope.mdsmap = data.output.fsmap;
                     $scope.mdsmap.up_standby = data.output.fsmap["up:standby"];
                 }
-                
+
                 $scope.percentUsed = $scope.pgmap.bytes_used / $scope.pgmap.bytes_total;
 
 
