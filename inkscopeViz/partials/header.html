@@ -60,9 +60,9 @@
             <li id="menu_cat_monitoring" class="dropdown" ng-show="useInfluxDB">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#" title="Monitoring">Monitoring<span class="caret"></span></a>
                 <ul  id="menu_cat_misc_monitoring" class="dropdown-menu">
-                    <li><a href="monitorCluster.html" title="cluster">Cluster</a></li>
-                    <li><a href="monitorPool.html#/pool" title="pool">Pools</a></li>
-                    <li><a href="monitorOSD.html#/osd" title="osd">OSDs</a></li>
+                    <li><a href="monitorCluster.html" title="cluster monitoring">Cluster</a></li>
+                    <li><a href="monitorPool.html#/pool" title="pool monitoring">Pools</a></li>
+                    <li><a href="monitorOSD.html#/osd" title="osd monitoring">OSDs</a></li>
                 </ul>
             </li>
             <li id="menu_cat_misc" class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#" title="Crush map, object lookup and probe status">Misc.<span class="caret"></span></a>
@@ -75,12 +75,12 @@
             </li>
             <li id="menu_cat_logout" class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#" title="">Logged as {{conf.username}}<span class="caret"></span></a>
                 <ul  id="menu_cat_logout_list" class="dropdown-menu">
-                    <li ng-show="hasRole('admin')"><a href="inkscopeConfig.html" title="log out">Inkscope config</a></li>
-                    <li ng-show="hasRole('admin')"><a href="inkscope_userManagement.html" title="log out">Inkscope user management</a></li>
+                    <li ng-show="hasRole('admin')"><a href="inkscopeConfig.html" title="show inkscope configuration">Inkscope config</a></li>
+                    <li ng-show="hasRole('admin')"><a href="inkscope_userManagement.html" title="inkscope access control">Inkscope user management</a></li>
                     <!--li><a href="inkscope_userChangePassword.html" title="log out">Change password</a></li-->
                     <li><a href="../inkscopeCtrl/logout" title="log out">Logout</a></li>
                     <li><hr></li>
-                    <li><a href="about.html" title="log out">About Inkscope</a></li></li>
+                    <li><a href="about.html" title="about Inkscope">About Inkscope</a></li></li>
                 </ul>
             </li>
         </ul>
