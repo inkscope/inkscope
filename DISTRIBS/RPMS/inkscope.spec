@@ -1,7 +1,7 @@
 Summary: inkscope
 Name: inkscope
-%define inkscope_version 1.2.0
-Version: %{inkscope_version} 
+%define inkscope_version 1.4.1_dev
+Version: %{inkscope_version}
 Release: 0
 License: Apache License
 Packager: Eric Mourgaya <eric.mourgaya@arkea.com>
@@ -19,14 +19,15 @@ install  sysprobe scripts
 %package common
 Summary: common file beetwen all packages
 Requires: python-bson
-Requires: psutil
 Requires: python-pymongo
 %description common
 install all conf files
 
 %package sysprobe
 Summary: monitor system
+Requires: python-psutil
 Requires: lshw
+Requires: sysstat
 Requires: inkscope-common
 %description sysprobe
 install sysprobe scripts
@@ -133,7 +134,7 @@ rm -rf $RPM_BUILD_ROOT
 %files common
 %defattr(-,root,root)
 /opt/inkscope/bin/daemon.py
-%config(noreplace)  /opt/inkscope/etc/inkscope.conf
+%config(noreplace)  /opt/inkscope/etc/inkscope-template.conf
 /etc/logrotate.d/inkscope
 %files cephprobe
 %defattr(-,root,root)
