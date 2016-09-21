@@ -28,6 +28,7 @@
     <div id="listfs">
         <h2>Standby MDS servers</h2>
         <span ng-repeat="mds in standbys"> gid_{{mds.gid}} ({{mds.name}}): {{mds.addr}}<br></span>
+        <span ng-show="standbys.length==0"> none<br></span>
         <br>
         <h2>File systems</h2>
         <table>
