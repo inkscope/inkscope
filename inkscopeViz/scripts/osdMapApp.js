@@ -350,7 +350,7 @@ osdMapApp.directive('myTopology', function () {
                 var html = "";
                 html += "<h2>" + d.name;
                 if (d.id >=0) {//OSD state
-                    if (scope.osds[d.id].stat==null)
+                    if ((typeof scope.osds[d.id]==='undefined')||(scope.osds[d.id].stat==null))
                        html += "<br/>unknown";
                     else {
                         var osdstate = (scope.osds[d.id].stat.in == true) ? "in / " : "out / ";
