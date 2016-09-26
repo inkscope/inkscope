@@ -164,22 +164,24 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
                             poolTab[pool.pool].acting = [];
                         }
                         // scaning pg to find acting osd
-                        for (var i = 0; i < pg_stats.length; i++) {
-                            var pg = pg_stats[i];
-                            var elem = pg.pgid.split('.');
-                            var poolId = elem[0];
-                            for (var j = 0; j < pg.acting.length; j++) {
-                                var osd = pg.acting[j];
-                                var found = false;
-                                for (var k in poolTab[poolId].acting) {
-                                    if (poolTab[poolId].acting[k]==osd){
-                                        found = true;
-                                        continue;
+                        if (typeof pg_stats !== 'undefined') {
+                            for (var i = 0; i < pg_stats.length; i++) {
+                                var pg = pg_stats[i];
+                                var elem = pg.pgid.split('.');
+                                var poolId = elem[0];
+                                for (var j = 0; j < pg.acting.length; j++) {
+                                    var osd = pg.acting[j];
+                                    var found = false;
+                                    for (var k in poolTab[poolId].acting) {
+                                        if (poolTab[poolId].acting[k] == osd) {
+                                            found = true;
+                                            continue;
+                                        }
                                     }
+                                    if (!found) poolTab[poolId].acting.push(osd);
                                 }
-                                if (!found) poolTab[poolId].acting.push(osd);
-                            }
 
+                            }
                         }
                         $scope.pool2osd = poolTab;
                     }
@@ -188,7 +190,7 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
     };
 
     $scope.dispo= function(node) {
-        if (typeof node === undefined) return -1;
+        if (typeof node === undefined ||  node.stat == null) return -1;
         if ($scope.dispoMode == UP_DOWN_MODE) return node.stat.up ? 1.0 : 0.0;
         if ($scope.dispoMode == IN_OUT_MODE) return node.stat.in ? 1.0 : 0.2;
         if ($scope.dispoMode == FREE_SPACE_MODE) return (node.percent== -1 ? "N/A": node.percent);
@@ -348,10 +350,13 @@ osdMapApp.directive('myTopology', function () {
                 var html = "";
                 html += "<h2>" + d.name;
                 if (d.id >=0) {//OSD state
-                    var osdstate = (scope.osds[d.id].stat.in == true) ? "in / " : "out / ";
-                    osdstate += (scope.osds[d.id].stat.up == true) ? "up" : "down";
-                    html +=  "<br/>"+osdstate ;
-
+                    if (scope.osds[d.id].stat==null)
+                       html += "<br/>unknown";
+                    else {
+                        var osdstate = (scope.osds[d.id].stat.in == true) ? "in / " : "out / ";
+                        osdstate += (scope.osds[d.id].stat.up == true) ? "up" : "down";
+                        html += "<br/>" + osdstate;
+                    }
                 }
                 html += "</h2>";
 
