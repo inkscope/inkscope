@@ -9,7 +9,7 @@ var FsApp = angular.module('FsApp', ['ngRoute','InkscopeCommons'])
     .config(function ($routeProvider) {
         $routeProvider.
         when('/', {controller: FsListCtrl, templateUrl: 'partials/fs/aboutFs.html'}).
-        when('/create', {controller: FsCreateCtrl, templateUrl: 'partials/fs/createFs.html'}).
+        when('/new', {controller: FsCreateCtrl, templateUrl: 'partials/fs/createFs.html'}).
         when('/detail/:fsId', {controller: FsViewCtrl, templateUrl: 'partials/fs/detailFs.html'}).
         otherwise({redirectTo: '/'})});
 
@@ -115,7 +115,12 @@ function FsListCtrl($rootScope, $scope, $http, $location ,$window, $filter, ngTa
 
 function FsViewCtrl($rootScope, $scope, $http, $routeParams, $dialogs, ngTableParams , $filter) {
     var fsId = parseInt($routeParams.fsId) ;
-    $scope.mdsmap = $rootScope.fsList[fsId].mdsmap;
+    for (var i in $rootScope.fsList){
+        if ($rootScope.fsList[i].id == fsId){
+            $scope.mdsmap = $rootScope.fsList[i].mdsmap;
+            break;
+        }
+    }
 
     $scope.isUp = function(mds){
         return mds.state.startsWith("up:");
@@ -126,17 +131,17 @@ function FsCreateCtrl($rootScope, $scope, $routeParams, $location, $http, $dialo
     // init
     getPoolList($http, $scope);
 
-    $scope.create = function () {
-        var url = inkscopeCtrlURL + "RBD/images/"+$scope.image.pool.poolname+"/"+$scope.image.name;
-        data ="size="+$scope.image.size+"&format="+$scope.image.format;
+    $scope.createFs = function () {
+        var url = cephRestApiURL + "fs/new?fs_name=" + $scope.fs.name + "&metadata="+$scope.fs.metadatapool.poolname + "&data=" + $scope.fs.datapool.poolname;
 
-        $http({method: "PUT", url: url, data: data, headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
+        $http({method: "PUT", url: url}).
         success(function (data, status) {
-            refreshImages(url="#/detail/"+$scope.image.pool.poolname+"/"+$scope.image.name,$http, $rootScope, $window);
+
+
         }).
         error(function (data, status) {
             $scope.status = status;
-            $dialogs.error("<h3>Can't create image <strong>"+$scope.image.pool.poolname+"/"+$scope.image.name+"</strong> !</h3> <br>"+data);
+            $dialogs.error("<h3>Can't create file system <strong>"+$scope.fs.name+"</strong> !</h3> <br>"+data.status);
         });
     };
 

@@ -10,17 +10,18 @@
         <tr><td>Tableserver</td><td>{{ mdsmap.tableserver }}</td></tr>
         <tr><td>Flags</td><td>{{ mdsmap.flags }}</td></tr>
         <tr><td>Max mds</td><td>{{ mdsmap.max_mds }}</td></tr>
-        <tr><td colspan="2">in {{ mdsmap.in }} / up {{ mdsmap.up }} / failed {{ mdsmap.failed }}
-    / stopped {{ mdsmap.stopped }}</td></tr>
+        <!--tr><td colspan="2">in {{ mdsmap.in }} / up {{ mdsmap.up }} / failed {{ mdsmap.failed }}
+    / stopped {{ mdsmap.stopped }}</td></tr-->
     </table>
     <br>
     <h2>MDS : </h2>
     <style>
         .mdsInfo{
             float:left;
-            margin:10px;
+            max-width: 235px;
+            margin:1px;
             border:thin solid black;
-            padding: 5px;
+            padding: 3px;
         }
         .title{
             color:white;
@@ -34,7 +35,7 @@
     <div class="mdsInfo" ng-repeat="(name, mds) in mdsmap.info">
         <table>
             <tr ng-class="{'title active': isUp(mds) , 'title': !isUp(mds)}">
-                <td colspan="2" align="center"><strong>{{ name }}</strong></td>
+                <td colspan="2" align="center"><strong>{{ mds.name }}</strong></td>
             </tr>
             <tr ng-repeat="(key, value) in mds">
                 <td>{{ prettyPrintKey(key) }}</td>
