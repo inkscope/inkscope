@@ -118,6 +118,10 @@ def get_ceph_version():
 
 def get_ceph_version_name(ceph_version):
     major, minor, revision = ceph_version.split(".")
+    if major == '12':
+        return 'Luminous'
+    if major == '11':
+        return 'Kraken'
     if major == '10':
         return 'Jewel'
     if major == '9':
