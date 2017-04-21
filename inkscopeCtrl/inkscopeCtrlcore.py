@@ -14,7 +14,7 @@ from hashlib import md5
 from bson.json_util import dumps
 from InkscopeError import InkscopeError
 
-version = "1.4.0"
+version = "1.5.0"
 
 app = Flask(__name__)
 app.secret_key = "Mon Nov 30 17:20:29 2015"
@@ -59,7 +59,7 @@ datasource.close()
 # control inkscope users  collection in mongo
 db = mongoJuiceCore.getClient(conf, 'inkscope')
 if db.inkscope_users.count() == 0:
-    print "list users is empty: populating with default users"
+    print "list of users is empty: populating with default users"
     user = {"name":"admin",
             "password": hash_pass("admin"),
             "roles":["admin"]}
