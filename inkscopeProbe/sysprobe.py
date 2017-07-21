@@ -625,9 +625,6 @@ def handler(signum, frame):
 class SysProbeDaemon(Daemon):
     def __init__(self, pidfile):
         Daemon.__init__(self, pidfile, stdout=logfile, stderr=logfile)
-        
-    def run(self):
-        start_probe()
 
     @staticmethod
     def start_probe():
@@ -839,7 +836,9 @@ class SysProbeDaemon(Daemon):
         
         print str(datetime.datetime.now())
         print "SysProbe stopped"
-   
+
+   def run(self):
+        start_probe()
 
 if __name__ == "__main__":   
     ensure_dir(logfile)
