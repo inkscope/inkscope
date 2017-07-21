@@ -90,7 +90,7 @@ mkdir -p %{buildroot}/etc/httpd/conf.d/
 
 cd tmp/inkscope
 install -m 600 inkscopeProbe/sysprobe.py %{buildroot}/opt/inkscope/bin/
-install -m 600 inkscope-template.conf %{buildroot}/opt/inkscope/etc/
+install -m 644 inkscope-template.conf %{buildroot}/opt/inkscope/etc/
 install -m 600 inkscopeProbe/cephprobe.py %{buildroot}/opt/inkscope/bin/
 install -m 600 inkscopeProbe/daemon.py %{buildroot}/opt/inkscope/bin/
 install -m 700 DISTRIBS/confs/init.d/sysprobe %{buildroot}/etc/init.d/
