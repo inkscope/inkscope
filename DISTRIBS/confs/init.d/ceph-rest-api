@@ -28,7 +28,7 @@ case "$1" in
 
 	;;
   *)
-    echo "Usage: /etc/init.d/ceph-rest-api {start|stop}"
+    echo "Usage: /etc/init.d/ceph-rest-api {start|stop|status}"
     exit 1
     ;;
 esac

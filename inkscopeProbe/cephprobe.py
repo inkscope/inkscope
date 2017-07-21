@@ -683,7 +683,7 @@ class CephProbeDaemon(Daemon):
         Daemon.__init__(self, pidfile, stdout=logfile, stderr=logfile)
         
     def run(self):
-        start_probe()
+        self.start_probe()
 
     @staticmethod
     def start_probe():
@@ -890,5 +890,5 @@ if __name__ == "__main__":
             sys.exit(2)
         sys.exit(0)
     else:
-        print "usage: %s start|stop|restart|status" % sys.argv[0]
+        print "usage: %s start|stop|restart|status|nodaemon" % sys.argv[0]
         sys.exit(2)
