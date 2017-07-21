@@ -84,7 +84,7 @@ mkdir -p %{buildroot}/opt/nrpe/libexec/
 mkdir -p %{buildroot}/etc/init.d/
 mkdir -p %{buildroot}/etc/logrotate.d/
 mkdir -p %{buildroot}/var/www/inkscope/
-mkdir -p %{buildroot}/log/www/inkscope/
+mkdir -p %{buildroot}/var/log/inkscope
 mkdir -p %{buildroot}/etc/httpd/conf.d/
 
 
@@ -137,7 +137,7 @@ rm -rf $RPM_BUILD_ROOT
 /opt/inkscope/bin/daemon.py
 %config(noreplace)  /opt/inkscope/etc/inkscope-template.conf
 /etc/logrotate.d/inkscope
-%dir /log/www/inkscope/
+%dir /var/log/inkscope
 
 %files cephprobe
 %defattr(-,root,root)
