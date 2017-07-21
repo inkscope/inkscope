@@ -837,7 +837,7 @@ class SysProbeDaemon(Daemon):
         print str(datetime.datetime.now())
         print "SysProbe stopped"
 
-   def run(self):
+    def run(self):
         start_probe()
 
 if __name__ == "__main__":   
