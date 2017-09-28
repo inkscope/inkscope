@@ -34,7 +34,7 @@ import traceback
 import getopt
 import socket
 from daemon import Daemon
- 
+
 import json
 from StringIO import StringIO
 
@@ -388,9 +388,16 @@ def init_host(hostname, db):
     hw_cpus = get_hw_cpu(hostname, hw)
     for c in hw_cpus:
         db.cpus.update({'_id': c['_id']}, c, upsert=True)
-            
+           
+    cmd="ifconfig | grep inet | grep -v inet6 | grep -v 127.0.0.1 | awk '{print $2}' | cut -d\: -f2 | cut -d\  -f1"
+    co = subprocess.Popen([cmd], shell = True, stdout = subprocess.PIPE)
+    listip=co.stdout.read().strip().split("\n")
+    iplist=[]
+    for item in listip:
+	iplist.append(item)
     host__ = {'_id': hostname, #fqdn
-              "hostip": socket.gethostbyname(hostname),
+#              "hostip": socket.gethostbyname(hostname),
+		"hostip": iplist,
               "timestamp": int(round(time.time() * 1000)),
               "mem": None,
               "swap": None,
