@@ -20,7 +20,7 @@
         <label for="user.email" class="col-sm-2 control-label">email : </label>
 
         <div class="controls">
-            <input type=text id="user.email" ng-model="user.email"/>
+            <input type=text id="user.email" ng-model="user.email" required/>
 
         </div>
     </div>
@@ -30,6 +30,13 @@
         <div class="controls">
             <input type=checkbox id="user.suspended" ng-model="user.suspended" ng-true-value="True" ng-false-value="False"/>
             &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>Specify whether the user should be suspended Example: False [False]</span></a>
+        </div>
+	<br/>
+        <label for="user.system" class="col-sm-2 control-label">System : </label>
+
+        <div class="controls">
+            <input type=checkbox id="user.system" ng-model="user.system" ng-true-value="True" ng-false-value="False"/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>Specify whether the user should be able to modify ACLs</span></a>
         </div>
     </div>
     <div class="control-group">

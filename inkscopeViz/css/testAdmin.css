@@ -107,6 +107,17 @@ label {
     text-align: right;
 }
 
+#about{
+    margin : 2em;
+    float:left;
+    width :520px;
+    border: solid gray 1px ;
+    border-radius: 1em;
+    padding: 1em;
+    overflow-x :hidden ;
+    overflow-y :auto ;
+}
+
 #control{
     margin : 2em;
     float:left;

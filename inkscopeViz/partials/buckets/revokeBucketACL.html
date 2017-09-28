@@ -1,0 +1,16 @@
+<!-- Frame to confirm the current user is revoking one's access -->
+
+<h3>Access revocation</h3>
+<br />
+<form name="myForm">
+    <p>Are you sure you want to revoke access from the user named <strong>"{{user}}"</strong> ?</p>
+
+    <br>
+    <p class="text-info"><i class="icon-warning-sign"></i> <em>This user will no longer have access to the bucket and its content.</em></p>
+
+    <div class="button-bar">
+        <button ng-click="revokeAccess()" class="btn btn-danger">Revoke</button>
+        <a href="#/detail/{{bucketName}}/acl" class="btn">Cancel</a>
+    </div>
+</form>
+
