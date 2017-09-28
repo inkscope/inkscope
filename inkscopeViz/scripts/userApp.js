@@ -205,7 +205,6 @@ function CreateCtrl($rootScope, $scope, $location, $http, $dialogs, $route) {
         $scope.response = "";
 
         $scope.uri = inkscopeCtrlURL+"S3/user";
-
         $http({method: "post", url: $scope.uri, data: "json="+JSON.stringify($scope.user), headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
             success(function (data, status) {
                 $scope.status = status;
@@ -449,7 +448,7 @@ function ModifyCtrl($rootScope, $scope, $routeParams, $location, $http, $dialogs
             success(function (data, status) {
                 $scope.status = status;
                 $scope.data = data;
-                $dialogs.notify("User modification","User <strong>"+$scope.user.user_id+"</strong> was modified");
+		$dialogs.notify("User modification","User <strong>"+$scope.user.user_id+"</strong> was modified");
                 refreshUsers($http, $scope);
                 $location.path('/detail/'+$scope.user.user_id);
             }).
@@ -471,6 +470,10 @@ function ModifyCtrl($rootScope, $scope, $routeParams, $location, $http, $dialogs
                 data.suspended = 'False';
             else
                 data.suspended = 'True';
+	    if (data.system == "true")
+		data.system = 'True'
+	    else
+		data.system = 'False'
 
             $rootScope.status = status;
             $scope.master =   {
@@ -478,6 +481,7 @@ function ModifyCtrl($rootScope, $scope, $routeParams, $location, $http, $dialogs
                 "display_name":data.display_name,
                 "email":data.email,
                 "suspended":data.suspended,
+		"system":data.system,
                 "max_buckets":data.max_buckets,
                 "caps":data.caps
             };

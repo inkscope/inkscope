@@ -6,6 +6,12 @@ from S3.user import  S3User
 from Log import Log
 import json
 
+import boto
+import boto.s3.connection
+from boto.exception import S3PermissionsError
+#import boto3
+from InkscopeError import InkscopeError
+
 class S3Ctrl:
 
     def __init__(self,conf):
@@ -13,6 +19,7 @@ class S3Ctrl:
         self.key = conf.get("radosgw_key", "")
         self.secret = conf.get("radosgw_secret", "")
         self.radosgw_url = conf.get("radosgw_url", "127.0.0.1")
+	self.radosgw_endpoint = conf.get("radosgw_endpoint","")
         self.secure = self.radosgw_url.startswith("https://")
 
         if not self.radosgw_url.endswith('/'):
@@ -22,6 +29,23 @@ class S3Ctrl:
         #print "config admin: "+self.admin
         #print "config key: "+self.key
         #print "config secret: "+self.secret
+
+    def connectS3(self):
+	#boto
+	conn = boto.connect_s3(
+	    aws_access_key_id = self.key,
+	    aws_secret_access_key = self.secret,
+	    host = self.radosgw_endpoint,
+	    is_secure=False,               # comment if you are using ssl
+	    calling_format = boto.s3.connection.OrdinaryCallingFormat(),
+	)
+	#boto3 ## for the future migration
+#	s3_resource = boto3.resource('s3')
+#	iam = boto3.resource('iam',i
+#	    aws_access_key_id=self.key
+#	    aws_secret_access_key=self.secret,
+#	)
+	return conn
 
     def getAdminConnection(self):
         return S3Bucket(self.admin, access_key=self.key, secret_key=self.secret , base_url= self.url, secure= self.secure)
@@ -97,7 +121,9 @@ class S3Ctrl:
     def createBucket(self):
         bucket = request.form['bucket']
         owner = request.form['owner']
-        Log.debug( "createBucket "+bucket+" for user "+owner)
+	acl = request.form['acl']
+
+        Log.debug( "createBucket "+bucket+" for user "+owner+" with acl "+acl)
         print "\n--- info user for owner ---"
         userInfo = self.getUser(owner)
         #print userInfo
@@ -111,9 +137,177 @@ class S3Ctrl:
 
         print "\n--- create bucket for owner ---"
         mybucket = S3Bucket(bucket, access_key=access_key, secret_key=secret_key , base_url= self.radosgw_url+bucket, secure= self.secure)
-        res = mybucket.put_bucket()
-        return 'OK'
+	res = mybucket.put_bucket(acl=acl)
+	return 'OK'
 
+    def getUserAccess(self, bucketName, user):
+	conn = self.connectS3()
+	mybucket = conn.get_bucket(bucketName, validate=False)
+
+	bucket_acl = mybucket.get_acl()
+	print "getting "+user+" access to "+bucketName
+
+	perm = ""
+	for grant in bucket_acl.acl.grants:
+	    if grant.id == user:
+		if perm == "":
+		    perm =  grant.permission
+		else:
+		    perm = perm + ", " + grant.permission
+	if perm == "":
+	    perm = "none"
+
+	return perm
+
+    def getBucketACL(self, bucketName):
+	conn = self.connectS3()
+	mybucket = conn.get_bucket(bucketName, validate=False)
+	#validate=False if you are sure the bucket exists
+	#validate=true to make a request to check if it exists first
+
+	### getting everything needed
+	usersdata = self.listUsers()
+	userList = json.loads(usersdata)
+	bucket_acl = mybucket.get_acl() # bucket_acl do not mention every user
+	print "getting "+bucketName+" ACL"
+
+	### building the JSON file
+	mylist = []
+	grantGroup = ""
+	for user in userList:
+	    obj = {}
+	    obj['uid'] = user['uid']
+	    obj['type'] = "user"
+	    obj['permission'] = ""
+
+	    for grant in bucket_acl.acl.grants:
+		# checking if there is a group in the ACL and saving it
+		if grant.type == 'Group':
+		    if grant.uri.endswith("AllUsers"):
+			grantGroup = "all"
+			groupPerm = grant.permission
+		    else: # if AuthenticatedUsers
+			grantGroup = "auth"
+			groupPerm = grant.permission
+
+		# getting permission(s)
+		if grant.id == user['uid']:
+		    if obj['permission'] == "":
+			obj['permission'] =  grant.permission
+		    else:
+			obj['permission'] = obj['permission'] + ", " + grant.permission
+
+	    if obj['permission'] == "":
+		obj['permission'] = "none"
+	    mylist.append(obj)
+
+	# need to set groups manually 
+	allUsers = {}
+	allUsers['uid'] = "AllUsers"
+	allUsers['type'] = "group"
+	authUsers = {}
+	authUsers['uid'] = "AuthenticatedUsers"
+	authUsers['type'] = "group"
+	if grantGroup == "":
+	    allUsers['permission'] = "none"
+	    authUsers['permission'] = "none"
+	elif grantGroup == "all":
+	    allUsers['permission'] = groupPerm
+	    authUsers['permission'] = "none"
+	else: #if grantGroup == "auth"
+	    allUsers['permission'] = "none"
+	    authUsers['permission'] = groupPerm
+	mylist.append(allUsers)
+	mylist.append(authUsers)
+
+	print 'Complete access list : [%s]' % ', '.join(map(str, mylist))
+	return json.dumps(mylist)
+
+    def grantGroupAccess (self, bucket, bucketName, bucketACL):
+	bucketInfo = self.getBucketInfo(bucketName)
+	bucketInfo = json.loads(bucketInfo)
+	owner = bucketInfo.get('owner')
+	#print "owner : "+owner
+	for grant in bucketACL.acl.grants:
+	    if grant.id != owner: #no need to grant access to the owner
+		userInfo = self.getUser(grant.id)
+		userInfo = json.loads(userInfo)
+		email = userInfo.get('email')
+		#print "id : "+grant.id
+		#print "mail : "+email
+		bucket.add_email_grant(permission=grant.permission, email_address=email)
+
+    def grantAccess (self, user, bucketName):
+	msg = "no message"
+	access = request.form['access']
+	email = request.form['email']
+
+	conn = self.connectS3()
+	mybucket = conn.get_bucket(bucketName, validate=False)
+	bucket_acl = mybucket.get_acl()
+
+	group = ""
+	granted = ""
+	for grant in bucket_acl.acl.grants:
+	    if grant.id == user: #checking if the user already has access
+		if (grant.permission == access) or (grant.permission == "FULL_CONTROL"):
+		    granted = grant.permission
+	    if grant.type == 'Group': #checking if a group has access
+		group = grant.uri
+
+	### granting access
+	# using canned ACLs when granting access to a group of users
+	if email == "all":
+	    if group != "": #if a group as access to the bucket
+		if group.endswith("AllUsers"): #if this group is AllUsers
+		    raise InkscopeError("error1", 400) #shouldn't happen
+		else: #if this group is AuthenticatedUsers
+		    raise InkscopeError("error2", 400)
+	    else: #if there's no group : grant access
+		mybucket.set_canned_acl("public-read")
+		self.grantGroupAccess(mybucket, bucketName, bucket_acl)
+		return "ok"
+	elif email == "auth":
+	    if group != "":
+		if group.endswith("AllUsers"):
+		    raise InkscopeError("error2", 400)
+		else:
+		    raise InkscopeError("error1", 400)
+	    else:
+		mybucket.set_canned_acl("authenticated-read")
+		self.grantGroupAccess(mybucket, bucketName, bucket_acl)
+		return "ok"
+	else : #if it's a single user
+	    if granted == access:
+		raise InkscopeError("error1", 400)
+	    else:
+		if granted == "FULL_CONTROL":
+		    raise InkscopeError("error3", 400)
+		elif access == "FULL_CONTROL":
+		    msg = self.revokeAccess(user, bucketName)
+		    mybucket.add_email_grant(permission=access, email_address=email)
+		else :
+		    mybucket.add_email_grant(permission=access, email_address=email)
+		    msg = "ok"
+		return msg
+
+    def revokeAccess(self, user, bucketName):
+	conn = self.connectS3()
+	bucket = conn.get_bucket(bucketName, validate=False)
+	bucketACL = bucket.get_acl()
+
+	new_grants = []
+	for grantee in bucketACL.acl.grants:
+	    if (user == "AllUsers") or (user =="AuthenticatedUsers"): #if revoking a group's access
+		if grantee.type != "Group": #no groups in the acl
+		    new_grants.append(grantee)
+	    else : #if revoking a user's access
+		if grantee.id != user:
+		    new_grants.append(grantee)
+	bucketACL.acl.grants = new_grants
+
+	bucket.set_acl(bucketACL)
+	return "ok"
 
     def getBucketInfo (self, bucket):
         myargs = []
@@ -127,7 +321,7 @@ class S3Ctrl:
         request2= conn.request(method="GET", key="bucket", args= myargs)
         res = conn.send(request2)
         info = res.read()
-        print info
+        print "BucketInfo : "+info
         return info
 
     def linkBucket (self,uid, bucket):

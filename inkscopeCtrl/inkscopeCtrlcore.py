@@ -30,6 +30,8 @@ login_manager.init_app(app)
 from subprocess import CalledProcessError
 
 import mongoJuiceCore
+import os
+import subprocess
 
 from poolsCtrl import PoolsCtrl,Pools
 import osdsCtrl
@@ -56,7 +58,7 @@ datasource = open(configfile, "r")
 conf = json.load(datasource)
 datasource.close()
 
-# control inkscope users  collection in mongo
+# control inkscope users collection in mongo
 db = mongoJuiceCore.getClient(conf, 'inkscope')
 if db.inkscope_users.count() == 0:
     print "list of users is empty: populating with default users"
@@ -590,7 +592,7 @@ def deleteCapability(uid):
         return Response(e.reason, status=e.code)
 
 # bucket management
-
+	
 @app.route('/S3/user/<string:uid>/buckets', methods=['GET'])
 def getUserBuckets(uid,bucket=None):
     try:
@@ -603,11 +605,10 @@ def getUserBuckets(uid,bucket=None):
 @app.route('/S3/bucket', methods=['PUT'])
 def createBucket():
     try:
-        return Response(S3Ctrl(conf).createBucket(), mimetype='application/json')
+	return Response(S3Ctrl(conf).createBucket(), mimetype='application/json')
     except S3Error , e:
-        Log.err(e.__str__())
-        return Response(e.reason, status=e.code)
-
+	Log.err(e.__str__())
+	return Response(e.reason, status=e.code)
 
 @app.route('/S3/bucket', methods=['GET'])
 def getBuckets():
@@ -632,6 +633,37 @@ def deleteBucket(bucket):
     except S3Error , e:
         Log.err(e.__str__())
         return Response(e.reason, status=e.code)
+
+@app.route('/S3/bucket/<string:bucket>/acl', methods=['GET'])
+def getBucketACL(bucket):
+    try:
+	return Response(S3Ctrl(conf).getBucketACL(bucket), mimetype='application/json')
+    except S3Error, e:
+	Log.err(e.__str__())
+	return Response(e.reason, status=e.code)
+
+@app.route('/S3/bucket/<string:bucket>/<string:user>/acl', methods=['GET'])
+def getUserACL(user, bucket):
+    try:
+	return Response(S3Ctrl(conf).getUserAccess(bucket, user), mimetype='application/json')
+    except S3Error, e:
+	Log.err(e.__str__())
+	return Response(e.reason, status=e.code)
+
+@app.route('/S3/bucket/<string:bucket>/<string:user>/acl', methods=['PUT'])
+def modifyACL(user, bucket):
+    try:
+	return Response(S3Ctrl(conf).grantAccess(user, bucket), mimetype='application/json')
+    except InkscopeError as e:
+	return Response(e.status,e.message)
+
+@app.route('/S3/bucket/<string:bucket>/<string:user>/noacl', methods=['PUT'])
+def revokeAccess(user, bucket):
+    try:
+	return Response(S3Ctrl(conf).revokeAccess(user, bucket), mimetype='application/json')
+    except S3Error, e:
+	Log.err(e.__str__())
+	return Response(e.reason, status=e.code)
 
 @app.route('/S3/bucket/<string:bucket>/link', methods=['DELETE','PUT'])
 def linkBucket(bucket):

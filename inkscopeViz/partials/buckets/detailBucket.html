@@ -45,8 +45,10 @@
     </tbody>
 </table>
 
-
 <div class="button-bar" ng-show="hasRole('admin_rgw')">
+    <!--a href="#/enableVersioning/{{ detailedBucket.bucket }}" class="btn btn-default">Enable versioning</a>
+    <a href="#/suspendVersioning/{{ detailedBucket.bucket }}" class="btn btn-default">Suspend versioning</a-->
+    <a href="#/detail/{{detailedBucket.bucket}}/acl" class="btn btn-default">Show ACL</a>
     <a href="#/changeOwner/{{ detailedBucket.bucket }}/{{ detailedBucket.owner }}" class="btn btn-success">Change owner</a>
     <a href="#/delete/{{ detailedBucket.bucket }}" class="btn btn-danger">Delete</a>
     <a href="#/" class="btn btn-default">Close</a>

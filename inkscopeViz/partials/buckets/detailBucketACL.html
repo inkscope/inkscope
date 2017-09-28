@@ -1,0 +1,26 @@
+<!-- Frame to print the ACL of the selected bucket -->
+<h3>Access list for {{detailedBucket.bucket}}</h3>
+<br/>
+
+<table class="table table-condensed table-nohead">
+    <tbody>
+    <tr>
+	<td width="150px"><strong>User/Group</strong></td>
+	<td width="300px"><strong>Authorization</strong></td>
+	<td><strong>Actions</strong></td>
+    </tr>
+    <tr ng-repeat="grantee in acl | orderBy:['type','uid']">
+	<td>{{grantee.uid}}<span ng-show="grantee.uid == detailedBucket.owner"> <i>(owner)</i></span></td>
+	<td>{{grantee.permission}}</td>
+	<td>
+	    <div ng-show="grantee.uid != detailedBucket.owner"><a ng-hide="(grantee.type =='group') && (grantee.permission != 'none')" href="#/modifyaccess/{{detailedBucket.bucket}}/{{grantee.uid}}"><i class="icon-edit" alt="modify access for {{grantee.uid}}" title="modify access for {{grantee.uid}}"></i></a>
+	    <a ng-show="(grantee.permission != 'none')" href="#/revokeaccess/{{detailedBucket.bucket}}/{{grantee.uid}}"><i class="icon-remove" alt="revoke access for {{grantee.uid}}" title="revoke access for {{grantee.uid}}"></i></a></div>
+	</td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="button-bar" ng-show="hasRole('admin_rgw')">
+    <a href="#/detail/{{detailedBucket.bucket}}" class="btn btn-default">Back</a>
+    <a href="#/changeOwner/{{detailedBucket.bucket}}/{{detailedBucket.owner}}" class="btn btn-success">Change owner</a>
+</div>
