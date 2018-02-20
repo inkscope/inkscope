@@ -86,6 +86,18 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $scope, $http, $location ,$
                         data[i].lastControl = ((+$scope.date) - data[i].stat.timestamp) / 1000;
                         data[i].reweight = data[i].stat.weight;
                     }
+                    if (data[i].df !=null){
+                      data[i].space_used = data[i].df.kb_used*1024;
+                      data[i].space_available = data[i].df.kb_avail*1024;
+                      data[i].space_total = data[i].df.kb*1024;
+                    }
+                    else {
+                      if (data[i].partition !=null) {
+                        data[i].space_used = data[i].partition.stat.used;
+                        data[i].space_available = data[i].partition.stat.free;
+                        data[i].space_total = data[i].partition.stat.total;
+                      }
+                    }
                 }
 
                 // search for selected osd, first one if none
@@ -116,9 +128,8 @@ OsdsApp.controller("OsdsCtrl", function ($rootScope, $scope, $http, $location ,$
 
     $scope.filledOver = function (osd){
         if ( osd == null) return true;
-        if ( osd.partition == null) return true;
-        if ( osd.partition.stat == null) return true;
-        return 100*osd.partition.stat.used/osd.partition.stat.total > $scope.minUsedSpace
+        if ( osd.space_used === undefined) return true;
+        return 100*osd.space_used/osd.space_total > $scope.minUsedSpace
     }
 
 

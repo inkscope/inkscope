@@ -20,6 +20,7 @@ import datetime
 import sys
 import traceback
 import os
+import re
 
 import socket
 from daemon import Daemon
@@ -43,7 +44,7 @@ runfile = "/var/run/cephprobe/cephprobe.pid"
 logfile = "/var/log/inkscope/cephprobe.log"
 clusterName = "ceph"
 fsid = ""
-
+ceph_version = ""
 
 # load the conf (from json into file)
 def load_conf():
@@ -52,6 +53,20 @@ def load_conf():
     datasource.close()
     return data
 
+def get_ceph_version():
+    try:
+        args = ['ceph',
+                '--version']
+        p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, error = p.communicate()
+        if p.returncode != 0:
+            return "not found"
+        ceph_version = re.search('[0-9]*\.[0-9]*\.[0-9]*', output)
+        if ceph_version:
+            return ceph_version.group(0)
+        return "not found"
+    except:
+        return '0.0.0 (could not be found on inkscope server - Please consider to install Ceph on it)'
 
 # list sections prefixed
 def ceph_conf_list(prefix):
@@ -315,24 +330,24 @@ def process_status(restapi, ceph_rest_api_subfolder, db):
         return c_status['output']['fsid']
    
 
-# uri : /api/v0.1/osd/dump.json
-def process_osd_dump(restapi, ceph_rest_api_subfolder, db):
+# uri : /api/v0.1/osd/df.json
+def process_osd_df(restapi, ceph_rest_api_subfolder, db):
     if not isLeader :
         return
-    
-    print str(datetime.datetime.now()), "-- Process OSDDump"  
+
+    print str(datetime.datetime.now()), "-- Process OSDDF"
     sys.stdout.flush()
     try:
         restapi.connect()
-        restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/osd/dump.json")
+        restapi.request("GET", ceph_rest_api_subfolder+"/api/v0.1/osd/df.json")
         r1=restapi.getresponse()
     except Exception, e:
-        print str(datetime.datetime.now()), "-- error (OSDDump) failed to connect to ceph rest api: ", e.message
+        print str(datetime.datetime.now()), "-- error (OSDDF) failed to connect to ceph rest api: ", e.message
         restapi.close()
         raise e
 
     if r1.status != 200:
-        print str(datetime.datetime.now()), "-- error (OSDDump) failed to connect to ceph rest api: ", r1.status, r1.reason
+        print str(datetime.datetime.now()), "-- error (OSDDF) failed to connect to ceph rest api: ", r1.status, r1.reason
         restapi.close()
     else:
         data1 = r1.read()
@@ -341,92 +356,146 @@ def process_osd_dump(restapi, ceph_rest_api_subfolder, db):
         osd_in_db = db.osd.find({"or" : [{"lost": {'$exists' : False}}, {"lost": False}]}, fields = {"_id" : 1})
         lost_osd = list(osd_in_db)
 
-        osd_dump = json.loads(data1)
+        osd_df = json.loads(data1)
 
-        osdsxinfo_map = {}
-        for xi in osd_dump['output']['osd_xinfo']:
-            osdsxinfo_map[xi["osd"]] = xi
-
-        
-        osds = osd_dump['output']['osds']
-
-
+        osds = osd_df['output']['nodes']
 
         for osd in osds:
-            if osd["osd"] in lost_osd:
-                lost_osd.remove(osd["osd"])
-
-            osd_stat = {"osd": DBRef("osd", osd["osd"]),
+            osd_df = {"osd": DBRef("osd", osd["id"]),
                         "timestamp": int(round(time.time() * 1000)),
-                        "weight":  osd["weight"],
-                        "up": osd["up"] == 1,
-                        "in": osd["in"] == 1,
-                        "last_clean_begin": osd["last_clean_begin"],
-                        "last_clean_end": osd["last_clean_end"],
-                        "up_from": osd["up_from"],
-                        "up_thru": osd["up_thru"],
-                        "down_at": osd["down_at"],
-                        "lost_at": osd["lost_at"],
-                        "state": osd["state"]
-                        }
-            osd_stat_id = db.osdstat.insert(osd_stat)
-            
-            
-            hostaddr = osd["public_addr"].partition(':')[0]
-            osdhostid = None
+                        "kb":  osd["kb"],
+                        "type_id":  osd["type_id"],
+                        "reweight":  osd["reweight"],
+                        "crush_weight": osd["crush_weight"],
+                        "utilization": osd["utilization"],
+                        "depth": osd["depth"],
+                        "kb_avail": osd["kb_avail"],
+                        "pgs": osd["pgs"],
+                        "kb_used": osd["kb_used"],
+                        "device_class": osd["device_class"],
+                        "var": osd["var"],
+                        "type": osd["type"]
+                      }
+            osd_df_id = db.osddf.insert(osd_df)
 
-            #find host name
-            #if hostaddr == '': # the case if osd is declared but not completly configured
-            # no need to treat cause we can keep osdhostid = None
-            if hostaddr != '':
-                # first lookup known hosts in db
-                osdhost = db.hosts.find_one({"hostip": hostaddr})
-
-                if not osdhost:
-                    osdneti = db.net.find_one({"$where":  "this.inet != null && this.inet.addr === '"+hostaddr+"'"})
-                    if osdneti:
-                        osdhostid = osdneti["_id"].partition(":")[0]
-                    else: # not found in db, lookup with fqdn
-                        osdhostid = socket.getfqdn(hostaddr)
-                else:
-                    osdhostid = osdhost["_id"]
-                    
-                    
-            
-            osddatapartitionid = None
-            if osdhostid:
-                osddatapartition = db.partitions.find_one({"_id" : {'$regex' : osdhostid+":.*"}, "mountpoint" : '/var/lib/ceph/osd/'+clusterName+'-'+str(osd["osd"])})
-                if osddatapartition :
-                    osddatapartitionid = osddatapartition['_id']
-                
-            osddb = {"_id": osd["osd"],
-                     "uuid": osd["uuid"],    
-                     "node": DBRef( "nodes", osd["osd"]),
-                     "stat":  DBRef( "osdstat", osd_stat_id),
-                     "public_addr": osd["public_addr"],
-                     "cluster_addr": osd["cluster_addr"],
-                     "heartbeat_back_addr": osd["heartbeat_back_addr"],
-                     "heartbeat_front_addr": osd["heartbeat_front_addr"],
-                     "down_stamp": osdsxinfo_map[osd["osd"]]["down_stamp"],
-                     "laggy_probability": osdsxinfo_map[osd["osd"]]["laggy_probability"],
-                     "laggy_interval": osdsxinfo_map[osd["osd"]]["laggy_interval"],
-                     "host":  DBRef( "hosts", osdhostid),
-                     "partition": DBRef("partitions", osddatapartitionid)
-                    }
+            osddb = db.osd.find({"_id": osd["id"]}).next()
+            osddb["df"]= DBRef( "osddf", osd_df_id)
             db.osd.update({'_id': osddb["_id"]}, osddb, upsert=True)
-            
-        pools = osd_dump['output']['pools']
-        
-        for pool in pools:
-            p = pool.copy()
-            p["_id"] = pool["pool"]
-            del p["pool"]
-            if p['auid'] : 
-                p['auid'] = str(p['auid'])
-            db.pools.update({'_id': p["_id"]}, p, upsert=True)
 
-        for osd in lost_osd:
-            db.osd.update({'_id': osd}, {"$set": {"lost": True}})
+
+# uri : /api/v0.1/osd/dump.json
+def process_osd_dump(restapi, ceph_rest_api_subfolder, db):
+        if not isLeader:
+            return
+
+        print str(datetime.datetime.now()), "-- Process OSDDump"
+        sys.stdout.flush()
+        try:
+            restapi.connect()
+            restapi.request("GET", ceph_rest_api_subfolder + "/api/v0.1/osd/dump.json")
+            r1 = restapi.getresponse()
+        except Exception, e:
+            print str(datetime.datetime.now()), "-- error (OSDDump) failed to connect to ceph rest api: ", e.message
+            restapi.close()
+            raise e
+
+        if r1.status != 200:
+            print str(
+                datetime.datetime.now()), "-- error (OSDDump) failed to connect to ceph rest api: ", r1.status, r1.reason
+            restapi.close()
+        else:
+            data1 = r1.read()
+            restapi.close()
+
+            osd_in_db = db.osd.find({"or": [{"lost": {'$exists': False}}, {"lost": False}]}, fields={"_id": 1})
+            lost_osd = list(osd_in_db)
+
+            osd_dump = json.loads(data1)
+
+            osdsxinfo_map = {}
+            for xi in osd_dump['output']['osd_xinfo']:
+                osdsxinfo_map[xi["osd"]] = xi
+
+            osds = osd_dump['output']['osds']
+
+            for osd in osds:
+                if osd["osd"] in lost_osd:
+                    lost_osd.remove(osd["osd"])
+
+                osd_stat = {"osd": DBRef("osd", osd["osd"]),
+                            "timestamp": int(round(time.time() * 1000)),
+                            "weight": osd["weight"],
+                            "up": osd["up"] == 1,
+                            "in": osd["in"] == 1,
+                            "last_clean_begin": osd["last_clean_begin"],
+                            "last_clean_end": osd["last_clean_end"],
+                            "up_from": osd["up_from"],
+                            "up_thru": osd["up_thru"],
+                            "down_at": osd["down_at"],
+                            "lost_at": osd["lost_at"],
+                            "state": osd["state"]
+                            }
+                osd_stat_id = db.osdstat.insert(osd_stat)
+
+                hostaddr = osd["public_addr"].partition(':')[0]
+                osdhostid = None
+
+                # find host name
+                # if hostaddr == '': # the case if osd is declared but not completly configured
+                # no need to treat cause we can keep osdhostid = None
+                if hostaddr != '':
+                    # first lookup known hosts in db
+                    osdhost = db.hosts.find_one({"hostip": hostaddr})
+
+                    if not osdhost:
+                        osdneti = db.net.find_one(
+                            {"$where": "this.inet != null && this.inet.addr === '" + hostaddr + "'"})
+                        if osdneti:
+                            osdhostid = osdneti["_id"].partition(":")[0]
+                        else:  # not found in db, lookup with fqdn
+                            osdhostid = socket.getfqdn(hostaddr)
+                    else:
+                        osdhostid = osdhost["_id"]
+
+                osddatapartitionid = None
+                if osdhostid:
+                    osddatapartition = db.partitions.find_one({"_id": {'$regex': osdhostid + ":.*"},
+                                                               "mountpoint": '/var/lib/ceph/osd/' + clusterName + '-' + str(
+                                                                   osd["osd"])})
+                    if osddatapartition:
+                        osddatapartitionid = osddatapartition['_id']
+
+                osdori = db.osd.find({"_id": osd["osd"]}).next()
+                osddb = {"_id": osd["osd"],
+                         "uuid": osd["uuid"],
+                         "node": DBRef("nodes", osd["osd"]),
+                         "stat": DBRef("osdstat", osd_stat_id),
+                         "df": osdori["df"],
+                         "public_addr": osd["public_addr"],
+                         "cluster_addr": osd["cluster_addr"],
+                         "heartbeat_back_addr": osd["heartbeat_back_addr"],
+                         "heartbeat_front_addr": osd["heartbeat_front_addr"],
+                         "down_stamp": osdsxinfo_map[osd["osd"]]["down_stamp"],
+                         "laggy_probability": osdsxinfo_map[osd["osd"]]["laggy_probability"],
+                         "laggy_interval": osdsxinfo_map[osd["osd"]]["laggy_interval"],
+                         "host": DBRef("hosts", osdhostid),
+                         "partition": DBRef("partitions", osddatapartitionid)
+                         }
+                db.osd.update({'_id': osddb["_id"]}, osddb, upsert=True)
+
+            pools = osd_dump['output']['pools']
+
+            for pool in pools:
+                p = pool.copy()
+                p["_id"] = pool["pool"]
+                del p["pool"]
+                if p['auid']:
+                    p['auid'] = str(p['auid'])
+                db.pools.update({'_id': p["_id"]}, p, upsert=True)
+
+            for osd in lost_osd:
+                db.osd.update({'_id': osd}, {"$set": {"lost": True}})
+
 
 # osd host from conf : "host" : DBRef( "hosts", hostmap[i]),
 # "partition" : DBRef( "partitions", hostmap[i]+":/dev/sdc1"),
@@ -688,14 +757,20 @@ class CephProbeDaemon(Daemon):
         conf = load_conf()
         global clusterName
         global fsid
+        global ceph_version
         global isLeader
         global hb_refresh
-        
+
+        ceph_version = get_ceph_version()
+
         isLeader = False
         
         clusterName = conf.get("cluster", "ceph")
         print "clusterName = ", clusterName
-        
+        print "ceph_version = ", ceph_version
+
+        ceph_version_major = ceph_version.split('.')[0]
+
         ceph_conf_file = conf.get("ceph_conf", "/etc/ceph/ceph.conf")
         print "ceph_conf = ", ceph_conf_file
         
@@ -820,7 +895,14 @@ class CephProbeDaemon(Daemon):
             restapi = httplib.HTTPConnection(ceph_rest_api)
             osd_dump_thread = Repeater(evt, process_osd_dump, [restapi, ceph_rest_api_subfolder, db], osd_dump_refresh)
             osd_dump_thread.start()
-            
+
+        # take same parameters than osd_dump
+        osd_df_thread = None
+        if osd_dump_refresh > 0 and ceph_version_major>=12: # Luminous
+            restapi = httplib.HTTPConnection(ceph_rest_api)
+            osd_df_thread = Repeater(evt, process_osd_df, [restapi, ceph_rest_api_subfolder, db], osd_dump_refresh)
+            osd_df_thread.start()
+
         pg_dump_thread = None
         if pg_dump_refresh > 0:
             restapi = httplib.HTTPConnection(ceph_rest_api)

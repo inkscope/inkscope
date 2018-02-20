@@ -123,9 +123,15 @@ osdMapApp.controller('OsdMapCtrl', function OsdMapCtrl($rootScope, $scope, $http
                     }
                     data[i].lastControl = ((+$scope.date) - data[0].stat.timestamp) / 1000;
                     try {
-                        data[i].free = data[i].partition.stat.free;
-                        data[i].total = data[i].partition.stat.total;
-                        data[i].percent = data[i].free/data[i].total;
+                      if (data[i].df !=null){
+                        data[i].free = data[i].df.kb_avail*1024;
+                        data[i].total = data[i].df.kb*1024;
+                      }
+                      else {
+                          data[i].free = data[i].partition.stat.free;
+                          data[i].total = data[i].partition.stat.total;
+                      }
+                      data[i].percent = data[i].free / data[i].total;
                     }
                     catch (e) {
                         console.log("failed to retrieve partition stat for osd "+data[i].id);
