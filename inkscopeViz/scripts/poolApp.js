@@ -200,13 +200,15 @@ function DetailCtrl($scope, $http, $routeParams, $dialogs, ngTableParams , $filt
             type:{cat:"General",transform:"getPoolTypeLabel",rank:i++},
             size:{cat:"General",transform:"",rank:i++},
             min_size:{cat:"General",transform:"",rank:i++},
-            crush_ruleset:{cat:"General",transform:"getRulesetNameLabel",rank:i++},
+            crush_ruleset:{cat:"General",transform:"getRulesetNameLabel",rank:i++}, //pre Lunminous
+            crush_rule:{cat:"General",transform:"getRulesetNameLabel",rank:i++}, // Luminous
             pg_num:{cat:"General",transform:"",rank:i++},
             pg_placement_num:{cat:"General",transform:"",rank:i++},
             quota_max_bytes:{cat:"General",transform:"getBytesLabel",rank:i++},
             quota_max_objects:{cat:"General",transform:"",rank:i++},
             expected_num_objects:{cat:"General",transform:"",rank:i++},
             flags_names:{cat:"General",transform:"",rank:i++},
+            application_metadata:{cat:"General",transform:"getApplicationMetadataLabel",rank:i++},
             tiers:{cat:"Cache tiering",transform:"getPoolLabel",rank:i++},
             tier_of:{cat:"Cache tiering",transform:"getPoolLabel",rank:i++},
             read_tier:{cat:"Cache tiering",transform:"getPoolLabel",rank:i++},
@@ -333,6 +335,11 @@ function DetailCtrl($scope, $http, $routeParams, $dialogs, ngTableParams , $filt
         }
         return rulesetid+" (unknown)";
     }
+
+    $scope.getApplicationMetadataLabel=function(meta){
+      return Object.keys(meta).join(',');
+    }
+
     $scope.getPoolLabel = function(poolid){
         if ((typeof poolid == "object")&&(poolid.length ==0)) return "none";
         if (poolid== -1) return "-1";
