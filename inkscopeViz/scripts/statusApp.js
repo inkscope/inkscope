@@ -188,17 +188,22 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
                 graph.render();
 
                 $scope.health = {};
-                $scope.health.severity = data.output.health.overall_status;
+                if (data.output.health.overall_status)
+                    $scope.health.severity = data.output.health.overall_status;
+                else // luminous
+                  $scope.health.severity = data.output.health.status;
                 // there may be several messages under data.output.health.summary
                 $scope.health.summary="";
                 var i = 0;
-                while(typeof data.output.health.summary[i] !== "undefined"){
-                    if ($scope.health.summary!="") $scope.health.summary+=" | ";
-                    $scope.health.summary += data.output.health.summary[i].summary;
-                    i++;
+                if (data.output.health.summary){
+                    while(typeof data.output.health.summary[i] !== "undefined"){
+                        if ($scope.health.summary!="") $scope.health.summary+=" | ";
+                        $scope.health.summary += data.output.health.summary[i].summary;
+                        i++;
+                    }
                 }
                 if ($scope.health.summary==""){
-                    if (data.output.health.detail[0])
+                    if ((data.output.health.detail)&&(data.output.health.detail[0]))
                         $scope.health.summary = data.output.health.detail[0];
                     else
                         //remove HEALTH_ in severity
@@ -219,7 +224,7 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
                             break
                         }
                     }
-                    if (data.output.health.timechecks.mons) //not always defined
+                    if (data.output.health.timechecks && data.output.health.timechecks.mons) //not always defined
                         for (var j = 0; j < data.output.health.timechecks.mons.length; j++) {
                             mon2 = data.output.health.timechecks.mons[j];
                             if (mon.name == mon2.name) {
@@ -227,16 +232,18 @@ StatusApp.controller("statusCtrl", function ($rootScope, $scope, $http , $cookie
                                 break
                             }
                         }
-                    for (var j = 0; j < data.output.health.health.health_services[0].mons.length; j++) {
-                        mon2 = data.output.health.health.health_services[0].mons[j];
-                        if (mon.name == mon2.name) {
-                            for (key in mon2) {
-                                if (( key == "health") && (mon[key]+"" != "undefined"))
-                                    mon[key] =healthCompare(mon[key],mon2[key]);
-                                else
-                                    mon[key] = mon2[key];
+                    if (data.output.health.health){ // not defined in luminous
+                        for (var j = 0; j < data.output.health.health.health_services[0].mons.length; j++) {
+                            mon2 = data.output.health.health.health_services[0].mons[j];
+                            if (mon.name == mon2.name) {
+                                for (key in mon2) {
+                                    if (( key == "health") && (mon[key]+"" != "undefined"))
+                                        mon[key] =healthCompare(mon[key],mon2[key]);
+                                    else
+                                        mon[key] = mon2[key];
+                                }
+                                break
                             }
-                            break
                         }
                     }
                 }
