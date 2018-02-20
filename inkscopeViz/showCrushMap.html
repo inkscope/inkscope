@@ -131,12 +131,14 @@
                 <tr>
                     <th>id</th>
                     <th>name</th>
+                    <th>class</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr ng-repeat="device in devices | filter:search ">
                     <td>{{device.id}}</td>
                     <td>{{device.name}}</td>
+                    <td>{{device.class}}</td>
                 </tr>
                 </tbody>
             </table>
