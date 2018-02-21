@@ -1,6 +1,6 @@
 <h3>Pool details for {{detailedPool.pool_name}}</h3>
 <br>
-<div ng-hide="detailedPool.clean">
+<div ng-show="detailedPool && !detailedPool.clean">
     <a href="pgStucks.html#/?poolId={{detailedPool.pool}}">
         <p class="text-warning"> <i class="icon-warning-sign" ></i> This pool has stucked pgs</p>
     </a><br>
