@@ -103,12 +103,12 @@ angular.module('InkscopeCommons', ['ngTable','dialogs','ui.bootstrap'])
                     i++;
                     }
                 if ($scope.overallStatus.summary==""){
-                    if (data.output.health.detail[0])
-                    $scope.overallStatus.summary = data.output.health.detail[0];
+                  if ((data.output.health.detail)&&(data.output.health.detail[0]))
+                        $scope.overallStatus.summary = data.output.health.detail[0];
                     else
                     //remove HEALTH_ in severity
-                    $scope.overallStatus.summary = $scope.overallStatus.severity.substring(7);
-                    }
+                        $scope.overallStatus.summary = $scope.overallStatus.severity.substring(7);
+                  }
                 })
             .error(function (data) {
                 $scope.overallStatus = {};
