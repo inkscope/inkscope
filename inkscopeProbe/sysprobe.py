@@ -34,7 +34,7 @@ import traceback
 import getopt
 import socket
 from daemon import Daemon
- 
+
 import json
 from StringIO import StringIO
 
@@ -388,9 +388,16 @@ def init_host(hostname, db):
     hw_cpus = get_hw_cpu(hostname, hw)
     for c in hw_cpus:
         db.cpus.update({'_id': c['_id']}, c, upsert=True)
-            
+           
+    cmd="ifconfig | grep inet | grep -v inet6 | grep -v 127.0.0.1 | awk '{print $2}' | cut -d\: -f2 | cut -d\  -f1"
+    co = subprocess.Popen([cmd], shell = True, stdout = subprocess.PIPE)
+    listip=co.stdout.read().strip().split("\n")
+    iplist=[]
+    for item in listip:
+	iplist.append(item)
     host__ = {'_id': hostname, #fqdn
-              "hostip": socket.gethostbyname(hostname),
+#              "hostip": socket.gethostbyname(hostname),
+		"hostip": iplist,
               "timestamp": int(round(time.time() * 1000)),
               "mem": None,
               "swap": None,
@@ -627,6 +634,11 @@ class SysProbeDaemon(Daemon):
         Daemon.__init__(self, pidfile, stdout=logfile, stderr=logfile)
         
     def run(self):
+        start_probe()
+
+    @staticmethod
+    def start_probe():
+
         print str(datetime.datetime.now())
         print "SysProbe loading"
         # load conf
@@ -849,6 +861,8 @@ if __name__ == "__main__":
             daemon.status()
         elif 'restart' == sys.argv[1]:
             daemon.restart()
+        elif 'nodaemon' == sys.argv[1]:
+            SysProbeDaemon.start_probe()
         else:
             print "Unknown command"
             sys.exit(2)

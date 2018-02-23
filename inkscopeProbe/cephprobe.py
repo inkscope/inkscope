@@ -752,6 +752,11 @@ class CephProbeDaemon(Daemon):
         Daemon.__init__(self, pidfile, stdout=logfile, stderr=logfile)
         
     def run(self):
+        start_probe()
+
+    @staticmethod
+    def start_probe():
+
         print str(datetime.datetime.now()), "-- CephProbe loading"  
         # load conf
         conf = load_conf()
@@ -960,6 +965,8 @@ if __name__ == "__main__":
             daemon.status()
         elif 'restart' == sys.argv[1]:
             daemon.restart()
+        elif 'nodaemon' == sys.argv[1]:
+            CephProbeDaemon.start_probe()
         else:
             print "Unknown command"
             sys.exit(2)

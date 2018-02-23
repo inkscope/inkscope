@@ -1,17 +1,39 @@
+
 <h3>Bucket creation</h3>
 <br />
 <form name="form" novalidate class="form-horizontal">
+
     <div class="control-group">
         <label for="bucket.name" class="col-sm-2 control-label">Bucket name :</label>
         <div class="controls">
             <input type=text id="bucket.name"  ng-model="bucket.name" placeholder="Bucket name" required/>
         </div>
     </div>
+
     <div class="control-group">
         <label for="bucket.owner" class="col-sm-2 control-label">Owner : </label>
         <div class="controls">
             <select id="bucket.owner" ng-model="bucket.owner" ng-options="value.uid for value in users| orderBy:'uid'"></select>
         </div>
+    </div>
+
+    <div>
+        <!-- we will be able to select a canned acl when a user creates a bucket-->
+	<label for="bucket.acl" class="col-sm-2 control-label">Canned ACL : </label>
+	<div class="controls">
+            <select id="bucket.acl" ng-model="bucket.acl">
+		<option value="">private</option>
+		<option value="public-read">public-read</option>
+		<!-- too dangerous
+		<option value="public-read-write">public-read-write</option-->
+		<!-- not working
+		<option value"aws-exec-read">aws-exec-read</option-->
+		<!-- these canned acls are for objects
+		<option value="bucket-owner-read">bucket-owner-read</option>
+		<option value="bucket-owner-full-control">bucket-owner-full-control</option-->
+		<option value="authenticated-read">authenticated-read</option>
+	    </select>
+	</div>
     </div>
     <br/>
     <br />

@@ -60,7 +60,9 @@ class S3User:
         self.generate = userData.get('generate_key', None)
         self.maxBuckets = userData.get('max_buckets', None)
         self.suspended = userData.get('suspended', None)
-        myargs = []
+	self.system = userData.get('system', None)
+
+	myargs = []
         myargs.append(("uid",self.uid))
         myargs.append(("display-name",self.displayName))
         if self.email is not None :
@@ -79,6 +81,8 @@ class S3User:
             myargs.append(("max-buckets",self.maxBuckets.__str__()))
         if self.suspended is not None :
             myargs.append(("suspended",self.suspended))
+	if self.system is not None :
+	    myargs.append(("system",self.system))
 
         Log.debug(myargs.__str__())
 
@@ -139,7 +143,9 @@ class S3User:
         self.secret = userData.get('secret_key', None)
         # self.caps = userData.get('user_caps', None)
         self.generate = userData.get('generate_key', None)
-        myargs = []
+	self.system = userData.get('system', None)
+
+	myargs = []
         myargs.append(("uid",self.uid))
         if self.displayName is not None :
             myargs.append(("display-name",self.displayName))
@@ -164,13 +170,14 @@ class S3User:
             myargs.append(("max-buckets",self.maxBuckets.__str__()))
         if self.suspended is not None :
             myargs.append(("suspended",self.suspended))
+	if self.system is not None :
+	    myargs.append(("system",self.system))
 
         Log.debug("Modify user : "+myargs.__str__())
 
         request= conn.request(method="POST", key="user", args= myargs)
         res = conn.send(request)
         user = res.read()
-
         return user
 
     @staticmethod

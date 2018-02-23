@@ -39,9 +39,35 @@
             <td data-title="'View'" sortable="pool" style="text-align:center"><i class="icon-eye-open" alt="view details of {{ bucket }}" title="view details of {{ bucket }}"></i></td>
         </tr>
     </table>
+    </div>
 </div>
+<div ng-view id="control"></div>
+
+<!-- About DIVs -->
+<div ng-switch on="pagename()">
+    <div id="about" ng-switch-when="new" >
+	<i class="icon-info-sign" alt="about canned acls" style="float:left"></i><h3>About canned ACLs</h3><br>
+	<span><strong>private : </strong>Owner gets full control. No one else has access rights.</span><br>
+	<span><strong>public-read : </strong>Owner gets full control. Anyone can see the bucket and its content.</span><br>
+	<span><strong>public-read-write : </strong>Owner gets full control. Anyone can see and write in the bucket. (Not recommended)</span><br>
+	<span><strong>authenticated-read : </strong>Owner gets full control. All the authenticated users can read in the bucket.</span><br>
+    </div>
+
+    <div id="about" ng-switch-when="acl">
+	<i class="icon-info-sign" alt="about group of users" style="float:left"></i><h3>About group of users</h3><br>
+	<span><strong>Authenticated users : </strong>All AWS accounts. Access permission to this group allows any AWS account to access {{detailedBucket.bucket}} and its content (authenticated requests only).</span><br>
+	<span><strong>All users : </strong>Access permission to this group allows anyone to access {{detailedBucket.bucket}} and its content.</span><br>
+    </div>
+
+    <div id="about" ng-switch-when="modifyaccess"> <!-- doesn't work and i don't get it :( #EC -->
+	<i class="icon-info-sign" alt="about permissions" style="float:left"></i><h3>About permissions</h3><br>
+	<span><strong>Read : </strong>{{user}} can see all of the objects in {{bucketName}}</span><br>
+	<span><strong>Write : </strong>{{user}} can create, replace and delete objects in {{bucketName}}</span><br>
+	<span><strong>Read ACP : </strong>{{user}} can read {{detailedBucket.bucket}}'s access list</span><br>
+	<span><strong>Write ACP : </strong>{{user}} can edit the {{detailedBucket.bucket}}'s access list</span><br>
+	<span><strong>Full Control : </strong>{{user}} can Read, Write, Read ACP and Write ACP in {{bucketName}}</span>
+    </div>
 </div>
-<div ng-view id="control" ></div>
 
 <script>resizeBlocks(['#list','#control']);</script>
 

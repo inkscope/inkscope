@@ -1,0 +1,51 @@
+<!-- Frame to modify one's authorization -->
+
+<h3>Grant acces to {{bucketName}} for user {{user}}</h3>
+<br />
+<form name="form" novalidate class="form-horizontal">
+
+<div ng-switch on="group_of_users()">
+    <div ng-switch-when="users">
+	<div ng-show="!are_AllUsers()">
+	    <div class="control-group">
+		<label for="currentAccess" class="col-sm-2 control-label">Current access :</label>
+		<div class="controls">
+		    <input id="currentAccess" type="text" placeholder="{{userAccess}}" readonly/>
+		</div>
+	    </div>
+	    <div class="control-group">
+        	<label for="bucket.newAccess" class="col-sm-2 control-label">New access : </label>
+        	<div class="controls">
+		    <select id="bucket.newAccess" ng-model="bucket.newAccess">
+			<option value="READ">READ</option>
+			<option value="WRITE">WRITE</option>
+			<option value="READ_ACP">READ_ACP</option>
+			<option value="WRITE_ACP">WRITE_ACP</option>
+			<option value="FULL_CONTROL">FULL_CONTROL</option>
+		    </select>
+		</div>
+	    </div>
+	</div>
+
+	<div ng-show="are_AllUsers()">
+	    <p>You are about to grant READ access to <strong>{{bucketName}}</strong> for this group : <strong>"{{user}}"</strong>.
+	    <br>Please press the 'Modify access' button to confirm your choice.</p>
+	    <!--br>
+	    <p class="text-info"><i class="icon-warning-sign"></i> <em>All the authorizations previously granted will be revoked.</em></p-->
+	</div>
+    </div>
+   
+    <div ng-switch-when="auth">
+	<p>You are about to grant READ access to <strong>{{bucketName}}</strong> for this group : <strong>"{{user}}"</strong>.
+	<br>Please press the 'Modify access' button to confirm your choice.</p>
+	<!--br>
+	<p class="text-info"><i class="icon-warning-sign"></i> <em>All the authorizations previously granted will be revoked.</em></p-->
+    </div>
+</div>
+
+<div class="button-bar">
+    <button ng-click="modifyAccess()" ng-disabled="form.$invalid" class="btn btn-success">Modify access</button>
+    <button ng-click="return()" class="btn btn-default">Close</button>
+</div>
+
+</form>
