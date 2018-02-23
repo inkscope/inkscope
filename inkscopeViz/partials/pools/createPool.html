@@ -20,12 +20,12 @@
         </div>
     </div>
     <div class="control-group">
-        <label for="pool.crush_ruleset" class="col-sm-2 control-label">rule : </label>
+        <label for="pool.crush_rule" class="col-sm-2 control-label">rule : </label>
         <div class="controls">
-            <select id="pool.crush_ruleset" ng-model="pool.crush_ruleset" >
-                <option ng-repeat="item in rulestab[pool.type]" value="{{ item.ruleset }}" ng-selected="item.ruleset == pool.crush_ruleset">{{ item.rule_name }}</option>
+            <select id="pool.crush_rule" ng-model="pool.crush_rule" >
+                <option ng-repeat="item in rulestab[pool.type]" value="{{ item.rule }}" ng-selected="item.rule == pool.crush_rule">{{ item.rule_name }}</option>
             </select>
-            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>ruleset to use for mapping object placement in the cluster</span></a>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>rule to use for mapping object placement in the cluster</span></a>
         </div>
     </div>
     <div class="control-group">
@@ -75,6 +75,13 @@
         <div class="controls">
             <input type=number id="pool.quota_max_bytes"  ng-model="pool.quota_max_bytes" required/>
             &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>0 = infinite</span></a>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="pool.application_metadata" class="col-sm-2 control-label">application tag : </label>
+        <div class="controls">
+            <input type="text" id="pool.application_metadata"  ng-model="pool.application_metadata" required/>
+            &nbsp;<a class="tooltips"><i class="icon-book"> </i><span>standard tags are cephfs, rbd, rgw, but you can put your own</span></a>
         </div>
     </div>
 

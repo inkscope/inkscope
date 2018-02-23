@@ -42,7 +42,7 @@
         <table  class="table table-condensed" style="width:400px;align-self: center">
             <tr><td>Pool</td><td>
                 <span ng-show="selectedPool">
-                    {{selectedPool.pool_name}} ({{selectedPool.pool}}), type: {{ getPoolType(selectedPool.type)}}, ruleset: {{ selectedPool.crush_ruleset }}, size: {{ selectedPool.size }}
+                    {{selectedPool.pool_name}} ({{selectedPool.pool}}), type: {{ getPoolType(selectedPool.type)}}, rule: {{ selectedPool.crush_rule }}, size: {{ selectedPool.size }}
                 </span>
             </td></tr>
             <tr><td>Object</td><td>{{objectId}}</td></tr>
@@ -54,7 +54,7 @@
         <table class="table table-condensed" style="width:400px;align-self: center" ng-show="selectedRule">
             <tr><td>Rule: </td><td>{{selectedRule.rule_name}} ({{selectedRule.rule_id}})</td></tr>
             <tr><td>Type: </td><td>{{getPoolType(selectedRule.type)}} ({{selectedRule.type}})</td></tr>
-            <tr><td>Ruleset: </td><td>{{selectedRule.ruleset}}</td></tr>
+            <tr><td>Rule: </td><td>{{selectedRule.rule}}</td></tr>
             <tr><td>Min size: </td><td>{{selectedRule.min_size}}</td></tr>
             <tr><td>max size: </td><td>{{selectedRule.max_size}}</td></tr>
             <tr><td>Steps:</td><td>

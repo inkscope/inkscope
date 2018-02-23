@@ -89,6 +89,7 @@ function getRules($http, $scope) {
             $scope.rulestab = {"replicated" :[], "erasure":[]};
             for (var i = 0; i < $scope.rules.length; i++) {
                 var rule = $scope.rules[i];
+                if (typeof rule.ruleset !== "undefined") rule.rule = rule.ruleset; // pre luminous compat
                 if (rule.type==1) $scope.rulestab["replicated"].push(rule);
                 else if (rule.type==3) $scope.rulestab["erasure"].push(rule);
             }
@@ -200,8 +201,8 @@ function DetailCtrl($scope, $http, $routeParams, $dialogs, ngTableParams , $filt
             type:{cat:"General",transform:"getPoolTypeLabel",rank:i++},
             size:{cat:"General",transform:"",rank:i++},
             min_size:{cat:"General",transform:"",rank:i++},
-            crush_ruleset:{cat:"General",transform:"getRulesetNameLabel",rank:i++}, //pre Lunminous
-            crush_rule:{cat:"General",transform:"getRulesetNameLabel",rank:i++}, // Luminous
+            crush_ruleset:{cat:"General",transform:"getRuleNameLabel",rank:i++}, //pre Lunminous
+            crush_rule:{cat:"General",transform:"getRuleNameLabel",rank:i++}, // Luminous
             pg_num:{cat:"General",transform:"",rank:i++},
             pg_placement_num:{cat:"General",transform:"",rank:i++},
             quota_max_bytes:{cat:"General",transform:"getBytesLabel",rank:i++},
@@ -326,7 +327,7 @@ function DetailCtrl($scope, $http, $routeParams, $dialogs, ngTableParams , $filt
         });
 
     /* transform function for parameters */
-    $scope.getRulesetNameLabel=function(rulesetid){
+    $scope.getRuleNameLabel=function(rulesetid){
         if ( typeof $scope.rules === "undefined") return ""+rulesetid;
         for (var i in $scope.rules){
             if ($scope.rules[i].ruleset == rulesetid) {
@@ -427,6 +428,14 @@ function CreateCtrl($scope, $scope, $location, $http, $dialogs) {
         $scope.response = "";
 
         $scope.uri = inkscopeCtrlURL+"pools/";
+        for (var i in $scope.rulestab[$scope.pool.type]) {
+          console.log($scope.pool.crush_rule, $scope.rulestab[$scope.pool.type][i]);
+          if ( parseInt($scope.pool.crush_rule) == $scope.rulestab[$scope.pool.type][i].rule){
+            $scope.pool.crush_rule_name = $scope.rulestab[$scope.pool.type][i].rule_name;
+            break;
+          }
+        }
+        console.log($scope.pool);
 
         $http({method: "post", url: $scope.uri, data: "json="+JSON.stringify($scope.pool), headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
             success(function (data, status) {
@@ -485,6 +494,15 @@ function ModifyCtrl($scope, $scope, $routeParams, $location, $http, $dialogs) {
         $scope.code = "";
         $scope.response = "";
 
+        for (var i in $scope.rulestab[$scope.pool.type]) {
+          console.log($scope.pool.crush_rule, $scope.rulestab[$scope.pool.type][i]);
+          if ( parseInt($scope.pool.crush_rule) == $scope.rulestab[$scope.pool.type][i].rule){
+            $scope.pool.crush_rule_name = $scope.rulestab[$scope.pool.type][i].rule_name;
+            break;
+          }
+        }
+        console.log($scope.pool);
+
         $http({method: "put", url: $scope.uri, data: "json="+JSON.stringify($scope.pool), headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
             success(function (data, status) {
                 $scope.status = status;
@@ -516,6 +534,7 @@ function ModifyCtrl($scope, $scope, $routeParams, $location, $http, $dialogs) {
             else
                 if ($scope.master.type==3)$scope.master.type="erasure";
                 else $scope.master.type="unknown";
+            $scope.master.application_metadata = Object.keys($scope.master.application_metadata).join(",");
             $scope.reset();
         }).
         error(function (data, status, headers) {

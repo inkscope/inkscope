@@ -8,6 +8,7 @@ from array import *
 import subprocess
 from StringIO import StringIO
 from InkscopeError import InkscopeError
+import ceph_version
 
 class Pools:
     """docstring for pools"""
@@ -23,10 +24,13 @@ class Pools:
         self.size = jsondata['size']
         self.min_size = jsondata['min_size']
         self.crash_replay_interval = jsondata['crash_replay_interval']
-        self.crush_ruleset = jsondata['crush_ruleset']
+        self.crush_rule = jsondata['crush_rule']
         self.erasure_code_profile = jsondata['erasure_code_profile']
         self.quota_max_objects = jsondata['quota_max_objects']
         self.quota_max_bytes = jsondata['quota_max_bytes']
+        if ceph_version.major >= 12:
+            self.crush_rule_name = jsondata['crush_rule_name']
+            self.application_metadata = jsondata['application_metadata']
 
     def savedpool_attribute(self, ind, jsonfile):
         r = jsonfile.json()
@@ -37,7 +41,12 @@ class Pools:
         self.size = r['output']['pools'][ind]['size']
         self.min_size = r['output']['pools'][ind]['min_size']
         self.crash_replay_interval = r['output']['pools'][ind]['crash_replay_interval']
-        self.crush_ruleset = r['output']['pools'][ind]['crush_ruleset']
+        if ceph_version<12:
+            self.crush_rule = r['output']['pools'][ind]['crush_ruleset']
+        else:
+            self.crush_rule = r['output']['pools'][ind]['crush_rule']
+            self.application_metadata = r['output']['pools'][ind]['application_metadata']
+
         self.erasure_code_profile = r['output']['pools'][ind]['erasure_code_profile']
         self.quota_max_objects = r['output']['pools'][ind]['quota_max_objects']
         self.quota_max_bytes = r['output']['pools'][ind]['quota_max_bytes']
@@ -131,9 +140,12 @@ class PoolsCtrl:
     # @app.route('/pools/', methods=['GET','POST'])
     # @app.route('/pools/<int:id>', methods=['GET','DELETE','PUT'])
     def pool_manage(self,id):
+
+        # print "ceph_version_major", ceph_version.major
+
         cephRestApiUrl = self.getCephRestApiUrl();
         if request.method == 'GET':
-            if id == None:
+            if id == None: # get poolList
     
                 r = requests.get(cephRestApiUrl+'osd/lspools.json')
     
@@ -168,7 +180,7 @@ class PoolsCtrl:
                         result = json.dumps(skeleton)
                         return Response(result, mimetype='application/json')
     
-        elif request.method =='POST':
+        elif request.method == 'POST':
             jsonform = request.form['json']
             newpool = Pools()
             newpool.cephRestApiUrl = cephRestApiUrl
@@ -187,16 +199,31 @@ class PoolsCtrl:
             poolcreated.savedpool_attribute(nbpool-1, jsondata)
     
             # set pool parameter
-    
-            var_name= ['size', 'min_size', 'crash_replay_interval','crush_ruleset']
-            param_to_set_list = [newpool.size, newpool.min_size, newpool.crash_replay_interval, newpool.crush_ruleset]
-            default_param_list = [poolcreated.size, poolcreated.min_size, poolcreated.crash_replay_interval, poolcreated.crush_ruleset]
-    
+            var_name = ['size', 'min_size', 'crash_replay_interval']
+            param_to_set_list = [newpool.size, newpool.min_size, newpool.crash_replay_interval]
+            default_param_list = [poolcreated.size, poolcreated.min_size, poolcreated.crash_replay_interval]
+
+            if ceph_version.major >= 12:
+                var_name.append('crush_rule')
+                param_to_set_list.append(newpool.crush_rule_name)
+                default_param_list.append("")
+            else:
+                var_name.append('crush_ruleset')
+                param_to_set_list.append(newpool.crush_rule)
+                default_param_list.append(poolcreated.crush_rule)
+
+
             for i in range(len(default_param_list)):
                 if param_to_set_list[i] != default_param_list[i]:
                     r = requests.put(cephRestApiUrl+'osd/pool/set?pool='+str(poolcreated.name)+'&var='+var_name[i]+'&val='+str(param_to_set_list[i]))
                 else:
                     pass
+
+            # enable application
+            if ceph_version.major >= 12:
+                url = cephRestApiUrl + "osd/pool/application/enable?pool="+str(poolcreated.name)+"&app="+newpool.application_metadata
+                requests.put(url)
+
     
             # set object or byte limit on pool
     
@@ -235,7 +262,7 @@ class PoolsCtrl:
             return "pool has been deleted"
     
         else:
-    
+            # "PUT" = Modify
             jsonform = request.form['json']
             newpool = Pools()
             newpool.newpool_attribute(jsonform)
@@ -258,9 +285,18 @@ class PoolsCtrl:
     
                 # set pool parameter
     
-                var_name= ['size', 'min_size', 'crash_replay_interval','pg_num','pgp_num','crush_ruleset']
-                param_to_set_list = [newpool.size, newpool.min_size, newpool.crash_replay_interval, newpool.pg_num, newpool.pgp_num, newpool.crush_ruleset]
-                default_param_list = [savedpool.size, savedpool.min_size, savedpool.crash_replay_interval, savedpool.pg_num, savedpool.pgp_num, savedpool.crush_ruleset]
+                var_name= ['size', 'min_size', 'crash_replay_interval','pg_num','pgp_num']
+                param_to_set_list = [newpool.size, newpool.min_size, newpool.crash_replay_interval, newpool.pg_num, newpool.pgp_num]
+                default_param_list = [savedpool.size, savedpool.min_size, savedpool.crash_replay_interval, savedpool.pg_num, savedpool.pgp_num]
+
+                if ceph_version.major >= 12:
+                    var_name.append('crush_rule')
+                    param_to_set_list.append(newpool.crush_rule_name)
+                    default_param_list.append(savedpool.crush_rule)
+                else:
+                    var_name.append('crush_ruleset')
+                    param_to_set_list.append(newpool.crush_rule)
+                    default_param_list.append(savedpool.crush_rule)
 
                 message = ""
                 for i in range(len(default_param_list)):
@@ -271,7 +307,13 @@ class PoolsCtrl:
                             message= message+ "Can't set "+ var_name[i]+ " to "+ str(param_to_set_list[i])+ " : "+ r.content+"<br>"
                     else:
                         pass
-    
+
+                # enable application
+                if ceph_version.major >= 12:
+                    url = cephRestApiUrl + "osd/pool/application/enable?pool=" + str(
+                        newpool.name) + "&app=" + newpool.application_metadata + "&force=--yes-i-really- mean-it"
+                    requests.put(url)
+
                 # set object or byte limit on pool
     
                 field_name = ['max_objects','max_bytes']

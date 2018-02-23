@@ -30,6 +30,10 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
         $http({method: "get", url: cephRestApiURL + "osd/crush/dump.json"}).
             success(function (data, status) {
                 $rootScope.rules = data.output.rules;
+                for (var i = 0; i < $rootScope.rules.length; i++) {
+                    var rule = $rootScope.rules[i];
+                    if (typeof rule.ruleset !== "undefined") rule.rule = rule.ruleset; // pre luminous compat
+                }
                 $rootScope.rawbuckets = data.output.buckets;
             }).
             error(function (data, status) {
@@ -209,14 +213,18 @@ ObjectLookupApp.controller("ObjectLookupCtrl", function ($rootScope, $scope, $ht
             success(function (data, status) {
                 $scope.selectedPool = data.output;
                 // search for rule
-                var ruleset = $scope.selectedPool.crush_ruleset;
-                for (var i in $scope.rules){
-                    var rule = $scope.rules[i];
-                    if (rule.ruleset == ruleset){
-                        $scope.selectedRule = rule;
-                        break;
-                    }
+                if (typeof $scope.selectedPool.crush_ruleset !== "undefined") { //pre luminous
+                  $scope.selectedPool.crush_rule = $scope.selectedPool.crush_ruleset;
                 }
+                var rulenum = $scope.selectedPool.crush_rule; //rule number
+                for (var i in $scope.rules) {
+                var rule = $scope.rules[i];
+                if (rule.ruleset == rulenum) {
+                  $scope.selectedRule = rule;
+                  break;
+                }
+}
+
             }).
             error(function (data, status) {
                 $scope.selectedPool = {};
