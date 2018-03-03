@@ -84,12 +84,13 @@ mkdir -p %{buildroot}/opt/nrpe/libexec/
 mkdir -p %{buildroot}/etc/init.d/
 mkdir -p %{buildroot}/etc/logrotate.d/
 mkdir -p %{buildroot}/var/www/inkscope/
+mkdir -p %{buildroot}/var/log/inkscope
 mkdir -p %{buildroot}/etc/httpd/conf.d/
 
 
 cd tmp/inkscope
 install -m 600 inkscopeProbe/sysprobe.py %{buildroot}/opt/inkscope/bin/
-install -m 600 inkscope-template.conf %{buildroot}/opt/inkscope/etc/
+install -m 644 inkscope-template.conf %{buildroot}/opt/inkscope/etc/
 install -m 600 inkscopeProbe/cephprobe.py %{buildroot}/opt/inkscope/bin/
 install -m 600 inkscopeProbe/daemon.py %{buildroot}/opt/inkscope/bin/
 install -m 700 DISTRIBS/confs/init.d/sysprobe %{buildroot}/etc/init.d/
@@ -136,6 +137,8 @@ rm -rf $RPM_BUILD_ROOT
 /opt/inkscope/bin/daemon.py
 %config(noreplace)  /opt/inkscope/etc/inkscope-template.conf
 /etc/logrotate.d/inkscope
+%dir /var/log/inkscope
+
 %files cephprobe
 %defattr(-,root,root)
 /opt/inkscope/bin/cephprobe.py
