@@ -5,7 +5,8 @@ inkScope
 
 Manual installation is fully described in the [inkScope wiki](https://github.com/inkscope/inkscope/wiki)
 
-All modules have been packaged: see [inkScope packaging](https://github.com/inkscope/inkscope-packaging)
+All modules have been packaged: see [inkScope packaging](https://github.com/inkscope/inkscope-packaging) but are not maintained.
+They will be replaced by an ansible playbook.
 
 ![inkscope architecture](https://github.com/inkscope/inkscope/raw/master/documentation/inkscope-platform.png)
 
