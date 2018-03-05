@@ -238,11 +238,10 @@ def process_status(restapi, ceph_rest_api_subfolder, db):
         
         
         map_stat_mon = {}
-        health_services_list = c_status['output']['health']['health']['health_services']
-       
-        time_checks = c_status['output']['health']['timechecks']
+
         timecheckmap = {}
         try:
+            time_checks = c_status['output']['health']['timechecks']
             for tc in time_checks["mons"]:
                 tc["time_health"] = tc["health"]
                 del tc["health"]
@@ -254,6 +253,7 @@ def process_status(restapi, ceph_rest_api_subfolder, db):
 
         # complete timecheck
         try:
+            health_services_list = c_status['output']['health']['health']['health_services']
             for health_service in health_services_list:
                 health_services_mons = health_service['mons']
                 for monst in health_services_mons:
@@ -320,11 +320,14 @@ def process_status(restapi, ceph_rest_api_subfolder, db):
                    "monmap": mm,
                    "pgmap": c_status['output']['pgmap'],
                    "osdmap-info": c_status['output']['osdmap']['osdmap'],
-                   "name": clusterName, 
-                   "health": c_status['output']['health']['overall_status'],
-                   "health_detail": c_status['output']['health']['detail'],
-                   "health_summary": c_status['output']['health']['summary']
-                   }     
+                   "name": clusterName
+                   }
+        try:
+            cluster.health =  c_status['output']['health']['overall_status']
+            cluster.health_detail =  c_status['output']['health']['detail']
+            cluster.health_summary =  c_status['output']['health']['summary']
+        except Exception, e:
+            pass
         db.cluster.update({'_id': c_status['output']['fsid']}, cluster, upsert=True)
         
         return c_status['output']['fsid']
