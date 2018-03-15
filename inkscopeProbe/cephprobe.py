@@ -381,9 +381,12 @@ def process_osd_df(restapi, ceph_rest_api_subfolder, db):
                       }
             osd_df_id = db.osddf.insert(osd_df)
 
-            osddb = db.osd.find({"_id": osd["id"]}).next()
-            osddb["df"]= DBRef( "osddf", osd_df_id)
-            db.osd.update({'_id': osddb["_id"]}, osddb, upsert=True)
+            try: # try to update already existing osd
+                osddb = db.osd.find({"_id": osd["id"]}).next()
+                osddb["df"]= DBRef( "osddf", osd_df_id)
+                db.osd.update({'_id': osddb["_id"]}, osddb, upsert=True)
+            except:
+                pass
 
 
 # uri : /api/v0.1/osd/dump.json
@@ -468,12 +471,10 @@ def process_osd_dump(restapi, ceph_rest_api_subfolder, db):
                     if osddatapartition:
                         osddatapartitionid = osddatapartition['_id']
 
-                osdori = db.osd.find({"_id": osd["osd"]}).next()
                 osddb = {"_id": osd["osd"],
                          "uuid": osd["uuid"],
                          "node": DBRef("nodes", osd["osd"]),
                          "stat": DBRef("osdstat", osd_stat_id),
-                         "df": osdori["df"],
                          "public_addr": osd["public_addr"],
                          "cluster_addr": osd["cluster_addr"],
                          "heartbeat_back_addr": osd["heartbeat_back_addr"],
@@ -484,6 +485,12 @@ def process_osd_dump(restapi, ceph_rest_api_subfolder, db):
                          "host": DBRef("hosts", osdhostid),
                          "partition": DBRef("partitions", osddatapartitionid)
                          }
+                try:
+                    osdori = db.osd.find({"_id": osd["osd"]}).next()
+                    osddb["df"] = osdori["df"]
+                except:
+                    pass
+
                 db.osd.update({'_id': osddb["_id"]}, osddb, upsert=True)
 
             pools = osd_dump['output']['pools']
