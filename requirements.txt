@@ -1,0 +1,4 @@
+Flask-Login<0.4
+pymongo<3.0
+simplejson
+
