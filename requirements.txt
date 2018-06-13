@@ -1,4 +1,4 @@
 Flask-Login<0.4
 pymongo<3.0
 simplejson
-
+psutil==2.1.3
