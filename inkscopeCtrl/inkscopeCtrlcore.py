@@ -14,8 +14,6 @@ from hashlib import md5
 from bson.json_util import dumps
 from InkscopeError import InkscopeError
 
-version = "1.5.0"
-
 app = Flask(__name__)
 app.secret_key = "Mon Nov 30 17:20:29 2015"
 app.config["REMEMBER_COOKIE_DURATION"] = timedelta(days=14)
@@ -57,6 +55,13 @@ configfile = "/opt/inkscope/etc/inkscope.conf"
 datasource = open(configfile, "r")
 conf = json.load(datasource)
 datasource.close()
+
+if conf['inkscope_last_commit'] is None or conf['inkscope_last_commit'] == "":
+    version = "1.5.0"
+else:
+    version = conf['inkscope_last_commit']
+
+
 
 # control inkscope users collection in mongo
 db = mongoJuiceCore.getClient(conf, 'inkscope')
