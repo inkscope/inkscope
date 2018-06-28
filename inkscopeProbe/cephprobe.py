@@ -4,6 +4,12 @@
 #author Eric Mourgaya
 #licence : apache v2
 
+# chkconfig: 2345 55 25
+# description: Cephprobe daemon
+#
+# processname: cephprobe
+# pidfile: /var/run/cephprobe.pid
+
 
 from pymongo import MongoClient
 from pymongo import MongoReplicaSetClient
