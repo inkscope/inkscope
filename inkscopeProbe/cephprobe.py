@@ -8,7 +8,7 @@
 # description: Cephprobe daemon
 #
 # processname: cephprobe
-# pidfile: /var/run/cephprobe.pid
+# pidfile: /var/run/cephprobe/cephprobe.pid
 
 
 from pymongo import MongoClient
