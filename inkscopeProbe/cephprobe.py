@@ -4,11 +4,23 @@
 #author Eric Mourgaya
 #licence : apache v2
 
+
 # chkconfig: 2345 55 25
 # description: Cephprobe daemon
 #
 # processname: cephprobe
 # pidfile: /var/run/cephprobe/cephprobe.pid
+
+
+### BEGIN INIT INFO
+# Provides:          cephprobe
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start daemon at boot time
+# Description:       Enable service provided by daemon.
+### END INIT INFO
 
 
 from pymongo import MongoClient
