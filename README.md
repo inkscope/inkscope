@@ -1,12 +1,10 @@
 inkScope
 ========
 
-**Inkscope** is  a [Ceph](http://ceph.com) admin and supervision interface. It  relies on API provided by ceph. We also use  mongoDB to store real time metrics and history metrics.
+**Inkscope** is  a [Ceph](http://ceph.com) admin and supervision interface. It relies on an API provided by ceph. We also use  mongoDB to store real time metrics and history metrics.
 
-Manual installation is fully described in the [inkScope wiki](https://github.com/inkscope/inkscope/wiki)
+We recommend to install Inkscope installation with the help of an [ansible playbook](https://github.com/inkscope/inkscope-ansible)
 
-All modules have been packaged: see [inkScope packaging](https://github.com/inkscope/inkscope-packaging) but are not maintained.
-They will be replaced by an ansible playbook.
 
 ![inkscope architecture](https://github.com/inkscope/inkscope/raw/master/documentation/inkscope-platform.png)
 
@@ -29,6 +27,5 @@ Here is the dashboard screenshot and an object storage user management screensho
 
 what do we plan in Inkscope?
 ============================
+- to maintain compatibility of inkscope with new ceph versions (Luminous and olders are currently supported)
 
-- Write an ansible playbook for the installation and update of Inkscope
-- Abandon of Sysprobe with Ceph Luminous
