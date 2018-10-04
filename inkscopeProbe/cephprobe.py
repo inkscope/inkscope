@@ -955,7 +955,7 @@ class CephProbeDaemon(Daemon):
             df_thread.start()
             
             
-        # drop threads : osdstat, poolstat, clusterstat
+        # drop threads : osdstat, poolstat, clusterstat, osddf
         cluster_db_drop_thread = None
         if cluster_window > 0:
             cluster_db_drop_thread = Repeater(evt, drop_stat, [db, "clusterstat", cluster_window], cluster_window)
@@ -965,12 +965,18 @@ class CephProbeDaemon(Daemon):
         if osd_window > 0:
             osd_db_drop_thread = Repeater(evt, drop_stat, [db, "osdstat", osd_window], osd_window)
             osd_db_drop_thread.start()
-            
+
         pool_db_drop_thread = None
         if pool_window > 0:
             pool_db_drop_thread = Repeater(evt, drop_stat, [db, "poolstat", pool_window], pool_window)
             pool_db_drop_thread.start()
-        
+
+
+        osddf_db_drop_thread = None
+        if osd_window > 0:
+            osddf_db_drop_thread = Repeater(evt, drop_stat, [db, "osddf", osd_window], osd_window)
+            osddf_db_drop_thread.start()
+
         signal.signal(signal.SIGTERM, handler)
         
         while not evt.isSet():
