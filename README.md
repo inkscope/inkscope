@@ -1,6 +1,8 @@
 inkScope
 ========
 
+**Inkscope** is about to die. As ceph-rest-api has been deleted since Mimic version, Inkscope cannot be maintained anymore.
+
 **Inkscope** is  a [Ceph](http://ceph.com) admin and supervision interface. It relies on an API provided by ceph. We also use  mongoDB to store real time metrics and history metrics.
 
 We recommend to install Inkscope installation with the help of an [ansible playbook](https://github.com/inkscope/inkscope-ansible)
